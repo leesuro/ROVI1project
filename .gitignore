@@ -1,0 +1,21 @@
+#Latex
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.fuse*
+report.pdf
+report-blx.bib
+
+#Sublime Text
+*.sublime*
+
+#Compilation Folders
+release
+src/bin
