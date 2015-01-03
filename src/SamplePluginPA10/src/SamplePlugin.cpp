@@ -18,39 +18,44 @@ using namespace rw::models;
 using namespace rw::sensor;
 using namespace rwlibs::opengl;
 using namespace rwlibs::simulation;
-
 using namespace rws;
 
 using namespace cv;
 
-//Global variables
-QString iconPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
-string workcellPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
-string imagePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
-string markerPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
-string backgroundPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
+using namespace std;
 
+//Global variables
+const QString iconPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
+const string workcellPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
+const string imagePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
+const string markerPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
+const string backgroundPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
+const string motionFilePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/motions/MarkerMotionSlow.txt";
 
 /*
-QString iconPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
-string workcellPath = "/home/pyc/workspace/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
-string imagePath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
-string markerPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
-string backgroundPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
+const QString iconPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
+const string workcellPath = "/home/pyc/workspace/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
+const string imagePath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
+const string markerPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
+const string backgroundPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
+const string motionFilePath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/motions/MarkerMotionSlow.txt";
 */
 
+//--------------------------------------------------------
+//					  Constructors
+//--------------------------------------------------------
 SamplePlugin::SamplePlugin():
     RobWorkStudioPlugin("SamplePluginUI", QIcon(iconPath))
 {
 	setupUi(this);
 
-	_timer = new QTimer(this);
-    connect(_timer, SIGNAL(timeout()), this, SLOT(timer()));
+	_loop = new QTimer(this);
+    connect(_loop, SIGNAL(timeout()), this, SLOT(loop()));
 
 	// now connect stuff from the ui component
-	connect(_btn0, SIGNAL(pressed()), this, SLOT(btnPressed()) );
-	connect(_btn1, SIGNAL(pressed()), this, SLOT(btnPressed()) );
-	connect(_spinBox, SIGNAL(valueChanged(int)), this, SLOT(btnPressed()) );
+	connect(_btn0, SIGNAL(pressed()), this, SLOT(buttonPressed()) );
+	connect(_btn1, SIGNAL(pressed()), this, SLOT(buttonPressed()) );
+	connect(_spinBox, SIGNAL(valueChanged(int)), this, SLOT(buttonPressed()) );
 
 	Image textureImage(300,300,Image::GRAY,Image::Depth8U);
 	_textureRender = new RenderImage(textureImage);
@@ -65,7 +70,14 @@ SamplePlugin::~SamplePlugin()
 	delete _bgRender;
 }
 
-void SamplePlugin::initialize() {
+//--------------------------------------------------------
+//					 Plugin Methods
+//--------------------------------------------------------
+/**
+ * Actions before being opened
+ */
+void SamplePlugin::initialize()
+{
 	log().info() << "INITALIZE" << "\n";
 
 	getRobWorkStudio()->stateChangedEvent().add(boost::bind(&SamplePlugin::stateChangedListener, this, _1), this);
@@ -89,30 +101,30 @@ void SamplePlugin::initialize() {
 	QImage img(image.data, image.cols, image.rows, image.step, QImage::Format_RGB888); // Create QImage from the OpenCV image
 	_label->setPixmap(QPixmap::fromImage(img)); // Show the image at the label in the plugin
 }
-
+/**
+ * Open the plugin and the workcell. Also loads the Marker and Background frame
+ * along with the Camera.
+ * @param workcell The workcell to be loaded
+ */
 void SamplePlugin::open(WorkCell* workcell)
 {
 	log().info() << "OPEN" << "\n";
+
+	log().info() << workcell->getFilename() << "\n";
 	_wc = workcell;
 	_state = _wc->getDefaultState();
 	_device = _wc->findDevice("PA10");
+	_motionFile.open(motionFilePath.c_str());
 
-	Q q(7,1,1,1,1,1,1,1);
-	_device->setQ(q,_state);
-
-	log().info() << workcell->getFilename() << "\n";
 
 	if (_wc != NULL) {
 		// Add the texture render to this workcell if there is a frame for texture
 		Frame* textureFrame = _wc->findFrame("MarkerTexture");
-		if (textureFrame != NULL) {
-			getRobWorkStudio()->getWorkCellScene()->addRender("TextureImage",_textureRender,textureFrame);
-		}
+		if (textureFrame != NULL) getRobWorkStudio()->getWorkCellScene()->addRender("TextureImage",_textureRender,textureFrame);
+
 		// Add the background render to this workcell if there is a frame for texture
 		Frame* bgFrame = _wc->findFrame("Background");
-		if (bgFrame != NULL) {
-			getRobWorkStudio()->getWorkCellScene()->addRender("BackgroundImage",_bgRender,bgFrame);
-		}
+		if (bgFrame != NULL) getRobWorkStudio()->getWorkCellScene()->addRender("BackgroundImage",_bgRender,bgFrame);
 
 		// Create a GLFrameGrabber if there is a camera frame with a Camera property set
 		Frame* cameraFrame = _wc->findFrame("CameraSim");
@@ -133,36 +145,90 @@ void SamplePlugin::open(WorkCell* workcell)
 	}
 }
 
-void SamplePlugin::close() {
+/**
+ * Close the plugin
+ */
+void SamplePlugin::close()
+{
 	log().info() << "CLOSE" << "\n";
-
-	// Stop the timer
-	_timer->stop();
+	// Stop the loop
+	_loop->stop();
 	// Remove the texture render
 	Frame* textureFrame = _wc->findFrame("MarkerTexture");
-	if (textureFrame != NULL) {
-		getRobWorkStudio()->getWorkCellScene()->removeDrawable("TextureImage",textureFrame);
-	}
+	if (textureFrame != NULL) getRobWorkStudio()->getWorkCellScene()->removeDrawable("TextureImage",textureFrame);
 	// Remove the background render
 	Frame* bgFrame = _wc->findFrame("Background");
-	if (bgFrame != NULL) {
-		getRobWorkStudio()->getWorkCellScene()->removeDrawable("BackgroundImage",bgFrame);
-	}
+	if (bgFrame != NULL) getRobWorkStudio()->getWorkCellScene()->removeDrawable("BackgroundImage",bgFrame);
 	// Delete the old framegrabber
-	if (_framegrabber != NULL) {
-		delete _framegrabber;
-	}
+	if (_framegrabber != NULL) delete _framegrabber;
 	_framegrabber = NULL;
 	_wc = NULL;
 }
 
-Mat SamplePlugin::toOpenCVImage(const Image& img) {
-	Mat res(img.getHeight(),img.getWidth(), CV_8SC3);
-	res.data = (uchar*)img.getImageData();
-	return res;
+
+
+//--------------------------------------------------------
+//					   Methods
+//--------------------------------------------------------
+
+/**
+ * Gets the image of the virtual camera attached to the robot. This will be used
+ * for see the movement. Also show the image in the _label plugin.
+ * @return The image to check the movement
+ */
+Mat SamplePlugin::getImageAndShow()
+{
+	// Get the image as a RW image
+	Frame* cameraFrame = _wc->findFrame("CameraSim");
+	_framegrabber->grab(cameraFrame, _state);
+	const Image& imageGrabbed = _framegrabber->getImage();
+
+	// Convert to OpenCV image
+	Mat im(imageGrabbed.getHeight(),imageGrabbed.getWidth(), CV_8SC3);
+	im.data = (uchar*)imageGrabbed.getImageData();
+	Mat image;
+	flip(im, image, 0);
+
+	// Show in QLabel
+	QImage imageToShow(image.data, image.cols, image.rows, image.step, QImage::Format_RGB888);
+	QPixmap p = QPixmap::fromImage(imageToShow);
+	unsigned int maxW = 600;
+	unsigned int maxH = 800;
+	_label->setPixmap(p.scaled(maxW,maxH,Qt::KeepAspectRatio));
+
+	return image;
 }
 
-void SamplePlugin::btnPressed() {
+Q SamplePlugin::getdQ(Mat image){
+	Q q(7,0.01,0.01,0.01,0.01,0.01,0.01,0.01);
+	return q;
+}
+
+//--------------------------------------------------------
+//					 Private Slots
+//--------------------------------------------------------
+
+/**
+ * The loop to be repeated with each frame
+ */
+void SamplePlugin::loop()
+{
+	//Get the image seen from the camera and show it in the plugin
+	Mat image = getImageAndShow();
+	//Calculates dq duw to the image movement
+	Q dq = getdQ(image);
+	//Updates the position based on that dq
+	_device->setQ(_device->getQ(_state) + dq,_state);
+	//Updates the state in the RobWork Studio
+	getRobWorkStudio()->setState(_state);
+
+}
+
+/**
+ * Determine what happens when a button is pressed
+ */
+void SamplePlugin::buttonPressed()
+{
 	QObject *obj = sender();
 	if(obj==_btn0){
 		log().info() << "Button 0\n";
@@ -175,39 +241,20 @@ void SamplePlugin::btnPressed() {
 		getRobWorkStudio()->updateAndRepaint();
 	} else if(obj==_btn1){
 		log().info() << "Button 1\n";
-		// Toggle the timer on and off
-		if (!_timer->isActive())
-		    _timer->start(_spinBox->value()); // run 10 Hz
+		// Toggle the loop on and off
+		if (!_loop->isActive())
+		    _loop->start(_spinBox->value()); // run 10 Hz
 		else
-			_timer->stop();
+			_loop->stop();
 	} else if(obj==_spinBox){
 		log().info() << "spin value:" << _spinBox->value() << "\n";
 	}
 }
 
-void SamplePlugin::timer() {
-	if (_framegrabber != NULL) {
-		// Get the image as a RW image
-		Frame* cameraFrame = _wc->findFrame("CameraSim");
-		_framegrabber->grab(cameraFrame, _state);
-		const Image& image = _framegrabber->getImage();
-
-		// Convert to OpenCV image
-		Mat im = toOpenCVImage(image);
-		Mat imflip;
-		cv::flip(im, imflip, 0);
-
-		// Show in QLabel
-		QImage img(imflip.data, imflip.cols, imflip.rows, imflip.step, QImage::Format_RGB888);
-		QPixmap p = QPixmap::fromImage(img);
-		unsigned int maxW = 400;
-		unsigned int maxH = 800;
-		_label->setPixmap(p.scaled(maxW,maxH,Qt::KeepAspectRatio));
-	}
-
-
-}
-
+/**
+ * Returns the actual state of the workcell
+ * @param state
+ */
 void SamplePlugin::stateChangedListener(const State& state) {
 	_state = state;
 }
