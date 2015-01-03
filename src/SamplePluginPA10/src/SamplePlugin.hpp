@@ -20,9 +20,7 @@ public:
 	virtual ~SamplePlugin();
 
 	virtual void open(rw::models::WorkCell* workcell);
-
 	virtual void close();
-
 	virtual void initialize();
 
 private slots:
