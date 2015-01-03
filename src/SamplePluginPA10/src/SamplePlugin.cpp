@@ -1,16 +1,18 @@
 //Includes
 #include "SamplePlugin.hpp"
 
+#include <rw/rw.hpp>
 #include <rws/RobWorkStudio.hpp>
 
 #include <QPushButton>
 
-#include <rw/loaders/ImageLoader.hpp>
-#include <rw/loaders/WorkCellFactory.hpp>
+//#include <rw/loaders/ImageLoader.hpp>
+//#include <rw/loaders/WorkCellFactory.hpp>
 
 
 //Namespaces
 using namespace rw::common;
+using namespace rw::math;
 using namespace rw::graphics;
 using namespace rw::kinematics;
 using namespace rw::loaders;
@@ -22,7 +24,6 @@ using namespace rwlibs::simulation;
 using namespace rws;
 
 using namespace cv;
-
 
 //Global variables
 QString iconPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
@@ -73,7 +74,12 @@ void SamplePlugin::initialize() {
 
 	// Auto load workcell
 	WorkCell::Ptr wc = WorkCellLoader::Factory::load(workcellPath);
+
 	getRobWorkStudio()->setWorkCell(wc);
+
+	_spinBox->setMaximum(5000);
+	_spinBox->setMinimum(10);
+	_spinBox->setValue(100);
 
 	// Load Lena image
 	Mat im, image;
@@ -91,6 +97,7 @@ void SamplePlugin::open(WorkCell* workcell)
 	log().info() << "OPEN" << "\n";
 	_wc = workcell;
 	_state = _wc->getDefaultState();
+	_device = _wc->findDevice("PA10");
 
 	log().info() << workcell->getFilename() << "\n";
 
@@ -169,7 +176,7 @@ void SamplePlugin::btnPressed() {
 		log().info() << "Button 1\n";
 		// Toggle the timer on and off
 		if (!_timer->isActive())
-		    _timer->start(100); // run 10 Hz
+		    _timer->start(_spinBox->value()); // run 10 Hz
 		else
 			_timer->stop();
 	} else if(obj==_spinBox){
@@ -196,6 +203,18 @@ void SamplePlugin::timer() {
 		unsigned int maxH = 800;
 		_label->setPixmap(p.scaled(maxW,maxH,Qt::KeepAspectRatio));
 	}
+
+	Q q1(7,0,0.476,-0.440,0.620,-0.182,2.047,-1.574);
+	Q q2(7,0,0,0,0,0,0,0);
+
+	log().info() << _device->getQ(_state);
+
+	_device->setQ(q1,_state);
+	if (_device->getQ(_state) == q2) _device->setQ(q1,_state);
+
+	if (_device->getQ(_state) == q1) _device->setQ(q2,_state);
+
+	getRobWorkStudio()->setState(_state);
 }
 
 void SamplePlugin::stateChangedListener(const State& state) {
