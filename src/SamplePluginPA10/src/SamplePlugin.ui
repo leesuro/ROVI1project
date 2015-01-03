@@ -31,23 +31,23 @@
         </property>
        </widget>
       </item>
-      <item>
+<!--       <item>
        <widget class="QCheckBox" name="_checkBox">
         <property name="text">
          <string>CheckBox</string>
         </property>
        </widget>
-      </item>
+      </item> -->
       <item>
        <widget class="QSpinBox" name="_spinBox"/>
       </item>
-      <item>
+<!--       <item>
        <widget class="QSlider" name="_slider">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
-      </item>
+      </item> -->
       <item>
        <widget class="QLabel" name="_label">
         <property name="text">
@@ -55,9 +55,9 @@
         </property>
        </widget>
       </item>
-      <item>
+<!--       <item>
        <widget class="QCalendarWidget" name="_calendar"/>
-      </item>
+      </item> -->
      </layout>
     </item>
    </layout>
