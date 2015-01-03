@@ -12,6 +12,8 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/calib3d/calib3d.hpp"
 #include "opencv2/nonfree/nonfree.hpp"
+#include <time.h>
+#include <sys/time.h>
 
 using namespace cv;
 using namespace std;
@@ -23,8 +25,8 @@ void readme();
 int main() {
 	std::string scene_addr;
 	std::stringstream sstm;
-
-	double elapsed_secs;
+	 struct timespec t2, t3;
+	    double dt1;
 	int cnti;
 	Mat img_object =
 			imread(
@@ -33,7 +35,7 @@ int main() {
 	Mat img_scene;
 
 	for (cnti = 1; cnti < 50; cnti++) {
-
+		  clock_gettime(CLOCK_MONOTONIC,  &t2);
 		sstm.str("");
 		std::cout << cnti << std::endl;
 		if (cnti < 10)
@@ -147,8 +149,9 @@ int main() {
 
 		//-- Show detected matches
 		imshow("Good Matches & Object detection", img_matches);
-
-		cout << "elapsed time: " <<4		<< " s  " << 4<< " s " << endl;
+		clock_gettime(CLOCK_MONOTONIC,  &t3);
+		 dt1 = (t3.tv_sec - t2.tv_sec) + (double) (t3.tv_nsec - t2.tv_nsec) * 1e-9;
+		cout << "elapsed time: " << dt1		<< " s  "  << endl;
 		waitKey(0);
 
 	}
