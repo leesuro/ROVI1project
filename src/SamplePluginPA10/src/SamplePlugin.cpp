@@ -7,6 +7,7 @@
 
 #include <rw/loaders/ImageLoader.hpp>
 #include <rw/loaders/WorkCellFactory.hpp>
+#include <rw/kinematics/MovableFrame.hpp>
 
 //Namespaces
 using namespace rw::common;
@@ -87,9 +88,9 @@ void SamplePlugin::initialize()
 
 	getRobWorkStudio()->setWorkCell(wc);
 
-	_spinBox->setMaximum(5000);
-	_spinBox->setMinimum(10);
-	_spinBox->setValue(100);
+	_spinBox->setMaximum(1100);
+	_spinBox->setMinimum(0.05);
+	_spinBox->setValue(10);
 
 	// Load Lena image
 	Mat im, image;
@@ -213,14 +214,34 @@ Q SamplePlugin::getdQ(Mat image){
  */
 void SamplePlugin::loop()
 {
-	//Get the image seen from the camera and show it in the plugin
-	Mat image = getImageAndShow();
-	//Calculates dq duw to the image movement
-	Q dq = getdQ(image);
-	//Updates the position based on that dq
-	_device->setQ(_device->getQ(_state) + dq,_state);
-	//Updates the state in the RobWork Studio
-	getRobWorkStudio()->setState(_state);
+	if (_motionFile.is_open()){
+		//Create a movable frame
+		MovableFrame* markerFrame = static_cast<MovableFrame*>(_wc->findFrame("Marker"));
+		//Read the marker's movement
+		string line;
+		double data[6];
+		if(getline(_motionFile,line)){
+			//Read a line and store its values
+			istringstream istr(line);
+			istr >> data[0] >> data[1] >> data[2] >> data[3] >> data[4] >> data[5];
+			//And generates the transformation
+			Transform3D<> markerTransformation=Transform3D<>(Vector3D<>(data[0], data[1], data[2]), RPY<>(data[3], data[4], data[5]).toRotation3D());
+			//So now the position is updated
+			markerFrame->setTransform(markerTransformation,_state);
+			getRobWorkStudio()->getWorkCellScene()->addRender("TextureImage",_textureRender,markerFrame);
+			//Get the image seen from the camera and show it in the plugin
+			Mat image = getImageAndShow();
+			//Calculates dq due to the image movement
+			Q dq = getdQ(image);
+			//Updates the position based on that dq
+			_device->setQ(_device->getQ(_state) + dq,_state);
+			//Updates the state in the RobWork Studio
+			getRobWorkStudio()->setState(_state);
+		} else {
+			log().info() << "Motion file finished!" << "\n!";
+			_motionFile.close();
+		}
+	}
 
 }
 
