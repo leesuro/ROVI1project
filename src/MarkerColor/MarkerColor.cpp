@@ -76,9 +76,9 @@ void detection(Mat imHSV) {
 
 	while (true) {
 
-		inRange(imHSV, Scalar(iLowH, iLowS, iLowV),Scalar(iHighH, iHighS, iHighV), im_thresh); //Threshold the image
+		//inRange(imHSV, Scalar(iLowH, iLowS, iLowV),Scalar(iHighH, iHighS, iHighV), im_thresh); //Threshold the image
 		//EASY MARKER
-		//inRange(imHSV, Scalar(61, 51, 0),Scalar(90, 255, 255), im_thresh); //Threshold the image green plate
+		inRange(imHSV, Scalar(61, 51, 0),Scalar(90, 255, 255), im_thresh); //Threshold the image green plate
 		//inRange(imHSV, Scalar(0, 71, 0),Scalar(12, 255, 255), im_thresh); //Threshold the image red circle
 		//inRange(imHSV, Scalar(111,123, 60),Scalar(132, 195, 255), im_thresh); //Threshold the image blue circles
 
