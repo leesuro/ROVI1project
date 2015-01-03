@@ -1,5 +1,7 @@
+//Includes
 #include "SamplePlugin.hpp"
 
+//#include <rw/rw.hpp>
 #include <rws/RobWorkStudio.hpp>
 
 #include <QPushButton>
@@ -7,7 +9,10 @@
 #include <rw/loaders/ImageLoader.hpp>
 #include <rw/loaders/WorkCellFactory.hpp>
 
+
+//Namespaces
 using namespace rw::common;
+using namespace rw::math;
 using namespace rw::graphics;
 using namespace rw::kinematics;
 using namespace rw::loaders;
@@ -20,8 +25,26 @@ using namespace rws;
 
 using namespace cv;
 
+//Global variables
+QString iconPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
+string workcellPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
+string imagePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
+string markerPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
+string backgroundPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
+
+
+/*
+QString iconPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
+string workcellPath = "/home/pyc/workspace/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
+string imagePath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
+string markerPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
+string backgroundPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
+*/
+
+
+
 SamplePlugin::SamplePlugin():
-    RobWorkStudioPlugin("SamplePluginUI", QIcon(":/pa_icon.png"))
+    RobWorkStudioPlugin("SamplePluginUI", QIcon(iconPath))
 {
 	setupUi(this);
 
@@ -52,12 +75,17 @@ void SamplePlugin::initialize() {
 	getRobWorkStudio()->stateChangedEvent().add(boost::bind(&SamplePlugin::stateChangedListener, this, _1), this);
 
 	// Auto load workcell
-	WorkCell::Ptr wc = WorkCellLoader::Factory::load("/home/pyc/workspace/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml");
+	WorkCell::Ptr wc = WorkCellLoader::Factory::load(workcellPath);
+
 	getRobWorkStudio()->setWorkCell(wc);
+
+	_spinBox->setMaximum(5000);
+	_spinBox->setMinimum(10);
+	_spinBox->setValue(100);
 
 	// Load Lena image
 	Mat im, image;
-	im = imread("/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/lena.bmp", CV_LOAD_IMAGE_COLOR); // Read the file
+	im = imread(imagePath, CV_LOAD_IMAGE_COLOR); // Read the file
 	cvtColor(im, image, CV_BGR2RGB); // Switch the red and blue color channels
 	if(! image.data ) {
 		RW_THROW("Could not open or find the image: please modify the file path in the source code!");
@@ -71,6 +99,10 @@ void SamplePlugin::open(WorkCell* workcell)
 	log().info() << "OPEN" << "\n";
 	_wc = workcell;
 	_state = _wc->getDefaultState();
+	_device = _wc->findDevice("PA10");
+
+	Q q(7,1,1,1,1,1,1,1);
+	_device->setQ(q,_state);
 
 	log().info() << workcell->getFilename() << "\n";
 
@@ -140,16 +172,16 @@ void SamplePlugin::btnPressed() {
 		log().info() << "Button 0\n";
 		// Set a new texture (one pixel = 1 mm)
 		Image::Ptr image;
-		image = ImageLoader::Factory::load("/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm");
+		image = ImageLoader::Factory::load(markerPath);
 		_textureRender->setImage(*image);
-		image = ImageLoader::Factory::load("/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm");
+		image = ImageLoader::Factory::load(backgroundPath);
 		_bgRender->setImage(*image);
 		getRobWorkStudio()->updateAndRepaint();
 	} else if(obj==_btn1){
 		log().info() << "Button 1\n";
 		// Toggle the timer on and off
 		if (!_timer->isActive())
-		    _timer->start(100); // run 10 Hz
+		    _timer->start(_spinBox->value()); // run 10 Hz
 		else
 			_timer->stop();
 	} else if(obj==_spinBox){
@@ -176,6 +208,15 @@ void SamplePlugin::timer() {
 		unsigned int maxH = 800;
 		_label->setPixmap(p.scaled(maxW,maxH,Qt::KeepAspectRatio));
 	}
+
+	Q q1(7,1,1,1,1,1,1,1);
+	Q q2(7,2,2,2,2,2,2,2);
+
+	if (_device->getQ(_state) == q2) _device->setQ(q1,_state);
+
+	if (_device->getQ(_state) == q1) _device->setQ(q2,_state);
+
+	getRobWorkStudio()->setState(_state);
 }
 
 void SamplePlugin::stateChangedListener(const State& state) {
