@@ -99,6 +99,9 @@ void SamplePlugin::open(WorkCell* workcell)
 	_state = _wc->getDefaultState();
 	_device = _wc->findDevice("PA10");
 
+	Q q(7,1,1,1,1,1,1,1);
+	_device->setQ(q,_state);
+
 	log().info() << workcell->getFilename() << "\n";
 
 	if (_wc != NULL) {
@@ -204,12 +207,9 @@ void SamplePlugin::timer() {
 		_label->setPixmap(p.scaled(maxW,maxH,Qt::KeepAspectRatio));
 	}
 
-	Q q1(7,0,0.476,-0.440,0.620,-0.182,2.047,-1.574);
-	Q q2(7,0,0,0,0,0,0,0);
+	Q q1(7,1,1,1,1,1,1,1);
+	Q q2(7,2,2,2,2,2,2,2);
 
-	log().info() << _device->getQ(_state);
-
-	_device->setQ(q1,_state);
 	if (_device->getQ(_state) == q2) _device->setQ(q1,_state);
 
 	if (_device->getQ(_state) == q1) _device->setQ(q2,_state);
