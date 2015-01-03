@@ -19,3 +19,8 @@ report-blx.bib
 #Compilation Folders
 release
 src/bin
+src/SamplePluginPA10/src/libs
+
+#Eclipse
+src/MarkerColor/.project 
+src/MarkerColor/.cproject 
