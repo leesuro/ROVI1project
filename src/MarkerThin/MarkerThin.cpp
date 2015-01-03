@@ -24,6 +24,7 @@ Mat src_gray;
 Mat standard_hough, probabilistic_hough;
 int min_threshold = 50;
 int max_trackbar = 150;
+
 const char* standard_name = "Standard Hough Lines Demo";
 const char* probabilistic_name = "Probabilistic Hough Lines Demo";
 int s_trackbar = max_trackbar;
