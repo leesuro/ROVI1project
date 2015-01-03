@@ -1,3 +1,4 @@
+//Includes
 #include "SamplePlugin.hpp"
 
 #include <rws/RobWorkStudio.hpp>
@@ -7,6 +8,8 @@
 #include <rw/loaders/ImageLoader.hpp>
 #include <rw/loaders/WorkCellFactory.hpp>
 
+
+//Namespaces
 using namespace rw::common;
 using namespace rw::graphics;
 using namespace rw::kinematics;
@@ -20,8 +23,25 @@ using namespace rws;
 
 using namespace cv;
 
+
+//Global variables
+QString iconPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
+string workcellPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
+string imagePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
+string markerPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
+string backgroundPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
+
+/*
+QString iconPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
+string workcellPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
+string imagePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
+string markerPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
+string backgroundPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
+*/
+
+
 SamplePlugin::SamplePlugin():
-    RobWorkStudioPlugin("SamplePluginUI", QIcon(":/pa_icon.png"))
+    RobWorkStudioPlugin("SamplePluginUI", QIcon(iconPath))
 {
 	setupUi(this);
 
@@ -52,12 +72,12 @@ void SamplePlugin::initialize() {
 	getRobWorkStudio()->stateChangedEvent().add(boost::bind(&SamplePlugin::stateChangedListener, this, _1), this);
 
 	// Auto load workcell
-	WorkCell::Ptr wc = WorkCellLoader::Factory::load("/home/pyc/workspace/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml");
+	WorkCell::Ptr wc = WorkCellLoader::Factory::load(workcellPath);
 	getRobWorkStudio()->setWorkCell(wc);
 
 	// Load Lena image
 	Mat im, image;
-	im = imread("/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/lena.bmp", CV_LOAD_IMAGE_COLOR); // Read the file
+	im = imread(imagePath, CV_LOAD_IMAGE_COLOR); // Read the file
 	cvtColor(im, image, CV_BGR2RGB); // Switch the red and blue color channels
 	if(! image.data ) {
 		RW_THROW("Could not open or find the image: please modify the file path in the source code!");
@@ -140,9 +160,9 @@ void SamplePlugin::btnPressed() {
 		log().info() << "Button 0\n";
 		// Set a new texture (one pixel = 1 mm)
 		Image::Ptr image;
-		image = ImageLoader::Factory::load("/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm");
+		image = ImageLoader::Factory::load(markerPath);
 		_textureRender->setImage(*image);
-		image = ImageLoader::Factory::load("/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm");
+		image = ImageLoader::Factory::load(backgroundPath);
 		_bgRender->setImage(*image);
 		getRobWorkStudio()->updateAndRepaint();
 	} else if(obj==_btn1){
