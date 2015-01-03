@@ -43,13 +43,13 @@ private:
 
 	QTimer* _loop;
 
+	int _previousPoints[3][2]; //[point][0] X coordinate, [point][1] Y coordinate
+
 	rw::models::WorkCell::Ptr _wc;
 	rw::models::Device::Ptr _device;
 	rw::kinematics::State _state;
 	rwlibs::opengl::RenderImage *_textureRender, *_bgRender;
 	rwlibs::simulation::GLFrameGrabber* _framegrabber;
-
-
 };
 
 #endif /*RINGONHOOKPLUGIN_HPP_*/

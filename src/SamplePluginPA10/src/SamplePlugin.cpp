@@ -45,6 +45,7 @@ const string backgroundPath = "/home/pyc/workspace/ROVI1project/src/SamplePlugin
 const string motionFilePath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/motions/MarkerMotionSlow.txt";
 */
 
+
 //--------------------------------------------------------
 //					  Constructors
 //--------------------------------------------------------
@@ -139,6 +140,13 @@ void SamplePlugin::open(WorkCell* workcell)
 	_spinBox->setMaximum(1100);
 	_spinBox->setMinimum(0.05);
 	_spinBox->setValue(10);
+
+	Point P(100,100);
+	_previousPoints[0][0]=P.x;
+	_previousPoints[0][1]=P.y;
+
+	Q qInit(7, 0, -0.65, 0, 1.80, 0, 0.42, 0);
+	_device->setQ(qInit, _state);
 }
 
 /**
@@ -195,8 +203,26 @@ Mat SamplePlugin::getImageAndShow()
 	return image;
 }
 
-Q SamplePlugin::getdQ(Mat image){
-	//Lets start calculating the device's jacobian
+/**
+ *
+ * @param image
+ * @return
+ */
+Q SamplePlugin::getdQ(Mat image)
+{
+	//Get points from OpenCV algorithms
+
+	float u = _previousPoints[0][0];
+	float v = _previousPoints[0][1] + 10;
+	//Vector3D<> P = (_wc->findFrame("Marker"))->getTransform(_state).P();
+	//Vector3D<> Pt = (_device->worldTbase(_state))*_device->baseTframe(_wc->findFrame("Camera"), _state)*P;
+
+	//float u = Pt(0);
+	//float v = Pt(1);
+
+	//log().info() << u << ", " << v << ", " << Pt(2) << "\n";
+
+	//Continue with the device's jacobian
 	Jacobian deviceJacobian_aux = _device->baseJframe(_wc->findFrame("Camera"), _state);
 	MatrixXd deviceJacobian(6,7);
 	for (unsigned char row=0; row<6; row++){
@@ -206,10 +232,8 @@ Q SamplePlugin::getdQ(Mat image){
 	}
 
 	//Now the image's jacobian. f and z are fixed values given in the description
-	//Jacobian imageJacobian(2,6);
 	MatrixXd imageJacobian(2,6);
 	double z = 0.5, f = 823;
-	double u = 600, v = 400;
 
 	imageJacobian(0,0)=f/z; imageJacobian(0,1)= 0; imageJacobian(0,2)=-u/z;
 	imageJacobian(0,3)=-u*v/f; imageJacobian(0,4)=(f*f+u*u)/f; imageJacobian(0,5)=-v;
@@ -222,24 +246,30 @@ Q SamplePlugin::getdQ(Mat image){
 	for (unsigned char row=0; row<6; row++){
 		for (unsigned char col=0; col<6; col++){
 			if (row<3 && col<3) Sq(row, col) = R_device_T(row, col);
-			else if (row>3 && col>3) Sq(row, col) = R_device_T(row-3, col-3);
+			else if (row>2 && col>2) Sq(row, col) = R_device_T(row-3, col-3);
 			else Sq(row, col) =0;
 		}
 	}
 
 	//Now we can calculate Zimage
-	MatrixXd Zimage(2, 6);
+	MatrixXd Zimage(2, 7);
 	Zimage = imageJacobian*Sq*deviceJacobian;
 
-	//Get du and dv from OpenCV algorithms
+	//Perhaps, now the du and dv
 	MatrixXd dudv(2,1);
+	dudv(0,0) = u - _previousPoints[0][0];
+	dudv(1,0) = v - _previousPoints[0][1];
+	//Store the actual point
+	_previousPoints[0][0] = u;
+	_previousPoints[0][1] = v;
 
-	//And calculate dq. This is a jacobian for congruence types
-	MatrixXd dq_aux = Zimage.transpose() * dudv * (Zimage*Zimage.transpose()).inverse();
+	//And calculate dq. This is a jacobian for congruence type
+	MatrixXd dq_aux (1,7);
+	dq_aux = Zimage.transpose() * (Zimage*Zimage.transpose()).inverse() * dudv;
 
-	Q dq = Q(7, dq_aux(0,0), dq_aux(1,0), dq_aux(2,0), dq_aux(3,0),
-			dq_aux(4,0), dq_aux(5,0), dq_aux(6,0));
+	Q dq = Q(7, dq_aux(1,0), dq_aux(1,0), dq_aux(2,0), dq_aux(3,0),	dq_aux(4,0), dq_aux(5,0), dq_aux(6,0));
 
+	//Q dq = Q(7,1,1,1,1,1,1,1);
 	return dq;
 }
 
@@ -272,7 +302,7 @@ void SamplePlugin::loop()
 			//Calculates dq due to the image movement
 			Q dq = getdQ(image);
 			//Updates the position based on that dq
-			_device->setQ(_device->getQ(_state) + dq,_state);
+			_device->setQ(_device->getQ(_state) + dq, _state);
 			//Updates the state in the RobWork Studio
 			getRobWorkStudio()->setState(_state);
 		} else {
@@ -298,6 +328,7 @@ void SamplePlugin::buttonPressed()
 		_textureRender->setImage(*image);
 		image = ImageLoader::Factory::load(backgroundPath);
 		_bgRender->setImage(*image);
+
 		getRobWorkStudio()->updateAndRepaint();
 	}
 	//Button 1
