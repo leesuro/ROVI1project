@@ -76,10 +76,15 @@ void detection(Mat imHSV) {
 
 	while (true) {
 
-//		inRange(imHSV, Scalar(iLowH, iLowS, iLowV),
-//				Scalar(iHighH, iHighS, iHighV), im_thresh); //Threshold the image
-		inRange(imHSV, Scalar(61, 51, 0),
-						Scalar(90, 255, 255), im_thresh); //Threshold the image
+		inRange(imHSV, Scalar(iLowH, iLowS, iLowV),Scalar(iHighH, iHighS, iHighV), im_thresh); //Threshold the image
+		//EASY MARKER
+		//inRange(imHSV, Scalar(61, 51, 0),Scalar(90, 255, 255), im_thresh); //Threshold the image green plate
+		//inRange(imHSV, Scalar(0, 71, 0),Scalar(12, 255, 255), im_thresh); //Threshold the image red circle
+		//inRange(imHSV, Scalar(111,123, 60),Scalar(132, 195, 255), im_thresh); //Threshold the image blue circles
+
+		//HARD MARKER
+		//inRange(imHSV, Scalar(0, 128, 88),Scalar(13, 219, 200), im_thresh); //Threshold the image red circle
+		//inRange(imHSV, Scalar(111,135, 75),Scalar(135, 174, 137), im_thresh); //Threshold the image blue circles
 
 		//morphological opening (remove small objects from the foreground)
 		erode(im_thresh, im_thresh,
@@ -163,17 +168,15 @@ int main(void) {
 	for (cnti = 1; cnti < 51; cnti++) {
 		sstm.str("");
 
+		//HARD MARKER
+		if (cnti < 10)		sstm<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_0"<< cnti << ".png";
+		else
+			sstm << "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_"	<< cnti << ".png";
+
+		//EASY MARKER
 		//if (cnti < 10)
-//			sstm
-	//				<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_0"
-		//			<< cnti << ".png";
-		//else
-			//sstm
-				//	<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_"
-					//<< cnti << ".png";
-		if (cnti < 10)
-			sstm<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color/marker_color_0"<< cnti << ".png";
-		else sstm<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color/marker_color_"<< cnti << ".png";
+		//	sstm << "/home/pyc/workspace/ROVI1project/res/markers/marker_color/marker_color_0"<< cnti << ".png";
+		//else sstm<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color/marker_color_"<< cnti << ".png";
 		scene_addr = sstm.str();
 		image = imread(scene_addr);
 		cvtColor(image, imageHSV, CV_BGR2HSV);
