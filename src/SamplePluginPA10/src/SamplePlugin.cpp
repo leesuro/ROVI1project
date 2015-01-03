@@ -1,14 +1,12 @@
 //Includes
 #include "SamplePlugin.hpp"
 
-//#include <rw/rw.hpp>
 #include <rws/RobWorkStudio.hpp>
 
 #include <QPushButton>
 
 #include <rw/loaders/ImageLoader.hpp>
 #include <rw/loaders/WorkCellFactory.hpp>
-
 
 //Namespaces
 using namespace rw::common;
@@ -26,22 +24,20 @@ using namespace rws;
 using namespace cv;
 
 //Global variables
-/*QString iconPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
+QString iconPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
 string workcellPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
 string imagePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
 string markerPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
 string backgroundPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
-*/
 
 
+/*
 QString iconPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
 string workcellPath = "/home/pyc/workspace/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
 string imagePath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
 string markerPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
 string backgroundPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
-
-
-
+*/
 
 SamplePlugin::SamplePlugin():
     RobWorkStudioPlugin("SamplePluginUI", QIcon(iconPath))
@@ -52,9 +48,9 @@ SamplePlugin::SamplePlugin():
     connect(_timer, SIGNAL(timeout()), this, SLOT(timer()));
 
 	// now connect stuff from the ui component
-	connect(_btn0    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
-	connect(_btn1    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
-	connect(_spinBox  ,SIGNAL(valueChanged(int)), this, SLOT(btnPressed()) );
+	connect(_btn0, SIGNAL(pressed()), this, SLOT(btnPressed()) );
+	connect(_btn1, SIGNAL(pressed()), this, SLOT(btnPressed()) );
+	connect(_spinBox, SIGNAL(valueChanged(int)), this, SLOT(btnPressed()) );
 
 	Image textureImage(300,300,Image::GRAY,Image::Depth8U);
 	_textureRender = new RenderImage(textureImage);
@@ -209,14 +205,7 @@ void SamplePlugin::timer() {
 		_label->setPixmap(p.scaled(maxW,maxH,Qt::KeepAspectRatio));
 	}
 
-	Q q1(7,1,1,1,1,1,1,1);
-	Q q2(7,2,2,2,2,2,2,2);
 
-	if (_device->getQ(_state) == q2) _device->setQ(q1,_state);
-
-	if (_device->getQ(_state) == q1) _device->setQ(q2,_state);
-
-	getRobWorkStudio()->setState(_state);
 }
 
 void SamplePlugin::stateChangedListener(const State& state) {
