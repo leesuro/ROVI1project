@@ -16,6 +16,7 @@
 using namespace cv;
 using namespace std;
 
+
 void readme();
 
 /** @function main */
@@ -23,6 +24,7 @@ int main() {
 	std::string scene_addr;
 	std::stringstream sstm;
 
+	double elapsed_secs;
 	int cnti;
 	Mat img_object =
 			imread(
@@ -33,16 +35,22 @@ int main() {
 	for (cnti = 1; cnti < 50; cnti++) {
 
 		sstm.str("");
-		std::cout<<cnti<<std::endl;
-		if (cnti<10) sstm << "/home/pyc/workspace/ROVI1project/res/markers/marker_corny_hard/marker_corny_hard_0"<<cnti<<".png";
-					else sstm << "/home/pyc/workspace/ROVI1project/res/markers/marker_corny_hard/marker_corny_hard_"<<cnti<<".png";
+		std::cout << cnti << std::endl;
+		if (cnti < 10)
+			sstm
+					<< "/home/pyc/workspace/ROVI1project/res/markers/marker_corny_hard/marker_corny_hard_0"
+					<< cnti << ".png";
+		else
+			sstm
+					<< "/home/pyc/workspace/ROVI1project/res/markers/marker_corny_hard/marker_corny_hard_"
+					<< cnti << ".png";
 
 		//if (cnti<10) sstm << "/home/pyc/workspace/ROVI1project/res/markers/marker_corny/marker_corny_0"<<cnti<<".png";
 		//	else sstm << "/home/pyc/workspace/ROVI1project/res/markers/marker_corny/marker_corny_"<<cnti<<".png";
 
-			scene_addr = sstm.str();
-			cout<<scene_addr<<endl;
-		img_scene = imread( scene_addr, CV_LOAD_IMAGE_GRAYSCALE );
+		scene_addr = sstm.str();
+		cout << scene_addr << endl;
+		img_scene = imread(scene_addr, CV_LOAD_IMAGE_GRAYSCALE);
 
 		if (!img_object.data || !img_scene.data) {
 			std::cout << " --(!) Error reading images " << std::endl;
@@ -139,7 +147,10 @@ int main() {
 
 		//-- Show detected matches
 		imshow("Good Matches & Object detection", img_matches);
+
+		cout << "elapsed time: " <<4		<< " s  " << 4<< " s " << endl;
 		waitKey(0);
+
 	}
 	return 0;
 }

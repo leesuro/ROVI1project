@@ -37,7 +37,6 @@ private:
 	QTimer* _timer;
 
 	rw::models::WorkCell::Ptr _wc;
-	rw::models::Device::Ptr _device;
 	rw::kinematics::State _state;
 	rwlibs::opengl::RenderImage *_textureRender, *_bgRender;
 	rwlibs::simulation::GLFrameGrabber* _framegrabber;
