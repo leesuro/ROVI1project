@@ -8,6 +8,7 @@
 #include <rw/loaders/ImageLoader.hpp>
 #include <rw/loaders/WorkCellFactory.hpp>
 #include <rw/kinematics/MovableFrame.hpp>
+//#include <rw/math/Jacobian.hpp>
 
 //Namespaces
 using namespace rw::common;
@@ -22,6 +23,8 @@ using namespace rwlibs::simulation;
 using namespace rws;
 
 using namespace cv;
+
+using namespace Eigen;
 
 using namespace std;
 
@@ -83,24 +86,9 @@ void SamplePlugin::initialize()
 
 	getRobWorkStudio()->stateChangedEvent().add(boost::bind(&SamplePlugin::stateChangedListener, this, _1), this);
 
-	// Auto load workcell
+	//Auto load workcell
 	WorkCell::Ptr wc = WorkCellLoader::Factory::load(workcellPath);
-
 	getRobWorkStudio()->setWorkCell(wc);
-
-	_spinBox->setMaximum(1100);
-	_spinBox->setMinimum(0.05);
-	_spinBox->setValue(10);
-
-	// Load Lena image
-	Mat im, image;
-	im = imread(imagePath, CV_LOAD_IMAGE_COLOR); // Read the file
-	cvtColor(im, image, CV_BGR2RGB); // Switch the red and blue color channels
-	if(! image.data ) {
-		RW_THROW("Could not open or find the image: please modify the file path in the source code!");
-	}
-	QImage img(image.data, image.cols, image.rows, image.step, QImage::Format_RGB888); // Create QImage from the OpenCV image
-	_label->setPixmap(QPixmap::fromImage(img)); // Show the image at the label in the plugin
 }
 /**
  * Open the plugin and the workcell. Also loads the Marker and Background frame
@@ -116,7 +104,6 @@ void SamplePlugin::open(WorkCell* workcell)
 	_state = _wc->getDefaultState();
 	_device = _wc->findDevice("PA10");
 	_motionFile.open(motionFilePath.c_str());
-
 
 	if (_wc != NULL) {
 		// Add the texture render to this workcell if there is a frame for texture
@@ -144,6 +131,14 @@ void SamplePlugin::open(WorkCell* workcell)
 			}
 		}
 	}
+
+	//Show the camera view in the plugin
+	getImageAndShow();
+
+	//Adjust the Spin Box Limits
+	_spinBox->setMaximum(1100);
+	_spinBox->setMinimum(0.05);
+	_spinBox->setValue(10);
 }
 
 /**
@@ -201,8 +196,51 @@ Mat SamplePlugin::getImageAndShow()
 }
 
 Q SamplePlugin::getdQ(Mat image){
-	Q q(7,0.01,0.01,0.01,0.01,0.01,0.01,0.01);
-	return q;
+	//Lets start calculating the device's jacobian
+	Jacobian deviceJacobian_aux = _device->baseJframe(_wc->findFrame("Camera"), _state);
+	MatrixXd deviceJacobian(6,7);
+	for (unsigned char row=0; row<6; row++){
+		for (unsigned char col=0; col<7; col++){
+			deviceJacobian(row, col) = deviceJacobian_aux(row, col);
+		}
+	}
+
+	//Now the image's jacobian. f and z are fixed values given in the description
+	//Jacobian imageJacobian(2,6);
+	MatrixXd imageJacobian(2,6);
+	double z = 0.5, f = 823;
+	double u = 600, v = 400;
+
+	imageJacobian(0,0)=f/z; imageJacobian(0,1)= 0; imageJacobian(0,2)=-u/z;
+	imageJacobian(0,3)=-u*v/f; imageJacobian(0,4)=(f*f+u*u)/f; imageJacobian(0,5)=-v;
+	imageJacobian(1,0)=0; imageJacobian(1,1)=f/z; imageJacobian(1,2)=-v/z;
+	imageJacobian(1,3)=-(f*f+u*u)/f; imageJacobian(1,4)=u*v/f; imageJacobian(1,5)=u;
+
+	//As the d(u,v) is not referenced to the base, we need to adapt it
+	MatrixXd Sq(6,6);
+	Rotation3D<> R_device_T = inverse(_device->baseTframe(_wc->findFrame("Camera"), _state).R());
+	for (unsigned char row=0; row<6; row++){
+		for (unsigned char col=0; col<6; col++){
+			if (row<3 && col<3) Sq(row, col) = R_device_T(row, col);
+			else if (row>3 && col>3) Sq(row, col) = R_device_T(row-3, col-3);
+			else Sq(row, col) =0;
+		}
+	}
+
+	//Now we can calculate Zimage
+	MatrixXd Zimage(2, 6);
+	Zimage = imageJacobian*Sq*deviceJacobian;
+
+	//Get du and dv from OpenCV algorithms
+	MatrixXd dudv(2,1);
+
+	//And calculate dq. This is a jacobian for congruence types
+	MatrixXd dq_aux = Zimage.transpose() * dudv * (Zimage*Zimage.transpose()).inverse();
+
+	Q dq = Q(7, dq_aux(0,0), dq_aux(1,0), dq_aux(2,0), dq_aux(3,0),
+			dq_aux(4,0), dq_aux(5,0), dq_aux(6,0));
+
+	return dq;
 }
 
 //--------------------------------------------------------
@@ -251,6 +289,7 @@ void SamplePlugin::loop()
 void SamplePlugin::buttonPressed()
 {
 	QObject *obj = sender();
+	//Button 0
 	if(obj==_btn0){
 		log().info() << "Button 0\n";
 		// Set a new texture (one pixel = 1 mm)
@@ -260,16 +299,16 @@ void SamplePlugin::buttonPressed()
 		image = ImageLoader::Factory::load(backgroundPath);
 		_bgRender->setImage(*image);
 		getRobWorkStudio()->updateAndRepaint();
-	} else if(obj==_btn1){
+	}
+	//Button 1
+	else if(obj==_btn1) {
 		log().info() << "Button 1\n";
 		// Toggle the loop on and off
-		if (!_loop->isActive())
-		    _loop->start(_spinBox->value()); // run 10 Hz
-		else
-			_loop->stop();
-	} else if(obj==_spinBox){
-		log().info() << "spin value:" << _spinBox->value() << "\n";
+		if (!_loop->isActive()) _loop->start(_spinBox->value()); // run 10 Hz
+		else _loop->stop();
 	}
+	//SpinBox
+	else if(obj==_spinBox) log().info() << "spin value:" << _spinBox->value() << "\n";
 }
 
 /**
