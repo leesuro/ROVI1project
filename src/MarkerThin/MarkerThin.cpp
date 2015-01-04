@@ -22,6 +22,7 @@ using namespace std;
 Point2f computeIntersect(Vec2f line1, Vec2f line2);
 vector<Point2f> pointExtractFromLine(Vec2f line);
 bool acceptLinePair(Vec2f line1, Vec2f line2, float minTheta);
+float pointDistance(Point2f p, Point2f q);
 
 /// Global variables
 
@@ -37,9 +38,8 @@ const char* probabilistic_name = "Probabilistic Hough Lines Demo";
 int s_trackbar = max_trackbar;
 int p_trackbar = max_trackbar;
 /// Function Headers
-void help();
+
 void Standard_Hough(int, void*);
-void Probabilistic_Hough(int, void*);
 
 int main() {
 /// Read the image
@@ -68,7 +68,7 @@ int main() {
 /// Pass the image to gray
 		cvtColor(src, src_gray, COLOR_RGB2GRAY);
 /// Apply Canny edge detector
-		Canny(src_gray, edges, 60, 180, 3);
+		Canny(src_gray, edges, 150, 250, 3);
 /// Create Trackbars for Thresholds
 		char thresh_label[50];
 		sprintf(thresh_label, "Thres: %d + input", min_threshold);
@@ -80,7 +80,7 @@ int main() {
 		//		Probabilistic_Hough);
 /// Initialize
 		Standard_Hough(0, 0);
-		Probabilistic_Hough(0, 0);
+
 		waitKey(0);
 	}
 	return 0;
@@ -111,58 +111,7 @@ void Standard_Hough(int, void*) {
 		line(standard_hough, pt[0], pt[1], Scalar(255, 0, 0), 3, CV_AA);
 	}
 	cout << "starting averaging" << endl;
-	//Average multiple lines at the same place
-	float eps = 5.0, t_eps = (CV_PI / 180.0) * 5.0;
-	vector<Vec2f> s_lines_edit = s_lines;
 
-	size_t cnt = 0;
-
-	/*for (size_t i = 0; i < s_lines.size(); i++) {
-	 r=s_lines[i][0];
-	 t=s_lines[i][1];
-
-	 for (size_t j = i+1 ; j < s_lines.size()-1; j++) {
-	 r2=s_lines[j][0];
-	 t2=s_lines[j][1];
-	 cout<< i<<"  "<< j<<" r: "<< r<<" r2 "<<r2<<"  "<<"r-r2 = "<<r-r2<<" ";
-
-
-	 if ((((((r-r2))<eps)&&(((r-r2))>0))||((((r-r2))>-eps)&&(((r-r2))<0)))){
-	 cout<<"same line found "<< (s_lines[i][0]-s_lines[j][0])<<endl;
-	 }
-	 else{cout<<"different line found"<<endl;
-
-	 s_lines_edit[cnt][0]=r;
-	 s_lines_edit[cnt][1]=t;
-	 cnt++;
-	 }
-	 }
-	 }*/
-	cout << "finish averaging" << endl;
-	//Draw edited lines at the same place
-	/*for (size_t i = 0; i < s_lines_edit.size(); i++) {
-	 //for (size_t j = i + 1; j < (s_lines.size() - 1); j++) {
-	 r = s_lines_edit[i][0]; t = s_lines_edit[i][1];
-	 //cout << "r = " << r << " pix \t theta = t" << t << " rad" << endl;
-	 cos_t = cos(t); sin_t = sin(t);
-	 x0 = r * cos_t; y0 = r * sin_t;
-
-	 pt1.x = cvRound(x0 + alpha * (-sin_t));
-	 pt1.y = cvRound(y0 + alpha * cos_t);
-	 pt2.x = cvRound(x0 - alpha * (-sin_t));
-	 pt2.y = cvRound(y0 - alpha * cos_t);
-
-	 line(standard_hough_edit, pt1, pt2, Scalar(255, 0, 0), 3, CV_AA);
-	 //}
-	 }*//*	 vector<Point2f> p1 = pointExtractFromLine(line1);
-	 vector<Point2f> p2 = pointExtractFromLine(line2);
-
-	 float denom = (p1[0].x - p1[1].x)*(p2[0].y - p2[1].y) - (p1[0].y - p1[1].y)*(p2[0].x - p2[1].x);
-	 Point2f intersect(((p1[0].x*p1[1].y - p1[0].y*p1[1].x)*(p2[0].x - p2[1].x) -
-	 (p1[0].x - p1[1].x)*(p2[0].x*p2[1].y - p2[0].y*p2[1].x)) / denom,
-	 ((p1[0].x*p1[1].y - p1[0].y*p1[1].x)*(p2[0].y - p2[1].y) -
-	 (p1[0].y - p1[1].y)*(p2[0].x*p2[1].y - p2[0].y*p2[1].x)) / denom);
-	 */
 	cout << "finish drawing" << endl;
 
 	// compute the intersection from the lines detected...
@@ -181,39 +130,78 @@ void Standard_Hough(int, void*) {
 	}
 
 	if (intersections.size() > 0) {
-		vector<Point2f>::iterator i;
-		double res;
-		for (i = intersections.begin(); i != intersections.end(); ++i) {
 
-			res = cv::norm(*i - *(i + 1));
-			cout << "Intersection is " << i->x << ", " << i->y << " distance  "
-					<< res << "  " << endl;
-			circle(standard_hough_edit, *i, 1, Scalar(0, 0, 255), 3);
-		}
-	}
-	for (size_t i = 0; i < s_lines.size(); i++) {
-		for (size_t j = 0; j < s_lines.size(); j++) {
+		vector<Point2f> intersections_new;
+		vector<size_t> ignored;
+		Point2f actual;
+		float distance;
+		/*for (size_t i = 0; i < intersections.size(); i++) {
+		 actual=intersections[i];
+		 intersections_new.push_back(actual);
+		 for (size_t j = i; j < intersections.size(); j++) {
+		 distance = pointDistance(actual,intersections[j]);
 
+		 //cout<<"Distance: "<<distance<<endl;
+		 if (distance<18.0){
+		 cout<<"Distance is smaller"<<endl;
+		 }
+		 else{intersections_new.push_back(intersections[j]);
+
+		 }
+		 }
+		 intersections.erase();
+		 }*/
+		for (size_t i = 0; i < intersections.size(); i++) {
+
+			actual = intersections[i];
+			ignored.push_back(i);
+			for (size_t j = 1; j < intersections.size(); j++) {
+				distance = pointDistance(actual, intersections[j]);
+				cout<< distance<<", ";
+				if (distance < 5.0) {
+					cout<<"is the same point --";
+					ignored.push_back(j);
+				} else {
+
+
+
+				}
+
+			}
+			//Detect clusters and filter the lonely points
+			cout<<"\n ignored: ";
+			for (size_t k=0;k<ignored.size();k++){
+				cout<<ignored[k]<<" ";
+				if (ignored.size()<5)
+				intersections.erase(intersections.begin()+ignored[k]);
+			}
+			ignored.clear();
+			cout<<endl;
 		}
+		Point2f mc, centerMass = intersections[0];
+
+		for (size_t i = 1; i < intersections.size(); i++) {
+			//for (i = intersections.begin(); i != intersections.end(); ++i) {
+			mc = intersections[i];
+			centerMass.x = centerMass.x + mc.x;
+			centerMass.y = centerMass.y + mc.y;
+			cout << "Intersection is " << mc.x << ", " << mc.y << "  " << "  "
+					<< endl;
+			circle(standard_hough_edit, mc, 1, Scalar(0, 0, 255), 3);
+		}
+		//Estimated Centre of Marker
+		centerMass.x = centerMass.x / intersections.size();
+		centerMass.y = centerMass.y / intersections.size();
+		circle(standard_hough_edit, centerMass, 5, 255);
 	}
+
 	imshow(standard_name, standard_hough);
 	imshow(standard_name_edit, standard_hough_edit);
 }
 
-void Probabilistic_Hough(int, void*) {
-
-	/*vector<Vec4i> p_lines;*
-	 cvtColor(edges, probabilistic_hough, COLOR_GRAY2BGR);
-	 /// 2. Use Probabilistic Hough Transform
-	 HoughLinesP(edges, p_lines, 1, CV_PI / 180, min_threshold + p_trackbar, 30,
-	 10);
-	 /// Show the result
-	 for (size_t i = 0; i < p_lines.size(); i++) {
-	 Vec4i l = p_lines[i];
-	 line(probabilistic_hough, Point(l[0], l[1]), Point(l[2], l[3]),
-	 Scalar(255, 0, 0), 3, CV_AA);
-	 }
-	 imshow(probabilistic_name, probabilistic_hough);*/
+float pointDistance(Point2f p, Point2f q) {
+	Point diff = p - q;
+	return cv::sqrt(diff.x * diff.x + diff.y * diff.y);
 }
 
 bool acceptLinePair(Vec2f line1, Vec2f line2, float minTheta) {
