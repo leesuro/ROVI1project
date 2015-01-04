@@ -141,10 +141,6 @@ void SamplePlugin::open(WorkCell* workcell)
 	_spinBox->setMinimum(0.05);
 	_spinBox->setValue(10);
 
-	Point P(100,100);
-	_previousPoints[0][0]=P.x;
-	_previousPoints[0][1]=P.y;
-
 	Q qInit(7, 0, -0.65, 0, 1.80, 0, 0.42, 0);
 	_device->setQ(qInit, _state);
 }
@@ -211,16 +207,11 @@ Mat SamplePlugin::getImageAndShow()
 Q SamplePlugin::getdQ(Mat image)
 {
 	//Get points from OpenCV algorithms
+	Vector3D<> P = (_wc->findFrame("Marker"))->getTransform(_state).P();
+	Vector3D<> Pt = inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * P * 1500;
 
-	float u = _previousPoints[0][0];
-	float v = _previousPoints[0][1] + 10;
-	//Vector3D<> P = (_wc->findFrame("Marker"))->getTransform(_state).P();
-	//Vector3D<> Pt = (_device->worldTbase(_state))*_device->baseTframe(_wc->findFrame("Camera"), _state)*P;
-
-	//float u = Pt(0);
-	//float v = Pt(1);
-
-	//log().info() << u << ", " << v << ", " << Pt(2) << "\n";
+	float u = Pt(0);
+	float v = Pt(1);
 
 	//Continue with the device's jacobian
 	Jacobian deviceJacobian_aux = _device->baseJframe(_wc->findFrame("Camera"), _state);
@@ -263,13 +254,12 @@ Q SamplePlugin::getdQ(Mat image)
 	_previousPoints[0][0] = u;
 	_previousPoints[0][1] = v;
 
-	//And calculate dq. This is a jacobian for congruence type
-	MatrixXd dq_aux (1,7);
+	//And calculate dq
+	MatrixXd dq_aux (7,1);
 	dq_aux = Zimage.transpose() * (Zimage*Zimage.transpose()).inverse() * dudv;
 
-	Q dq = Q(7, dq_aux(1,0), dq_aux(1,0), dq_aux(2,0), dq_aux(3,0),	dq_aux(4,0), dq_aux(5,0), dq_aux(6,0));
+	Q dq = Q(7, dq_aux(0,0), dq_aux(1,0), dq_aux(2,0), dq_aux(3,0),	dq_aux(4,0), dq_aux(5,0), dq_aux(6,0));
 
-	//Q dq = Q(7,1,1,1,1,1,1,1);
 	return dq;
 }
 
@@ -293,10 +283,9 @@ void SamplePlugin::loop()
 			istringstream istr(line);
 			istr >> data[0] >> data[1] >> data[2] >> data[3] >> data[4] >> data[5];
 			//And generates the transformation
-			Transform3D<> markerTransformation=Transform3D<>(Vector3D<>(data[0], data[1], data[2]), RPY<>(data[3], data[4], data[5]).toRotation3D());
+			Transform3D<> markerTransformation = Transform3D<>(Vector3D<>(data[0], data[1], data[2]), RPY<>(data[3], data[4], data[5]).toRotation3D());
 			//So now the position is updated
 			markerFrame->setTransform(markerTransformation,_state);
-			getRobWorkStudio()->getWorkCellScene()->addRender("TextureImage",_textureRender,markerFrame);
 			//Get the image seen from the camera and show it in the plugin
 			Mat image = getImageAndShow();
 			//Calculates dq due to the image movement
