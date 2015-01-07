@@ -67,7 +67,8 @@ public:
 	Q getdQ(Mat & image);
 
 	//Detection
-	Point2f corny (Mat img_input);
+	Point2f corny(Mat img_input);
+	Point2f color(Mat img_input);
 
 private slots:
 	void buttonPressed();

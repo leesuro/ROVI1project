@@ -2,19 +2,18 @@
 #include "SamplePlugin.hpp"
 
 //Global variables
-/*const QString iconPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
+const QString iconPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
 const string workcellPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
 const string imagePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
-const string markerPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/markers/Marker3.ppm";
+const string markerPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
 const string backgroundPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
-const string motionFilePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/motions/MarkerMotionFast.txt";
+const string motionFilePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/motions/MarkerMotionSlow.txt";
 const string cameraPosePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/cameraPose.txt";
 const string errorPosePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/errorPose.txt";
 const string qRobotPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/qRobot.txt";
-*/
 
 
-const QString iconPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
+/*const QString iconPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
 const string workcellPath = "/home/pyc/workspace/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
 const string imagePath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
 const string markerPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/markers/Marker3.ppm";
@@ -22,7 +21,7 @@ const string backgroundPath = "/home/pyc/workspace/ROVI1project/src/SamplePlugin
 const string motionFilePath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/motions/MarkerMotionSlow.txt";
 const string cameraPosePath = "/home/pyc/workspace/ROVI1project/data/cameraPose.txt";
 const string errorPosePath = "/home/pyc/workspace/ROVI1project/data/errorPose.txt";
-const string qRobotPath = "/home/pyc/workspace/ROVI1project/data/qRobot.txt";
+const string qRobotPath = "/home/pyc/workspace/ROVI1project/data/qRobot.txt";*/
 
 
 
@@ -262,13 +261,14 @@ void SamplePlugin::computeError(){
 Q SamplePlugin::getdQ(Mat & image)
 {
 	//Get points from OpenCV algorithms
-	//Vector3D<> P = (_wc->findFrame("Marker"))->getTransform(_state).P();
-	//Vector3D<> Pt = inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * P * 1000;
-
-	Point2f point = corny(image);
-
-/*	float u = Pt(0);
+	/*Vector3D<> P = (_wc->findFrame("Marker"))->getTransform(_state).P();
+	Vector3D<> Pt = inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * P * 1000;
+	float u = Pt(0);
 	float v = Pt(1);*/
+
+	//Point2f point = corny(image);
+	Point2f point = color(image);
+
 
 	float u = point.x + 1024/2;
 	float v = point.y + 768/2;
@@ -516,4 +516,130 @@ Point2f SamplePlugin::corny (Mat img_input)
 	return scene_corners[0];
 }
 
+Point2f SamplePlugin::color(Mat img_input) {
+	Timer timer;
+	timer.reset();
+
+	Mat im_thresh, im_cont,imHSV;
+	Point2f centerMass, centerMasstemp;
+
+	cvtColor(img_input, imHSV, CV_BGR2HSV);
+
+	/*
+	namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
+
+	int iLowH = 0;
+	int iHighH = 179;
+
+	int iLowS = 0;
+	int iHighS = 255;
+
+	int iLowV = 0;
+	int iHighV = 255;
+
+	cvCreateTrackbar("LowH", "Control", &iLowH, 179); //Hue (0 - 179)
+	cvCreateTrackbar("HighH", "Control", &iHighH, 179);
+
+	cvCreateTrackbar("LowS", "Control", &iLowS, 255); //Saturation (0 - 255)
+	cvCreateTrackbar("HighS", "Control", &iHighS, 255);
+
+	cvCreateTrackbar("LowV", "Control", &iLowV, 255); //Value (0 - 255)
+	cvCreateTrackbar("HighV", "Control", &iHighV, 255);
+	*/
+
+	vector<vector<Point> > contours;
+	vector<Vec4i> hierarchy;
+
+	//while (true) {
+		//for (icounter=0;icounter<2;icounter++){
+		//inRange(imHSV, Scalar(iLowH, iLowS, iLowV),Scalar(iHighH, iHighS, iHighV), im_thresh); //Threshold the image
+		inRange(imHSV, Scalar(52,237,168),Scalar(73, 255, 255), im_thresh); //Threshold the image red circle
+
+		//morphological opening (remove small objects from the foreground)
+		erode(im_thresh, im_thresh, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
+		dilate(im_thresh, im_thresh, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
+
+		//morphological closing (fill small holes in the foreground)
+		dilate(im_thresh, im_thresh, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
+		erode(im_thresh, im_thresh, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
+
+		//contours
+		RNG rng(12345);
+		im_cont = im_thresh.clone();
+		findContours(im_cont, contours, hierarchy, CV_RETR_TREE,
+				CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+
+		// Approximate contours to polygons + get bounding rects and circles
+		vector<vector<Point> > contours_poly(contours.size());
+		vector<Rect> boundRect(contours.size());
+		vector<Point2f> center(contours.size());
+		vector<float> radius(contours.size());
+
+		for (unsigned int i = 0; i < contours.size(); i++) {
+			approxPolyDP(Mat(contours[i]), contours_poly[i], 3, true);
+			boundRect[i] = boundingRect(Mat(contours_poly[i]));
+			minEnclosingCircle((Mat) contours_poly[i], center[i], radius[i]);
+		}
+
+		vector<Moments> mu(contours.size() );
+		for(unsigned int i = 0; i < contours.size(); i++ ){
+		  if (radius[i]>50) mu[i] = moments( contours[i], false );
+		}
+
+		//Mass center
+		vector<Point2f> mc( contours.size() );
+		for(unsigned int i = 0; i < contours.size(); i++ ){
+		  if (radius[i]>50) mc[i] = Point2f( mu[i].m10/mu[i].m00 , mu[i].m01/mu[i].m00 );
+		}
+
+		// Draw contours
+		Mat im_contFin = Mat::zeros(im_cont.size(), CV_8UC3);
+		for (unsigned int i = 0; i < contours.size(); i++) {
+			if (radius[i]>50){
+			Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255),
+					rng.uniform(0, 255));
+			drawContours(im_contFin, contours, i, color, 2, 8, hierarchy, 0,
+					Point());
+			rectangle(im_contFin, boundRect[i].tl(), boundRect[i].br(), color,
+					2, 8, 0);
+			circle(im_contFin, center[i], (int) radius[i], color, 2, 8, 0);
+			circle(im_contFin,mc[i],5,255);
+			}
+		}
+
+		centerMass = center[0];
+		Scalar centerr;
+		for (size_t i = 1; i < center.size(); i++) {
+			//for (i = intersections.begin(); i != intersections.end(); ++i) {
+			centerMasstemp = center[i];
+			centerMass.x = centerMass.x + centerMasstemp.x;
+			centerMass.y = centerMass.y + centerMasstemp.y;
+			cout << "Center is " << centerMasstemp.x << ", " << centerMasstemp.y << "  " << "  "<< endl;
+			//circle(im_contFin, centerMasstemp, 1, Scalar(0, 0, 255), 3);
+		}
+
+		//Estimated Center of the marker
+		centerMass.x = centerMass.x / center.size();
+		centerMass.y = centerMass.y / center.size();
+		centerr=mean(center);
+		cout << centerr <<" = "<< centerMass<<endl;
+		circle(im_contFin, centerMass, 5, Scalar(0,255,0));
+
+		//imshow("Thresholded Image", im_thresh); //show the thresholded image
+		//imshow("Original", imHSV); //show the original image*
+		//imshow("Contoured", im_contFin); //show the original image*
+
+		float time = timer.getTimeMs();
+		log().info() << "Processing Time: " << time << "[ms]\n";
+
+		/*
+ 		if (waitKey(30) == 27) { //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
+			cout << "esc key is pressed by user" << endl;
+			break;
+		}*/
+	//}
+	return centerMass;
+}
+
 Q_EXPORT_PLUGIN(SamplePlugin);
+
