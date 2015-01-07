@@ -1,20 +1,43 @@
 #ifndef SAMPLEPLUGIN_HPP
 #define SAMPLEPLUGIN_HPP
 
+//Includes
 #include "../release/ui_SamplePlugin.h"
-
-#include <fstream>
+#include <QPushButton>
 
 #include <opencv2/opencv.hpp>
 
-#include <rws/RobWorkStudioPlugin.hpp>
-
 #include <rw/kinematics/State.hpp>
 #include <rw/math/Q.hpp>
+#include <rw/loaders/ImageLoader.hpp>
+#include <rw/loaders/WorkCellFactory.hpp>
+#include <rw/kinematics/MovableFrame.hpp>
+#include <rws/RobWorkStudio.hpp>
+#include <rws/RobWorkStudioPlugin.hpp>
 #include <rwlibs/opengl/RenderImage.hpp>
 #include <rwlibs/simulation/GLFrameGrabber.hpp>
 
-class SamplePlugin: public rws::RobWorkStudioPlugin, private Ui::SamplePlugin
+#include <fstream>
+
+//Namespaces
+using namespace rw::common;
+using namespace rw::math;
+using namespace rw::graphics;
+using namespace rw::kinematics;
+using namespace rw::loaders;
+using namespace rw::models;
+using namespace rw::sensor;
+using namespace rwlibs::opengl;
+using namespace rwlibs::simulation;
+using namespace rws;
+
+using namespace cv;
+
+using namespace Eigen;
+
+using namespace std;
+
+class SamplePlugin: public RobWorkStudioPlugin, private Ui::SamplePlugin
 {
 Q_OBJECT
 Q_INTERFACES( rws::RobWorkStudioPlugin )
@@ -25,12 +48,14 @@ public:
 
 	//Plugin Methods
 	virtual void initialize();
-	virtual void open(rw::models::WorkCell* workcell);
+	virtual void open(WorkCell* workcell);
 	virtual void close();
 
 	//Methods
-	cv::Mat getImageAndShow();
-	rw::math::Q getdQ(cv::Mat image);
+	Mat getImageAndShow();
+	void writeData();
+	void computeError();
+	Q getdQ(Mat image);
 
 private slots:
 	void buttonPressed();
@@ -39,17 +64,25 @@ private slots:
 	void stateChangedListener(const rw::kinematics::State& state);
 
 private:
-	std::ifstream _motionFile;
+	ifstream _motionFile;
+	ofstream _cameraPoseFile;
+	ofstream _errorPoseFile;
+	ofstream _qRobotFile;
+
+	vector<Transform3D<> > _markerPoseVec;
+	vector<Transform3D<> > _cameraPoseVec;
+	vector<Transform3D<> > _errorPoseVec;
+	vector<Q> _qRobotVec;
 
 	QTimer* _loop;
 
 	int _previousPoints[3][2]; //[point][0] X coordinate, [point][1] Y coordinate
 
-	rw::models::WorkCell::Ptr _wc;
-	rw::models::Device::Ptr _device;
-	rw::kinematics::State _state;
-	rwlibs::opengl::RenderImage *_textureRender, *_bgRender;
-	rwlibs::simulation::GLFrameGrabber* _framegrabber;
+	WorkCell::Ptr _wc;
+	Device::Ptr _device;
+	State _state;
+	RenderImage *_textureRender, *_bgRender;
+	GLFrameGrabber* _framegrabber;
 };
 
 #endif /*RINGONHOOKPLUGIN_HPP_*/

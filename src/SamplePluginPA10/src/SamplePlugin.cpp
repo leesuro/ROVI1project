@@ -1,33 +1,6 @@
 //Includes
 #include "SamplePlugin.hpp"
 
-#include <rws/RobWorkStudio.hpp>
-
-#include <QPushButton>
-
-#include <rw/loaders/ImageLoader.hpp>
-#include <rw/loaders/WorkCellFactory.hpp>
-#include <rw/kinematics/MovableFrame.hpp>
-//#include <rw/math/Jacobian.hpp>
-
-//Namespaces
-using namespace rw::common;
-using namespace rw::math;
-using namespace rw::graphics;
-using namespace rw::kinematics;
-using namespace rw::loaders;
-using namespace rw::models;
-using namespace rw::sensor;
-using namespace rwlibs::opengl;
-using namespace rwlibs::simulation;
-using namespace rws;
-
-using namespace cv;
-
-using namespace Eigen;
-
-using namespace std;
-
 //Global variables
 const QString iconPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
 const string workcellPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
@@ -35,7 +8,9 @@ const string imagePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src
 const string markerPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
 const string backgroundPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
 const string motionFilePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/motions/MarkerMotionSlow.txt";
-
+const string cameraPosePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/cameraPose.txt";
+const string errorPosePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/errorPose.txt";
+const string qRobotPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/qRobot.txt";
 /*
 const QString iconPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
 const string workcellPath = "/home/pyc/workspace/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
@@ -43,6 +18,9 @@ const string imagePath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/
 const string markerPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
 const string backgroundPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
 const string motionFilePath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/motions/MarkerMotionSlow.txt";
+const string cameraPosePath = "/home/pyc/workspace/ROVI1project/data/cameraPose.txt";
+const string errorPosePath = "/home/pyc/workspace/ROVI1project/data/errorPose.txt";
+const string qRobotPath = "/home/pyc/workspace/ROVI1project/data/qRobot.txt";
 */
 
 
@@ -57,7 +35,7 @@ SamplePlugin::SamplePlugin():
 	_loop = new QTimer(this);
     connect(_loop, SIGNAL(timeout()), this, SLOT(loop()));
 
-	// now connect stuff from the ui component
+	//Now connect stuff from the ui component
 	connect(_btn0, SIGNAL(pressed()), this, SLOT(buttonPressed()) );
 	connect(_btn1, SIGNAL(pressed()), this, SLOT(buttonPressed()) );
 	connect(_spinBox, SIGNAL(valueChanged(int)), this, SLOT(buttonPressed()) );
@@ -200,6 +178,72 @@ Mat SamplePlugin::getImageAndShow()
 }
 
 /**
+ * Exports the data to files
+ * @param _cameraPoseVec The Camera pose
+ * @param _errorPoseVec The error pose
+ * @param _qRobotVec The Robot Q
+ */
+void SamplePlugin::writeData()
+{
+/*	_cameraPoseFile.open(cameraPosePath.c_str(), std::ofstream::trunc | std::ofstream::app);
+	_errorPoseFile.open(errorPosePath.c_str(), std::ofstream::trunc | std::ofstream::app);
+	_qRobotFile.open(qRobotPath.c_str(), std::ofstream::trunc | std::ofstream::app);*/
+	_cameraPoseFile.open(cameraPosePath.c_str());
+	_errorPoseFile.open(errorPosePath.c_str());
+	_qRobotFile.open(qRobotPath.c_str());
+
+
+	for (unsigned int i=0; i<_cameraPoseVec.size(); i++){
+		_cameraPoseFile << "("
+						<< _cameraPoseVec[i].P()(0) << ","
+						<< _cameraPoseVec[i].P()(1) << ","
+						<< _cameraPoseVec[i].P()(2) << ","
+						<< RPY<>(_cameraPoseVec[i].R())(0) << ","
+						<< RPY<>(_cameraPoseVec[i].R())(1) << ","
+						<< RPY<>(_cameraPoseVec[i].R())(2) << ")\n";
+	}
+
+	for (unsigned int i=0; i<_errorPoseVec.size(); i++){
+		_errorPoseFile  << "("
+						<< _errorPoseVec[i].P()(0) << ","
+						<< _errorPoseVec[i].P()(1) << ","
+						<< _errorPoseVec[i].P()(2) << ","
+						<< RPY<>(_errorPoseVec[i].R())(0) << ","
+						<< RPY<>(_errorPoseVec[i].R())(1) << ","
+						<< RPY<>(_errorPoseVec[i].R())(2) << ")\n";
+	}
+
+	for (unsigned int i=0; i<_qRobotVec.size(); i++){
+		_qRobotFile << "("
+					<< _qRobotVec[i](0) << ","
+					<< _qRobotVec[i](1) << ","
+					<< _qRobotVec[i](2) << ","
+					<< _qRobotVec[i](3) << ","
+					<< _qRobotVec[i](4) << ","
+					<< _qRobotVec[i](5) << ","
+					<< _qRobotVec[i](6) << ")\n";
+	}
+
+	_cameraPoseFile.close();
+	_errorPoseFile.close();
+	_qRobotFile.close();
+}
+
+/**
+ * Computes the error between the marker and the camera
+ */
+void SamplePlugin::computeError(){
+	for (unsigned int i=0; i<_cameraPoseVec.size(); i++){
+		Vector3D<> P = _markerPoseVec[i].P()-_cameraPoseVec[i].P();
+		RPY<> RPYMarker = RPY<>(_markerPoseVec[i].R());
+		RPY<> RPYCamera = RPY<>(_cameraPoseVec[i].R());
+		RPY<> RPY (RPYMarker(0)-RPYCamera(0), RPYMarker(1)-RPYCamera(1), RPYMarker(2)-RPYCamera(2) );
+		Transform3D<> trans_aux(P, RPY.toRotation3D());
+		_errorPoseVec.push_back(trans_aux);
+	}
+}
+
+/**
  *
  * @param image
  * @return
@@ -208,7 +252,7 @@ Q SamplePlugin::getdQ(Mat image)
 {
 	//Get points from OpenCV algorithms
 	Vector3D<> P = (_wc->findFrame("Marker"))->getTransform(_state).P();
-	Vector3D<> Pt = inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * P * 1500;
+	Vector3D<> Pt = inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * P * 1000;
 
 	float u = Pt(0);
 	float v = Pt(1);
@@ -294,8 +338,17 @@ void SamplePlugin::loop()
 			_device->setQ(_device->getQ(_state) + dq, _state);
 			//Updates the state in the RobWork Studio
 			getRobWorkStudio()->setState(_state);
+			//Store the Q and the Camera's Pose
+			_markerPoseVec.push_back(markerFrame->getTransform(_state));
+			_cameraPoseVec.push_back(_device->worldTbase(_state)*_device->baseTframe(_wc->findFrame("Camera"), _state));
+			_qRobotVec.push_back(_device->getQ(_state));
+
 		} else {
-			log().info() << "Motion file finished!" << "\n!";
+			log().info() << "Motion file finished!" << "\n";
+			computeError();
+			writeData();
+			log().info() << "Data exported!" << "\n!";
+
 			_motionFile.close();
 		}
 	}
