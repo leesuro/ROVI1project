@@ -268,6 +268,7 @@ Q SamplePlugin::getdQ(Mat & image)
 
 	//Point2f point = corny(image);
 	Point2f point = color(image);
+	//Point2f point = linesH(image);
 
 	float u = point.x + 1024/2;
 	float v = point.y + 768/2;
@@ -295,8 +296,10 @@ Q SamplePlugin::getdQ(Mat & image)
 	//As the d(u,v) is not referenced to the base, we need to adapt it
 	MatrixXd Sq(6,6);
 
-	//Matrix3d R_device_T = (_device->worldTbase(_state).R().e() * _device->baseTframe(_wc->findFrame("Camera"), _state).R().e()).transpose();
-	Rotation3D<> R_device_T = inverse( (_device->worldTbase(_state).R() * _device->baseTframe(_wc->findFrame("Camera"), _state).R() ) );
+	//Matrix3d R_device_T = (_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)).R().e().transpose();
+	//Rotation3D<> R_device_T = inverse( (_device->worldTbase(_state).R() * _device->baseTframe(_wc->findFrame("Camera"), _state).R() ) );
+	Matrix3d R_device_T = (_device->baseTframe(_wc->findFrame("Camera"), _state).R().e()).transpose();
+	//Rotation3D<> R_device_T = inverse(_device->baseTframe(_wc->findFrame("Camera"), _state).R());
 
 	for (unsigned char row=0; row<6; row++){
 		for (unsigned char col=0; col<6; col++){
