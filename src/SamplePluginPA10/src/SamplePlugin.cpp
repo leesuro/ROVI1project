@@ -261,7 +261,7 @@ void SamplePlugin::computeError(){
 Q SamplePlugin::getdQ(Mat & image)
 {
 	//Get points from OpenCV algorithms
-	/*Vector3D<> P = (_wc->findFrame("Marker"))->getTransform(_state).P();
+/*	Vector3D<> P = (_wc->findFrame("Marker"))->getTransform(_state).P();
 	Vector3D<> Pt = inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * P * 1000;
 	float u = Pt(0);
 	float v = Pt(1);*/
@@ -269,11 +269,10 @@ Q SamplePlugin::getdQ(Mat & image)
 	//Point2f point = corny(image);
 	Point2f point = color(image);
 
-
 	float u = point.x + 1024/2;
 	float v = point.y + 768/2;
 
-	//log().info() << "x:" << point.x << ", y:" << point.y << "\n";
+	log().info() << "x:" << u << ", y:" << v << "\n";
 
 	//Continue with the device's jacobian
 	Jacobian deviceJacobian_aux = _device->baseJframe(_wc->findFrame("Camera"), _state);
@@ -295,7 +294,10 @@ Q SamplePlugin::getdQ(Mat & image)
 
 	//As the d(u,v) is not referenced to the base, we need to adapt it
 	MatrixXd Sq(6,6);
-	Rotation3D<> R_device_T = inverse(_device->baseTframe(_wc->findFrame("Camera"), _state).R());
+
+	//Matrix3d R_device_T = (_device->worldTbase(_state).R().e() * _device->baseTframe(_wc->findFrame("Camera"), _state).R().e()).transpose();
+	Rotation3D<> R_device_T = inverse( (_device->worldTbase(_state).R() * _device->baseTframe(_wc->findFrame("Camera"), _state).R() ) );
+
 	for (unsigned char row=0; row<6; row++){
 		for (unsigned char col=0; col<6; col++){
 			if (row<3 && col<3) Sq(row, col) = R_device_T(row, col);
@@ -327,8 +329,6 @@ Q SamplePlugin::getdQ(Mat & image)
 	//And calculate dq
 	MatrixXd dq_aux (7,1);
 	dq_aux = Zimage.transpose() * (Zimage*Zimage.transpose()).inverse() * dudv;
-
-	//dq_aux*=2.0;
 
 	Q dq = Q(7, dq_aux(0,0), dq_aux(1,0), dq_aux(2,0), dq_aux(3,0),	dq_aux(4,0), dq_aux(5,0), dq_aux(6,0));
 
