@@ -644,6 +644,7 @@ Point2f SamplePlugin::color(Mat img_input) {
 
 Point2f SamplePlugin::linesH (Mat img_input) {
 Mat img_gray,edges,img_thresh,img_output;
+int min_threshold = 50;
 /// Pass the image to gray
 		cvtColor(img_input,img_gray, COLOR_RGB2GRAY);
 /// Apply Canny edge detector
@@ -653,7 +654,7 @@ Mat img_gray,edges,img_thresh,img_output;
 	cvtColor(edges, img_output, COLOR_GRAY2BGR);
 
 /// 1. Use Standard Hough Transform
-	HoughLines(edges, s_lines_new, 2, CV_PI / 180, min_threshold + s_trackbar, 0,
+	HoughLines(edges, s_lines_new, 2, CV_PI / 180, min_threshold + 150, 0,
 			0);
 
 
