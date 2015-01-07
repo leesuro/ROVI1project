@@ -4,13 +4,14 @@
 %---Packages---%
 \usepackage{authblk} %Title
 \usepackage[hidelinks]{hyperref} %Emails in Title
-%\usepackage[backend=biber,style=numeric]{biblatex}
-\usepackage[backend=bibtex,style=numeric]{biblatex}
- %Bibliography
-
-
-%---Bibliography sources---%
-\bibliography{bibliography.bib}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\usepackage{listings} %Insert code
+\usepackage{xcolor} %Change colors
+\usepackage{mathtools}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usetikzlibrary{calc}
 
 %---Begin Document---%
 \begin{document}
@@ -18,18 +19,9 @@
 \include{chapters/title}
 	\maketitle
 	\tableofcontents
-
+ 
 	\include{chapters/introduction}
 	\include{chapters/1}
-	\include{chapters/2}
-	\include{chapters/3}
-	\include{chapters/4}
-	\include{chapters/5}
-	\include{chapters/6}
-	\include{chapters/7}
 	\include{chapters/conclusions}
 
-	\nocite{*} %To print the no referencered referencies
-	\printbibliography[heading=bibintoc]
-
-\end{document}          
+\end{document}

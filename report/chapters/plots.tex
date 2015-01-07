@@ -1,0 +1,38 @@
+%\input{../data/cameraPose.txt}
+%\input{../data/errorPose.txt}
+\input{../data/qRobot.txt}
+
+%Time Plot
+% \newcommand{\cameraPosePlot}{
+% \label{plo:cameraPosePlot}
+% \begin{figure}[!ht]
+% \centering
+% 	\begin{tikzpicture}
+% 		\begin{axis}[height=9cm, width=\textwidth, grid=major,xlabel={Step},ylabel={Time[s]}]
+			
+% 			\addplot [color=SkyBlue, mark=o] coordinates {
+% 				\cameraPose
+% 			};
+% 			\addlegendentry{t}
+
+% 		\end{axis}
+% 	\end{tikzpicture}
+% \end{figure}
+% }
+
+\newcommand{\qRobotPlot}{
+\label{plo:qRobotPlot}
+\begin{figure}[!ht]
+\centering
+	\begin{tikzpicture}
+		\begin{axis}[height=9cm, width=\textwidth, grid=major,xlabel={Step},ylabel={Time[s]}]
+			
+			\addplot [color=SkyBlue, mark=o] coordinates {
+				\qRobotData
+			};
+			\addlegendentry{t}
+
+		\end{axis}
+	\end{tikzpicture}
+\end{figure}
+}

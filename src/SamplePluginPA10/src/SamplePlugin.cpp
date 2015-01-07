@@ -7,7 +7,7 @@ const string workcellPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/
 const string imagePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
 const string markerPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
 const string backgroundPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
-const string motionFilePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/motions/MarkerMotionSlow.txt";
+const string motionFilePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/motions/MarkerMotionFast.txt";
 const string cameraPosePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/cameraPose.txt";
 const string errorPosePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/errorPose.txt";
 const string qRobotPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/qRobot.txt";
@@ -185,14 +185,19 @@ Mat SamplePlugin::getImageAndShow()
  */
 void SamplePlugin::writeData()
 {
-/*	_cameraPoseFile.open(cameraPosePath.c_str(), std::ofstream::trunc | std::ofstream::app);
-	_errorPoseFile.open(errorPosePath.c_str(), std::ofstream::trunc | std::ofstream::app);
-	_qRobotFile.open(qRobotPath.c_str(), std::ofstream::trunc | std::ofstream::app);*/
 	_cameraPoseFile.open(cameraPosePath.c_str());
 	_errorPoseFile.open(errorPosePath.c_str());
 	_qRobotFile.open(qRobotPath.c_str());
 
+	_cameraPoseFile.precision(3);
+	_cameraPoseFile.setf(std::ios::fixed);
+	_errorPoseFile.precision(3);
+	_errorPoseFile.setf(std::ios::fixed);
+	_qRobotFile.precision(3);
+	_qRobotFile.setf(std::ios::fixed);
 
+
+	_cameraPoseFile << "\\newcommand{\\cameraPoseData}{\n";
 	for (unsigned int i=0; i<_cameraPoseVec.size(); i++){
 		_cameraPoseFile << "("
 						<< _cameraPoseVec[i].P()(0) << ","
@@ -202,7 +207,9 @@ void SamplePlugin::writeData()
 						<< RPY<>(_cameraPoseVec[i].R())(1) << ","
 						<< RPY<>(_cameraPoseVec[i].R())(2) << ")\n";
 	}
+	_cameraPoseFile << "}";
 
+	_errorPoseFile << "\\newcommand{\\errorPoseData}{\n";
 	for (unsigned int i=0; i<_errorPoseVec.size(); i++){
 		_errorPoseFile  << "("
 						<< _errorPoseVec[i].P()(0) << ","
@@ -212,16 +219,16 @@ void SamplePlugin::writeData()
 						<< RPY<>(_errorPoseVec[i].R())(1) << ","
 						<< RPY<>(_errorPoseVec[i].R())(2) << ")\n";
 	}
+	_errorPoseFile << "}";
 
-	for (unsigned int i=0; i<_qRobotVec.size(); i++){
-		_qRobotFile << "("
-					<< _qRobotVec[i](0) << ","
-					<< _qRobotVec[i](1) << ","
-					<< _qRobotVec[i](2) << ","
-					<< _qRobotVec[i](3) << ","
-					<< _qRobotVec[i](4) << ","
-					<< _qRobotVec[i](5) << ","
-					<< _qRobotVec[i](6) << ")\n";
+	for (unsigned char joint=0; joint < 7; joint++){
+		_qRobotFile << "\\newcommand{\\qRobotData}[" << (int)joint << "]{\n";
+		for (unsigned int i=0; i<_qRobotVec.size(); i++){
+			_qRobotFile << "("
+						<< i << ", "
+						<< _qRobotVec[i](joint) << ")\n";
+		}
+		_qRobotFile << "}\n\n";
 	}
 
 	_cameraPoseFile.close();

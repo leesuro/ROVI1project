@@ -8,6 +8,7 @@
 *.out
 *.run.xml
 *.synctex.gz
+*.report.synctex.gz(busy)
 *.toc
 *.fuse*
 report.pdf
