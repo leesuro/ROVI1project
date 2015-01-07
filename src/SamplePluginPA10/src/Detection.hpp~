@@ -1,9 +1,5 @@
-/*
- * MarkerCorny.cpp
- *
- *  Created on: Jan 1, 2015
- *      Author: pyc
- */
+#ifndef DETECTION_HPP
+#define DETECTION_HPP
 
 #include <stdio.h>
 #include <iostream>
@@ -18,46 +14,25 @@
 using namespace cv;
 using namespace std;
 
+//Global paths
+//const string MarkerPath = 	"/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/markers/Marker3.ppm";
 
-void readme();
+const string MarkerPath = 	"/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/markers/Marker3.ppm";
 
-/** @function main */
-int main() {
+
+
+public Point2f corny (Mat img_input){
 	std::string scene_addr;
 	std::stringstream sstm;
 	 struct timespec t2, t3;
 	    double dt1;
 	int cnti;
-	Mat img_object =
-			imread(
-					"/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/markers/Marker3.ppm",
+	Mat img_object; = img_input;
+			imread(MarkerPath,
 					CV_LOAD_IMAGE_GRAYSCALE);
 	Mat img_scene;
+	cvtColor(img_input, img_scene, CV_BGR2GRAY);
 
-	for (cnti = 1; cnti < 50; cnti++) {
-		  clock_gettime(CLOCK_MONOTONIC,  &t2);
-		sstm.str("");
-		std::cout << cnti << std::endl;
-		if (cnti < 10)
-			sstm
-					<< "/home/pyc/workspace/ROVI1project/res/markers/marker_corny_hard/marker_corny_hard_0"
-					<< cnti << ".png";
-		else
-			sstm
-					<< "/home/pyc/workspace/ROVI1project/res/markers/marker_corny_hard/marker_corny_hard_"
-					<< cnti << ".png";
-
-		//if (cnti<10) sstm << "/home/pyc/workspace/ROVI1project/res/markers/marker_corny/marker_corny_0"<<cnti<<".png";
-		//	else sstm << "/home/pyc/workspace/ROVI1project/res/markers/marker_corny/marker_corny_"<<cnti<<".png";
-
-		scene_addr = sstm.str();
-		cout << scene_addr << endl;
-		img_scene = imread(scene_addr, CV_LOAD_IMAGE_GRAYSCALE);
-
-		if (!img_object.data || !img_scene.data) {
-			std::cout << " --(!) Error reading images " << std::endl;
-			return -1;
-		}
 
 		//Detect the keypoints using SURF Detector
 		int minHessian = 400;
@@ -159,11 +134,6 @@ int main() {
 		cout << "elapsed time: " << dt1		<< " s  "  << endl;
 		waitKey(0);
 
-	}
-	return 0;
-}
 
-/** @function readme */
-void readme() {
-	std::cout << " Usage: ./SURF_descriptor <img1> <img2>" << std::endl;
+	return 0;
 }

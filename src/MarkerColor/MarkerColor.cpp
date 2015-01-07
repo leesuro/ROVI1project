@@ -76,83 +76,15 @@ void detection(Mat imHSV) {
 
 	int icounter=0;
 	//while (true) {
-		for (icounter=0;icounter<2;icounter++){
+		//for (icounter=0;icounter<2;icounter++){
 		//inRange(imHSV, Scalar(iLowH, iLowS, iLowV),Scalar(iHighH, iHighS, iHighV), im_thresh); //Threshold the image
 		//EASY MARKER
-		if (icounter==0){
 		inRange(imHSV, Scalar(61, 51, 0),Scalar(90, 255, 255), im_thresh); //Threshold the image green plate
 		//inRange(imHSV, Scalar(0, 71, 0),Scalar(12, 255, 255), im_thresh); //Threshold the image red circle
 		//inRange(imHSV, Scalar(111,123, 60),Scalar(132, 195, 255), im_thresh); //Threshold the image blue circles
-		//morphological opening (remove small objects from the foreground)
-		erode(im_thresh, im_thresh,
-				getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
-		dilate(im_thresh, im_thresh,
-				getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
-
-		//morphological closing (fill small holes in the foreground)
-		dilate(im_thresh, im_thresh,
-				getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
-		erode(im_thresh, im_thresh,
-				getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
-
-		//contours
-
-		RNG rng(12345);
-		im_cont = im_thresh.clone();
-		findContours(im_cont, contours, hierarchy, CV_RETR_TREE,
-				CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
-
-		/// Approximate contours to polygons + get bounding rects and circles
-		vector<vector<Point> > contours_poly(contours.size());
-		vector<Rect> boundRect(contours.size());
-		vector<Point2f> center(contours.size());
-		vector<float> radius(contours.size());
-
-		for (int i = 0; i < contours.size(); i++) {
-			approxPolyDP(Mat(contours[i]), contours_poly[i], 3, true);
-			boundRect[i] = boundingRect(Mat(contours_poly[i]));
-			minEnclosingCircle((Mat) contours_poly[i], center[i], radius[i]);
-
-		}
-
-		vector<Moments> mu(contours.size() );
-		  for( int i = 0; i < contours.size(); i++ ){
-			  if (radius[i]>50)
-		      mu[i] = moments( contours[i], false );
-		  }
-
-		//Mass center
-		vector<Point2f> mc( contours.size() );
-		  for( int i = 0; i < contours.size(); i++ ){
-			  if (radius[i]>50)
-		    mc[i] = Point2f( mu[i].m10/mu[i].m00 , mu[i].m01/mu[i].m00 );
-		  }
-
-
-		/// Draw contours
-		Mat im_contFin = Mat::zeros(im_cont.size(), CV_8UC3);
-		for (int i = 0; i < contours.size(); i++) {
-			if (radius[i]>50){
-			Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255),
-					rng.uniform(0, 255));
-			drawContours(im_contFin, contours, i, color, 2, 8, hierarchy, 0,
-					Point());
-			rectangle(im_contFin, boundRect[i].tl(), boundRect[i].br(), color,
-					2, 8, 0);
-			circle(im_contFin, center[i], (int) radius[i], color, 2, 8, 0);
-			circle(im_contFin,mc[i],5,255);
-			}
-			imshow("Thresholded Image", im_thresh); //show the thresholded image
-					imshow("Original", imHSV); //show the original image*
-					imshow("Contoured", im_contFin); //show the original image*
-
-		}
-		//waitKey();
-		}
-		//HARD MARKER
+				//HARD MARKER
 		//inRange(imHSV, Scalar(0, 128, 88),Scalar(13, 219, 200), im_thresh); //Threshold the image red circle
-		if (icounter==1){
-		inRange(imHSV, Scalar(100,50, 0),Scalar(150, 180, 255), im_thresh); //Threshold the image blue circles
+		//inRange(imHSV, Scalar(100,50, 0),Scalar(150, 180, 255), im_thresh); //Threshold the image blue circles
 
 		//morphological opening (remove small objects from the foreground)
 		erode(im_thresh, im_thresh,
@@ -214,13 +146,31 @@ void detection(Mat imHSV) {
 			circle(im_contFin,mc[i],5,255);
 			}
 		}
+
+		Point2f centerMass = center[0],centerMasstemp;
+		Scalar centerr;
+
+				for (size_t i = 1; i < center.size(); i++) {
+					//for (i = intersections.begin(); i != intersections.end(); ++i) {
+					centerMasstemp = center[i];
+					centerMass.x = centerMass.x + centerMasstemp.x;
+					centerMass.y = centerMass.y + centerMasstemp.y;
+					cout << "Center is " << centerMasstemp.x << ", " << centerMasstemp.y << "  " << "  "<< endl;
+					//circle(im_contFin, centerMasstemp, 1, Scalar(0, 0, 255), 3);
+				}
+				//Estimated Centre of Marker
+				centerMass.x = centerMass.x / center.size();
+				centerMass.y = centerMass.y / center.size();
+				centerr=mean(center);
+				cout << centerr <<" = "<< centerMass<<endl;
+				circle(im_contFin, centerMass, 5, Scalar(0,255,0));
 
 
 		imshow("Thresholded Image", im_thresh); //show the thresholded image
 		imshow("Original", imHSV); //show the original image*
 		imshow("Contoured", im_contFin); //show the original image*
-		}
-		}
+
+
 		//if (waitKey(30) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
 		//		{
 		//	cout << "esc key is pressed by user" << endl;
@@ -240,14 +190,14 @@ int main(void) {
 		sstm.str("");
 
 		//HARD MARKER
-		if (cnti < 10)		sstm<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_0"<< cnti << ".png";
-		else
-			sstm << "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_"	<< cnti << ".png";
+		//if (cnti < 10)		sstm<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_0"<< cnti << ".png";
+		//else
+			//sstm << "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_"	<< cnti << ".png";
 
 		//EASY MARKER
-		//if (cnti < 10)
-		//	sstm << "/home/pyc/workspace/ROVI1project/res/markers/marker_color/marker_color_0"<< cnti << ".png";
-		//else sstm<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color/marker_color_"<< cnti << ".png";
+		if (cnti < 10)
+			sstm << "/home/pyc/workspace/ROVI1project/res/markers/marker_color/marker_color_0"<< cnti << ".png";
+		else sstm<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color/marker_color_"<< cnti << ".png";
 		scene_addr = sstm.str();
 		image = imread(scene_addr);
 		cvtColor(image, imageHSV, CV_BGR2HSV);
