@@ -106,8 +106,8 @@ void Standard_Hough(int, void*) {
 
 
 /// Show the result
-	float r, t, r2, t2,lactual,ldiff;
-	double cos_t, sin_t, x0, y0, alpha = 1000;
+	float r, t,lactual,ldiff;
+
 	Point pt1, pt2;
 
 	vector<Point2f> pt;
@@ -121,7 +121,7 @@ void Standard_Hough(int, void*) {
 			for (size_t j = 0; j < s_lines_new.size(); j++) {
 				ldiff=fabs((s_lines_new[j][1])-lactual);
 				cout<<ldiff<<endl;
-				if(((ldiff>1.565)&&(ldiff<1.575))||(ldiff<0.001)){
+				if(((ldiff>1.565)&&(ldiff<1.575))||(ldiff<0.0005)){
 					lignored.push_back(j);
 					s_lines.push_back(s_lines_new[j]);
 					s_lines_new.erase(s_lines_new.begin()+j);
