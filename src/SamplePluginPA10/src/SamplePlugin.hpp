@@ -6,6 +6,11 @@
 #include <QPushButton>
 
 #include <opencv2/opencv.hpp>
+#include "opencv2/core/core.hpp"
+#include "opencv2/features2d/features2d.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/calib3d/calib3d.hpp"
+#include "opencv2/nonfree/nonfree.hpp"
 
 #include <rw/kinematics/State.hpp>
 #include <rw/math/Q.hpp>
@@ -18,6 +23,10 @@
 #include <rwlibs/simulation/GLFrameGrabber.hpp>
 
 #include <fstream>
+#include <time.h>
+#include <stdio.h>
+#include <iostream>
+#include <sys/time.h>
 
 //Namespaces
 using namespace rw::common;
@@ -55,7 +64,10 @@ public:
 	Mat getImageAndShow();
 	void writeData();
 	void computeError();
-	Q getdQ(Mat image);
+	Q getdQ(Mat & image);
+
+	//Detection
+	Point2f corny (Mat img_input);
 
 private slots:
 	void buttonPressed();
@@ -76,7 +88,8 @@ private:
 
 	QTimer* _loop;
 
-	int _previousPoints[3][2]; //[point][0] X coordinate, [point][1] Y coordinate
+	float _previousPoints[3][2]; //[point][0] X coordinate, [point][1] Y coordinate
+	bool _firstTime;
 
 	WorkCell::Ptr _wc;
 	Device::Ptr _device;

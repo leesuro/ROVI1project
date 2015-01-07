@@ -1,38 +1,28 @@
 #ifndef DETECTION_HPP
 #define DETECTION_HPP
 
-#include <stdio.h>
-#include <iostream>
-#include "opencv2/core/core.hpp"
-#include "opencv2/features2d/features2d.hpp"
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/calib3d/calib3d.hpp"
-#include "opencv2/nonfree/nonfree.hpp"
-#include <time.h>
-#include <sys/time.h>
-
-using namespace cv;
-using namespace std;
+#include "SamplePlugin.hpp"
 
 //Global paths
+const string MarkerPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/markers/Marker3.ppm";
+
 //const string MarkerPath = 	"/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/markers/Marker3.ppm";
 
-const string MarkerPath = 	"/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/markers/Marker3.ppm";
+Point2f corny(Mat img){
 
+}
 
-
-public Point2f corny (Mat img_input){
+/*Point2f corny2 (Mat img_input){
 	std::string scene_addr;
 	std::stringstream sstm;
 	 struct timespec t2, t3;
 	    double dt1;
-	int cnti;
-	Mat img_object; = img_input;
+	//int cnti;
+	Mat img_object = img_input;
 			imread(MarkerPath,
 					CV_LOAD_IMAGE_GRAYSCALE);
-	Mat img_scene;
-	cvtColor(img_input, img_scene, CV_BGR2GRAY);
-
+	Mat img_scene = img_object;
+	//cv::cvtColor(img_input, img_scene, CV_BGR2GRAY);
 
 		//Detect the keypoints using SURF Detector
 		int minHessian = 400;
@@ -90,7 +80,7 @@ public Point2f corny (Mat img_input){
 		std::vector<Point2f> obj;
 		std::vector<Point2f> scene;
 
-		for (int i = 0; i < good_matches.size(); i++) {
+		for (unsigned int i = 0; i < good_matches.size(); i++) {
 			//-- Get the keypoints from the good matches
 			obj.push_back(keypoints_object[good_matches[i].queryIdx].pt);
 			scene.push_back(keypoints_scene[good_matches[i].trainIdx].pt);
@@ -113,7 +103,7 @@ public Point2f corny (Mat img_input){
 		line(img_matches, scene_corners[1],	scene_corners[2] , Scalar(0, 255, 0), 4);
 		line(img_matches, scene_corners[2],	scene_corners[3] , Scalar(0, 255, 0), 4);
 		line(img_matches, scene_corners[3],	scene_corners[0] , Scalar(0, 255, 0), 4);
-		/*line(img_matches, scene_corners[0] + Point2f(img_object.cols, 0),
+		line(img_matches, scene_corners[0] + Point2f(img_object.cols, 0),
 				scene_corners[1] + Point2f(img_object.cols, 0),
 				Scalar(0, 255, 0), 4);
 		line(img_matches, scene_corners[1] + Point2f(img_object.cols, 0),
@@ -124,7 +114,7 @@ public Point2f corny (Mat img_input){
 				Scalar(0, 255, 0), 4);
 		line(img_matches, scene_corners[3] + Point2f(img_object.cols, 0),
 				scene_corners[0] + Point2f(img_object.cols, 0),
-				Scalar(0, 255, 0), 4);*/
+				Scalar(0, 255, 0), 4);
 
 		circle(img_matches,scene_corners[0],5, Scalar(0,255,0));
 		//-- Show detected matches
@@ -136,4 +126,6 @@ public Point2f corny (Mat img_input){
 
 
 	return obj_corners[0];
-}
+}*/
+
+#endif /*DETECTION_HPP*/
