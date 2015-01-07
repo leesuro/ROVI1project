@@ -135,5 +135,5 @@ public Point2f corny (Mat img_input){
 		waitKey(0);
 
 
-	return 0;
+	return obj_corners[0];
 }

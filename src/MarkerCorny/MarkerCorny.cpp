@@ -52,7 +52,9 @@ int main() {
 
 		scene_addr = sstm.str();
 		cout << scene_addr << endl;
+
 		img_scene = imread(scene_addr, CV_LOAD_IMAGE_GRAYSCALE);
+
 
 		if (!img_object.data || !img_scene.data) {
 			std::cout << " --(!) Error reading images " << std::endl;
@@ -134,10 +136,10 @@ int main() {
 		perspectiveTransform(obj_corners, scene_corners, H);
 
 		//-- Draw lines between the corners (the mapped object in the scene - image_2 )
-		line(img_matches, scene_corners[0],	scene_corners[1] , Scalar(0, 255, 0), 4);
-		line(img_matches, scene_corners[1],	scene_corners[2] , Scalar(0, 255, 0), 4);
-		line(img_matches, scene_corners[2],	scene_corners[3] , Scalar(0, 255, 0), 4);
-		line(img_matches, scene_corners[3],	scene_corners[0] , Scalar(0, 255, 0), 4);
+		//line(img_matches, scene_corners[0],	scene_corners[1] , Scalar(0, 255, 0), 4);
+		//line(img_matches, scene_corners[1],	scene_corners[2] , Scalar(0, 255, 0), 4);
+		//line(img_matches, scene_corners[2],	scene_corners[3] , Scalar(0, 255, 0), 4);
+		//line(img_matches, scene_corners[3],	scene_corners[0] , Scalar(0, 255, 0), 4);
 		/*line(img_matches, scene_corners[0] + Point2f(img_object.cols, 0),
 				scene_corners[1] + Point2f(img_object.cols, 0),
 				Scalar(0, 255, 0), 4);
