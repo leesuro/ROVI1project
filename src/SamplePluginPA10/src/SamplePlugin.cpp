@@ -5,17 +5,19 @@
 const QString iconPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
 const string workcellPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
 const string imagePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
-const string markerPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
+const string markerPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/markers/Marker3.ppm";
 const string backgroundPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
 const string motionFilePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/motions/MarkerMotionFast.txt";
 const string cameraPosePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/cameraPose.txt";
 const string errorPosePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/errorPose.txt";
 const string qRobotPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/qRobot.txt";
+
+
 /*
 const QString iconPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
 const string workcellPath = "/home/pyc/workspace/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
 const string imagePath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
-const string markerPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
+const string markerPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/markers/Marker3.ppm";
 const string backgroundPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
 const string motionFilePath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/motions/MarkerMotionSlow.txt";
 const string cameraPosePath = "/home/pyc/workspace/ROVI1project/data/cameraPose.txt";
@@ -45,6 +47,7 @@ SamplePlugin::SamplePlugin():
 	Image bgImage(0,0,Image::GRAY,Image::Depth8U);
 	_bgRender = new RenderImage(bgImage,2.5/1000.0);
 	_framegrabber = NULL;
+	_firstTime = 0;
 }
 
 SamplePlugin::~SamplePlugin()
@@ -162,7 +165,8 @@ Mat SamplePlugin::getImageAndShow()
 	const Image& imageGrabbed = _framegrabber->getImage();
 
 	// Convert to OpenCV image
-	Mat im(imageGrabbed.getHeight(),imageGrabbed.getWidth(), CV_8SC3);
+	//Mat im(imageGrabbed.getHeight(),imageGrabbed.getWidth(), CV_8SC3);
+	Mat im(imageGrabbed.getHeight(),imageGrabbed.getWidth(), CV_8UC3);
 	im.data = (uchar*)imageGrabbed.getImageData();
 	Mat image;
 	flip(im, image, 0);
@@ -255,14 +259,21 @@ void SamplePlugin::computeError(){
  * @param image
  * @return
  */
-Q SamplePlugin::getdQ(Mat image)
+Q SamplePlugin::getdQ(Mat & image)
 {
 	//Get points from OpenCV algorithms
-	Vector3D<> P = (_wc->findFrame("Marker"))->getTransform(_state).P();
-	Vector3D<> Pt = inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * P * 1000;
+	//Vector3D<> P = (_wc->findFrame("Marker"))->getTransform(_state).P();
+	//Vector3D<> Pt = inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * P * 1000;
 
-	float u = Pt(0);
-	float v = Pt(1);
+	Point2f point = corny(image);
+
+/*	float u = Pt(0);
+	float v = Pt(1);*/
+
+	float u = point.x + 1024/2;
+	float v = point.y + 768/2;
+
+	//log().info() << "x:" << point.x << ", y:" << point.y << "\n";
 
 	//Continue with the device's jacobian
 	Jacobian deviceJacobian_aux = _device->baseJframe(_wc->findFrame("Camera"), _state);
@@ -299,8 +310,16 @@ Q SamplePlugin::getdQ(Mat image)
 
 	//Perhaps, now the du and dv
 	MatrixXd dudv(2,1);
-	dudv(0,0) = u - _previousPoints[0][0];
-	dudv(1,0) = v - _previousPoints[0][1];
+
+	if (_firstTime){
+		dudv(0,0) = u - _previousPoints[0][0];
+		dudv(1,0) = v - _previousPoints[0][1];
+	}
+	_firstTime = 1;
+
+	//Show the differential
+	//log().info() << "x:" << dudv(0,0) << ", y:" << dudv(1,0) << "\n";
+
 	//Store the actual point
 	_previousPoints[0][0] = u;
 	_previousPoints[0][1] = v;
@@ -308,6 +327,8 @@ Q SamplePlugin::getdQ(Mat image)
 	//And calculate dq
 	MatrixXd dq_aux (7,1);
 	dq_aux = Zimage.transpose() * (Zimage*Zimage.transpose()).inverse() * dudv;
+
+	//dq_aux*=2.0;
 
 	Q dq = Q(7, dq_aux(0,0), dq_aux(1,0), dq_aux(2,0), dq_aux(3,0),	dq_aux(4,0), dq_aux(5,0), dq_aux(6,0));
 
@@ -397,6 +418,102 @@ void SamplePlugin::buttonPressed()
  */
 void SamplePlugin::stateChangedListener(const State& state) {
 	_state = state;
+}
+
+
+//--------------------------------------------------------
+//					   Detection
+//--------------------------------------------------------
+Point2f SamplePlugin::corny (Mat img_input)
+{
+	//Calculate the processing time
+	Timer calculationTime;
+	calculationTime.reset();
+
+	//Loads the image and the marker
+	Mat img_scene;
+	cvtColor(img_input, img_scene, CV_RGB2GRAY);
+
+	Mat img_object = imread(markerPath, CV_LOAD_IMAGE_GRAYSCALE);
+
+	//Detect the keypoints using SURF Detector
+	unsigned int minHessian = 400;
+
+	SurfFeatureDetector detector(minHessian);
+	vector<KeyPoint> keypoints_object, keypoints_scene;
+
+	detector.detect(img_object, keypoints_object);
+	detector.detect(img_scene, keypoints_scene);
+
+	//Calculate descriptors (feature vectors)
+	SurfDescriptorExtractor extractor;
+	Mat descriptors_object, descriptors_scene;
+
+	extractor.compute(img_object, keypoints_object, descriptors_object);
+	extractor.compute(img_scene, keypoints_scene, descriptors_scene);
+
+	// Matching descriptor vectors using FLANN matcher
+	FlannBasedMatcher matcher;
+	vector<DMatch> matches;
+	matcher.match(descriptors_object, descriptors_scene, matches);
+
+	double max_dist = 0;
+	double min_dist = 100;
+
+	//Quick calculation of max and min distances between keypoints
+	for (int i = 0; i < descriptors_object.rows; i++) {
+		double dist = matches[i].distance;
+		if (dist < min_dist)
+			min_dist = dist;
+		if (dist > max_dist)
+			max_dist = dist;
+	}
+
+	//Filter only the good matches
+	vector<DMatch> good_matches;
+	for (int i = 0; i < descriptors_object.rows; i++) {
+		if (matches[i].distance < 3 * min_dist) good_matches.push_back(matches[i]);
+	}
+
+	//Localize the object
+	vector<Point2f> obj;
+	vector<Point2f> scene;
+
+	for (unsigned int i = 0; i < good_matches.size(); i++) {
+		//-- Get the key points from the good matches
+		obj.push_back(keypoints_object[good_matches[i].queryIdx].pt);
+		scene.push_back(keypoints_scene[good_matches[i].trainIdx].pt);
+	}
+
+	Mat H = findHomography(obj, scene, CV_RANSAC);
+
+	//Get the corners from the image_1 (the object to be "detected")
+	vector<Point2f> obj_corners(4);
+	obj_corners[0] = cvPoint(0, 0);
+	obj_corners[1] = cvPoint(img_object.cols, 0);
+	obj_corners[2] = cvPoint(img_object.cols, img_object.rows);
+	obj_corners[3] = cvPoint(0, img_object.rows);
+	vector<Point2f> scene_corners(4);
+
+	perspectiveTransform(obj_corners, scene_corners, H);
+
+	//Draw lines between the corners and the calculated point and show the image
+/*	Mat img_matches=img_scene;
+
+	line(img_matches, scene_corners[0],	scene_corners[1] , Scalar(0, 255, 0), 4);
+	line(img_matches, scene_corners[1],	scene_corners[2] , Scalar(0, 255, 0), 4);
+	line(img_matches, scene_corners[2],	scene_corners[3] , Scalar(0, 255, 0), 4);
+	line(img_matches, scene_corners[3],	scene_corners[0] , Scalar(0, 255, 0), 4);
+	circle(img_matches,scene_corners[0],5, Scalar(0,255,0));
+	imshow("Good Matches & Object detection", img_matches);*/
+
+	//Show the processing time
+	long totalTime = calculationTime.getTimeMs();
+	log().info() << "Processing Time: " << totalTime << "[ms]\n";
+
+	//log().info() << "-----x:" << scene_corners[0].x << ", y:" << scene_corners[0].y << "\n";
+
+	return scene_corners[0];
 }
 
 Q_EXPORT_PLUGIN(SamplePlugin);
