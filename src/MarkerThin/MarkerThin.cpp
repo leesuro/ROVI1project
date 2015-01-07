@@ -16,8 +16,12 @@
 #include <iostream>
 #include <stdio.h>
 #include <math.h>
+#include <time.h>
+#include <sys/time.h>
 using namespace cv;
 using namespace std;
+struct timespec t2, t3;
+double dt1;
 
 Point2f computeIntersect(Vec2f line1, Vec2f line2);
 vector<Point2f> pointExtractFromLine(Vec2f line);
@@ -47,6 +51,7 @@ int main() {
 	stringstream sstm;
 	string scene_addr;
 	for (cnti = 1; cnti < 51; cnti++) {
+		clock_gettime(CLOCK_MONOTONIC, &t2);
 		sstm.str("");
 
 		//HARD MARKER
@@ -80,30 +85,58 @@ int main() {
 		//		Probabilistic_Hough);
 /// Initialize
 		Standard_Hough(0, 0);
-
+		clock_gettime(CLOCK_MONOTONIC, &t3);
+		dt1 = (t3.tv_sec - t2.tv_sec)
+				+ (double) (t3.tv_nsec - t2.tv_nsec) * 1e-9;
+		cout << "elapsed time: " << dt1 << " s  " << endl;
 		waitKey(0);
+
+		//waitKey(0);
 	}
 	return 0;
 }
 void Standard_Hough(int, void*) {
-	vector<Vec2f> s_lines;
+	vector<Vec2f> s_lines,s_lines_new;
 
 	cvtColor(edges, standard_hough, COLOR_GRAY2BGR);
 	standard_hough_edit = standard_hough.clone();
 /// 1. Use Standard Hough Transform
-	HoughLines(edges, s_lines, 2, CV_PI / 180, min_threshold + s_trackbar, 0,
+	HoughLines(edges, s_lines_new, 2, CV_PI / 180, min_threshold + s_trackbar, 0,
 			0);
 
+
 /// Show the result
-	float r, t, r2, t2;
+	float r, t, r2, t2,lactual,ldiff;
 	double cos_t, sin_t, x0, y0, alpha = 1000;
 	Point pt1, pt2;
 
 	vector<Point2f> pt;
+	vector<size_t> lignored;
+
+
+	//filter ortogonal lines
+	for (size_t i = 0; i < s_lines_new.size(); i++) {
+		lactual=s_lines_new[i][1];
+
+			for (size_t j = 0; j < s_lines_new.size(); j++) {
+				ldiff=fabs((s_lines_new[j][1])-lactual);
+				cout<<ldiff<<endl;
+				if(((ldiff>1.48)&&(ldiff<1.65))||(ldiff<0.2)){
+					lignored.push_back(j);
+					s_lines_new.erase(s_lines_new.begin()+j);
+				}
+			}
+	}
+
+	for (size_t i = 0; i < lignored.size(); i++) {
+		s_lines.push_back(s_lines_new[lignored[i]]);
+
+	}
+
 	for (size_t i = 0; i < s_lines.size(); i++) {
 		r = s_lines[i][0];
 		t = s_lines[i][1];
-		cout << "r = " << r << " pix \t theta = t" << t << " rad" << endl;
+		cout << "r = " << r << " pix \t theta =  " << t << " rad" << endl;
 		pt = pointExtractFromLine(s_lines[i]);
 
 		//calculate the points from hough lines r and theta
@@ -157,41 +190,39 @@ void Standard_Hough(int, void*) {
 			ignored.push_back(i);
 			for (size_t j = 1; j < intersections.size(); j++) {
 				distance = pointDistance(actual, intersections[j]);
-				cout<< distance<<", ";
-				if (distance < 5.0) {
-					cout<<"is the same point --";
+				//cout << distance << ", ";
+				if (distance <= 1.0) {
+					//cout << "is the same point --";
 					ignored.push_back(j);
 				} else {
-
-
 
 				}
 
 			}
 			//Detect clusters and filter the lonely points
-			cout<<"\n ignored: ";
-			for (size_t k=0;k<ignored.size();k++){
-				cout<<ignored[k]<<" ";
-				if (ignored.size()<5)
-				intersections.erase(intersections.begin()+ignored[k]);
-			}
+			//cout << "\n ignored: ";
+			//for (size_t k = 0; k < ignored.size(); k++) {
+				//cout << ignored[k] << " ";
+				if (ignored.size() > 4)
+					//intersections.erase(intersections.begin() + ignored[k]);
+					intersections_new.push_back(actual);
+			//}
 			ignored.clear();
-			cout<<endl;
+			cout << endl;
 		}
 		Point2f mc, centerMass = intersections[0];
 
-		for (size_t i = 1; i < intersections.size(); i++) {
+		for (size_t i = 1; i < intersections_new.size(); i++) {
 			//for (i = intersections.begin(); i != intersections.end(); ++i) {
-			mc = intersections[i];
+			mc = intersections_new[i];
 			centerMass.x = centerMass.x + mc.x;
 			centerMass.y = centerMass.y + mc.y;
-			cout << "Intersection is " << mc.x << ", " << mc.y << "  " << "  "
-					<< endl;
+			//cout << "Intersection is " << mc.x << ", " << mc.y << "  " << "  "<< endl;
 			circle(standard_hough_edit, mc, 1, Scalar(0, 0, 255), 3);
 		}
 		//Estimated Centre of Marker
-		centerMass.x = centerMass.x / intersections.size();
-		centerMass.y = centerMass.y / intersections.size();
+		centerMass.x = centerMass.x / intersections_new.size();
+		centerMass.y = centerMass.y / intersections_new.size();
 		circle(standard_hough_edit, centerMass, 5, 255);
 	}
 
@@ -269,8 +300,7 @@ vector<Point2f> pointExtractFromLine(Vec2f line) {
 	pt2.y = cvRound(y0 - alpha * cos_t);
 	ret_pt.push_back(pt1);
 	ret_pt.push_back(pt2);
-	cout << "The pt1 " << pt1.x << " " << pt1.y << " Pt2" << pt2.x << " "
-			<< pt2.y << endl;
+	//cout << "The pt1 " << pt1.x << " " << pt1.y << " Pt2" << pt2.x << " "	<< pt2.y << endl;
 
 	return ret_pt;
 }
