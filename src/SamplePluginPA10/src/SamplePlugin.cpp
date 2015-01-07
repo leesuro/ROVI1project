@@ -2,7 +2,7 @@
 #include "SamplePlugin.hpp"
 
 //Global variables
-const QString iconPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
+/*const QString iconPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
 const string workcellPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
 const string imagePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
 const string markerPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/markers/Marker3.ppm";
@@ -11,9 +11,9 @@ const string motionFilePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1projec
 const string cameraPosePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/cameraPose.txt";
 const string errorPosePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/errorPose.txt";
 const string qRobotPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/qRobot.txt";
+*/
 
 
-/*
 const QString iconPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
 const string workcellPath = "/home/pyc/workspace/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
 const string imagePath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
@@ -23,7 +23,7 @@ const string motionFilePath = "/home/pyc/workspace/ROVI1project/src/SamplePlugin
 const string cameraPosePath = "/home/pyc/workspace/ROVI1project/data/cameraPose.txt";
 const string errorPosePath = "/home/pyc/workspace/ROVI1project/data/errorPose.txt";
 const string qRobotPath = "/home/pyc/workspace/ROVI1project/data/qRobot.txt";
-*/
+
 
 
 //--------------------------------------------------------
@@ -118,7 +118,7 @@ void SamplePlugin::open(WorkCell* workcell)
 	getImageAndShow();
 
 	//Adjust the Spin Box Limits
-	_spinBox->setMaximum(1100);
+	_spinBox->setMaximum(9999);
 	_spinBox->setMinimum(0.05);
 	_spinBox->setValue(10);
 
