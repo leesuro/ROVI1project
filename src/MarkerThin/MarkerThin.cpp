@@ -121,17 +121,18 @@ void Standard_Hough(int, void*) {
 			for (size_t j = 0; j < s_lines_new.size(); j++) {
 				ldiff=fabs((s_lines_new[j][1])-lactual);
 				cout<<ldiff<<endl;
-				if(((ldiff>1.48)&&(ldiff<1.65))||(ldiff<0.2)){
+				if(((ldiff>1.565)&&(ldiff<1.575))||(ldiff<0.001)){
 					lignored.push_back(j);
+					s_lines.push_back(s_lines_new[j]);
 					s_lines_new.erase(s_lines_new.begin()+j);
 				}
 			}
 	}
 
-	for (size_t i = 0; i < lignored.size(); i++) {
-		s_lines.push_back(s_lines_new[lignored[i]]);
+	//for (size_t i = 0; i < lignored.size(); i++) {
+		//s_lines.push_back(s_lines_new[lignored[i]]);
 
-	}
+	//}
 
 	for (size_t i = 0; i < s_lines.size(); i++) {
 		r = s_lines[i][0];
@@ -203,7 +204,7 @@ void Standard_Hough(int, void*) {
 			//cout << "\n ignored: ";
 			//for (size_t k = 0; k < ignored.size(); k++) {
 				//cout << ignored[k] << " ";
-				if (ignored.size() > 4)
+				if (ignored.size() > 3)
 					//intersections.erase(intersections.begin() + ignored[k]);
 					intersections_new.push_back(actual);
 			//}
