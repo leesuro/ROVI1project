@@ -69,6 +69,11 @@ public:
 	//Detection
 	Point2f corny(Mat img_input);
 	Point2f color(Mat img_input);
+	Point2f linesH(Mat img_input);
+	float pointDistance(Point2f p, Point2f q);
+	bool acceptLinePair(Vec2f line1, Vec2f line2, float minTheta);
+	Point2f computeIntersect(Vec2f line1, Vec2f line2)
+	vector<Point2f> pointExtractFromLine(Vec2f line);
 
 private slots:
 	void buttonPressed();
