@@ -61,7 +61,7 @@ int main(void) {
 		sstm.str("");
 
 		//HARD MARKER
-		if (cnti < 10)
+		/*if (cnti < 10)
 			sstm
 					<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_0"
 					<< cnti << ".png";
@@ -69,16 +69,16 @@ int main(void) {
 			sstm
 					<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_"
 					<< cnti << ".png";
-
+*/
 		//EASY MARKER
-		/*if (cnti < 10)
+		if (cnti < 10)
 		 sstm
 		 << "/home/pyc/workspace/ROVI1project/res/markers/marker_color/marker_color_0"
 		 << cnti << ".png";
 		 else
 		 sstm
 		 << "/home/pyc/workspace/ROVI1project/res/markers/marker_color/marker_color_"
-		 << cnti << ".png";*/
+		 << cnti << ".png";
 		scene_addr = sstm.str();
 		image = imread(scene_addr);
 		markerCenter = colorDetection(image);
@@ -222,20 +222,19 @@ Point2f colorDetection(Mat img_input) {
 
 		}
 
-		//Estimated Center of the marker
-		centerMass.x = centerMass.x / counter;
-		centerMass.y = centerMass.y / counter;
+		//Estimating Center of the marker
+		if (icounter == 0) {
+			centerMassRed.x = centerMass.x / counter;
+			centerMassRed.y = centerMass.y / counter;
+
+		} else {
+			centerMass.x = (centerMass.x + centerMassRed.x) / (counter+1);
+			centerMass.y = (centerMass.y + centerMassRed.y) / (counter+1);
+		}
+
 		cout << "mass center = " << centerMass << endl;
-		if (icounter == 0)
-			centerMassRed = centerMass;
-			else {
-					centerMass.x = (centerMass.x + centerMassRed.x)/2;
-					centerMass.y = (centerMass.y + centerMassRed.y)/2;
-				}
-
+		circle(im_contFin, centerMass, 5, Scalar(0, 255, 0));
 	}
-
-	circle(im_contFin, centerMass, 5, Scalar(0, 255, 0));
 
 	imshow("Thresholded Image", im_thresh); //show the thresholded image
 	//imshow("Original", imHSV); //show the original image*
