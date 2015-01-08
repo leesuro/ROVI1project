@@ -62,7 +62,7 @@ int main() {
 		}
 
 		//Detect the keypoints using SURF Detector
-		int minHessian = 400;
+		int minHessian = 1000;
 
 		SurfFeatureDetector detector(minHessian);
 
@@ -117,7 +117,7 @@ int main() {
 		std::vector<Point2f> obj;
 		std::vector<Point2f> scene;
 
-		for (int i = 0; i < good_matches.size(); i++) {
+		for (unsigned int i = 0; i < good_matches.size(); i++) {
 			//-- Get the keypoints from the good matches
 			obj.push_back(keypoints_object[good_matches[i].queryIdx].pt);
 			scene.push_back(keypoints_scene[good_matches[i].trainIdx].pt);
@@ -140,18 +140,6 @@ int main() {
 		//line(img_matches, scene_corners[1],	scene_corners[2] , Scalar(0, 255, 0), 4);
 		//line(img_matches, scene_corners[2],	scene_corners[3] , Scalar(0, 255, 0), 4);
 		//line(img_matches, scene_corners[3],	scene_corners[0] , Scalar(0, 255, 0), 4);
-		/*line(img_matches, scene_corners[0] + Point2f(img_object.cols, 0),
-				scene_corners[1] + Point2f(img_object.cols, 0),
-				Scalar(0, 255, 0), 4);
-		line(img_matches, scene_corners[1] + Point2f(img_object.cols, 0),
-				scene_corners[2] + Point2f(img_object.cols, 0),
-				Scalar(0, 255, 0), 4);
-		line(img_matches, scene_corners[2] + Point2f(img_object.cols, 0),
-				scene_corners[3] + Point2f(img_object.cols, 0),
-				Scalar(0, 255, 0), 4);
-		line(img_matches, scene_corners[3] + Point2f(img_object.cols, 0),
-				scene_corners[0] + Point2f(img_object.cols, 0),
-				Scalar(0, 255, 0), 4);*/
 
 		circle(img_matches,scene_corners[0],5, Scalar(0,255,0));
 		//-- Show detected matches
