@@ -102,7 +102,7 @@ Point2f colorDetection(Mat img_input) {
 
 	 namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
 
-	 int iLowH = 108;
+	 /*int iLowH = 108;
 	 int iHighH = 120;
 
 	 int iLowS = 95;
@@ -119,21 +119,20 @@ Point2f colorDetection(Mat img_input) {
 
 	 cvCreateTrackbar("LowV", "Control", &iLowV, 255); //Value (0 - 255)
 	 cvCreateTrackbar("HighV", "Control", &iHighV, 255);
-
+	 */
 
 	while (true) {
 	//for (icounter=0;icounter<2;icounter++){
 
-	inRange(imHSV, Scalar(iLowH, iLowS, iLowV),Scalar(iHighH, iHighS, iHighV), im_thresh); //Threshold the image
+	//inRange(imHSV, Scalar(iLowH, iLowS, iLowV),Scalar(iHighH, iHighS, iHighV), im_thresh); //Threshold the image
 	//EASY MARKER
 	//inRange(imHSV, Scalar(61, 51, 0),Scalar(90, 255, 255), im_thresh); //Threshold the image green plate
 	//inRange(imHSV, Scalar(0, 128, 88), Scalar(13, 219, 200), im_thresh); //Threshold the image red circle
 	//inRange(imHSV, Scalar(111,123, 60),Scalar(132, 195, 255), im_thresh); //Threshold the image blue circles
 	//HARD MARKER
 	//inRange(imHSV, Scalar(0, 150, 85), Scalar(8, 214, 213), im_thresh); //Threshold the image red circle
-	//inRange(imHSV, Scalar(100,50, 0),Scalar(150, 180, 255), im_thresh); //Threshold the image blue circles
+	inRange(imHSV, Scalar(108,95, 39),Scalar(120, 168, 143), im_thresh); //Threshold the image blue circles
 
-	//inRange(imHSV, Scalar(52,237,168),Scalar(73, 255, 255), im_thresh); //Threshold the image red circle
 
 	//morphological opening (remove small objects from the foreground)
 	erode(im_thresh, im_thresh,
