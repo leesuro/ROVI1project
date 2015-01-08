@@ -1,6 +1,12 @@
 %\input{../data/cameraPose.txt}
 %\input{../data/errorPose.txt}
-\input{../data/errorPoseX.txt}
+\input{../data/qRobot7.txt}
+\input{../data/qRobot1.txt}
+\input{../data/qRobot2.txt}
+\input{../data/qRobot3.txt}
+\input{../data/qRobot4.txt}
+\input{../data/qRobot5.txt}
+\input{../data/qRobot6.txt}
 
 %Time Plot
 % \newcommand{\cameraPosePlot}{
@@ -27,10 +33,41 @@
 	\begin{tikzpicture}
 		\begin{axis}[height=9cm, width=\textwidth, grid=major,xlabel={Step},ylabel={Time[s]}]
 			
-			\addplot [color=SkyBlue, mark=o] coordinates {
-				\errorPoseDataX
+			\addplot [color=Blue, mark=o] coordinates {
+				\qRobotDataA
 			};
-			\addlegendentry{t}
+			\addlegendentry{q1}
+
+			\addplot [color=Green, mark=o] coordinates {
+				\qRobotDataB
+			};
+			\addlegendentry{q2}
+			
+			\addplot [color=Red, mark=o] coordinates {
+				\qRobotDataC
+			};
+			\addlegendentry{q3}
+			
+			\addplot [color=Black, mark=o] coordinates {
+				\qRobotDataD
+			};
+			\addlegendentry{q4}
+			
+			\addplot [color=Brown, mark=o] coordinates {
+				\qRobotDataE
+			};
+			\addlegendentry{q5}
+			
+			\addplot [color=Grey, mark=o] coordinates {
+				\qRobotDataF
+			};
+			\addlegendentry{q6}
+
+			\addplot [color=SkyBlue, mark=o] coordinates {
+				\qRobotDataG
+			};
+			\addlegendentry{q7}
+
 
 		\end{axis}
 	\end{tikzpicture}

@@ -7,7 +7,7 @@ const string workcellPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/
 const string imagePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
 const string markerPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
 const string backgroundPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
-const string motionFilePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/motions/MarkerMotionMedium.txt";
+const string motionFilePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/motions/MarkerMotionFast.txt";
 const string cameraPosePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/cameraPose";
 const string errorPosePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/errorPose";
 const string qRobotPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/qRobot";
@@ -193,59 +193,89 @@ Mat SamplePlugin::getImageAndShow()
  */
 void SamplePlugin::writeData()
 {
-	ofstream cameraPoseFile;
-	ofstream errorPoseFileX;
-	ofstream errorPoseFileY;
-	ofstream qRobotFile;
+	ofstream cameraPoseFileP0; cameraPoseFileP0.open((cameraPosePath + "P0.txt").c_str()); cameraPoseFileP0.precision(3); cameraPoseFileP0.setf(std::ios::fixed);
+	ofstream cameraPoseFileP1; cameraPoseFileP1.open((cameraPosePath + "P1.txt").c_str()); cameraPoseFileP1.precision(3); cameraPoseFileP1.setf(std::ios::fixed);
+	ofstream cameraPoseFileP2; cameraPoseFileP2.open((cameraPosePath + "P2.txt").c_str()); cameraPoseFileP2.precision(3); cameraPoseFileP2.setf(std::ios::fixed);
+	ofstream cameraPoseFileR0; cameraPoseFileR0.open((cameraPosePath + "R0.txt").c_str()); cameraPoseFileR0.precision(3); cameraPoseFileR0.setf(std::ios::fixed);
+	ofstream cameraPoseFileR1; cameraPoseFileR1.open((cameraPosePath + "R1.txt").c_str()); cameraPoseFileR1.precision(3); cameraPoseFileR1.setf(std::ios::fixed);
+	ofstream cameraPoseFileR2; cameraPoseFileR2.open((cameraPosePath + "R2.txt").c_str()); cameraPoseFileR2.precision(3); cameraPoseFileR2.setf(std::ios::fixed);
 
-	cameraPoseFile.open(cameraPosePath.c_str());
-	errorPoseFileX.open((errorPosePath + "X.txt").c_str()); errorPoseFileX.precision(3); errorPoseFileX.setf(std::ios::fixed);
-	errorPoseFileY.open((errorPosePath + "Y.txt").c_str()); errorPoseFileY.precision(3); errorPoseFileY.setf(std::ios::fixed);
-	qRobotFile.open(qRobotPath.c_str());
+	ofstream errorPoseFileX; errorPoseFileX.open((errorPosePath + "X.txt").c_str()); errorPoseFileX.precision(3); errorPoseFileX.setf(std::ios::fixed);
+	ofstream errorPoseFileY; errorPoseFileY.open((errorPosePath + "Y.txt").c_str()); errorPoseFileY.precision(3); errorPoseFileY.setf(std::ios::fixed);
 
-	cameraPoseFile.precision(3); cameraPoseFile.setf(std::ios::fixed);
-	qRobotFile.precision(3); qRobotFile.setf(std::ios::fixed);
+	ofstream qRobotFile1; qRobotFile1.open((qRobotPath + "1.txt").c_str()); qRobotFile1.precision(3); qRobotFile1.setf(std::ios::fixed);
+	ofstream qRobotFile2; qRobotFile2.open((qRobotPath + "2.txt").c_str()); qRobotFile2.precision(3); qRobotFile2.setf(std::ios::fixed);
+	ofstream qRobotFile3; qRobotFile3.open((qRobotPath + "3.txt").c_str()); qRobotFile3.precision(3); qRobotFile3.setf(std::ios::fixed);
+	ofstream qRobotFile4; qRobotFile4.open((qRobotPath + "4.txt").c_str()); qRobotFile4.precision(3); qRobotFile4.setf(std::ios::fixed);
+	ofstream qRobotFile5; qRobotFile5.open((qRobotPath + "5.txt").c_str()); qRobotFile5.precision(3); qRobotFile5.setf(std::ios::fixed);
+	ofstream qRobotFile6; qRobotFile6.open((qRobotPath + "6.txt").c_str()); qRobotFile6.precision(3); qRobotFile6.setf(std::ios::fixed);
+	ofstream qRobotFile7; qRobotFile7.open((qRobotPath + "7.txt").c_str()); qRobotFile7.precision(3); qRobotFile7.setf(std::ios::fixed);
+	//Pose
+	cameraPoseFileP0 << "\\newcommand{\\cameraPoseDataA}{\n";
+	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileP0 << "(" << i << ", " << _cameraPoseVec[i].P()(0) << ")\n"; cameraPoseFileP0 << "}";
 
-	cameraPoseFile << "\\newcommand{\\cameraPoseData}{\n";
-	for (unsigned int i=0; i<_cameraPoseVec.size(); i++){
-		cameraPoseFile << "("
-						<< _cameraPoseVec[i].P()(0) << ","
-						<< _cameraPoseVec[i].P()(1) << ","
-						<< _cameraPoseVec[i].P()(2) << ","
-						<< RPY<>(_cameraPoseVec[i].R())(0) << ","
-						<< RPY<>(_cameraPoseVec[i].R())(1) << ","
-						<< RPY<>(_cameraPoseVec[i].R())(2) << ")\n";
-	}
-	cameraPoseFile << "}";
+	cameraPoseFileP1 << "\\newcommand{\\cameraPoseDataB}{\n";
+	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileP1 << "(" << i << ", " << _cameraPoseVec[i].P()(1) << ")\n"; cameraPoseFileP1 << "}";
 
+	cameraPoseFileP2 << "\\newcommand{\\cameraPoseDataC}{\n";
+	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileP2 << "(" << i << ", " << _cameraPoseVec[i].P()(2) << ")\n"; cameraPoseFileP2 << "}";
+
+	cameraPoseFileR0 << "\\newcommand{\\cameraPoseDataD}{\n";
+	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileR0 << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(0) << ")\n"; cameraPoseFileR0 << "}";
+
+	cameraPoseFileR1 << "\\newcommand{\\cameraPoseDataE}{\n";
+	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileR1 << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(1) << ")\n"; cameraPoseFileR1 << "}";
+
+	cameraPoseFileR2 << "\\newcommand{\\cameraPoseDataF}{\n";
+	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileR2 << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(2) << ")\n"; cameraPoseFileR2 << "}";
+
+
+	//Error
 	errorPoseFileX << "\\newcommand{\\errorPoseDataX}{\n";
-	for (unsigned int i=0; i<_errorPoseVec.size(); i++){
-		errorPoseFileX   << "(" << i << ","
-						<< _errorPoseVec[i+1](0) << ")\n";
-	}
-	errorPoseFileX << "}";
+	for (unsigned int i=0; i<_errorPoseVec.size(); i++) errorPoseFileX   << "(" << i << "," << _errorPoseVec[i+1](0) << ")\n"; errorPoseFileX << "}";
 
 	errorPoseFileY << "\\newcommand{\\errorPoseDataX}{\n";
-	for (unsigned int i=0; i<_errorPoseVec.size(); i++){
-		errorPoseFileY   << "(" << i << ","
-						<< _errorPoseVec[i+1](1) << ")\n";
-	}
-	errorPoseFileY << "}";
+	for (unsigned int i=0; i<_errorPoseVec.size(); i++) errorPoseFileY   << "(" << i << "," << _errorPoseVec[i+1](1) << ")\n"; errorPoseFileY << "}";
 
-	for (unsigned char joint=0; joint < 7; joint++){
-		qRobotFile << "\\newcommand{\\qRobotData}[" << (int)joint << "]{\n";
-		for (unsigned int i=0; i<_qRobotVec.size(); i++){
-			qRobotFile << "("
-						<< i << ", "
-						<< _qRobotVec[i](joint) << ")\n";
-		}
-		qRobotFile << "}\n\n";
-	}
 
-	cameraPoseFile.close();
+	//Q
+	qRobotFile1 << "\\newcommand{\\qRobotDataA}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile1 << "(" << i << ", " << _qRobotVec[i](0) << ")\n"; qRobotFile1 << "}";
+
+	qRobotFile2 << "\\newcommand{\\qRobotDataB}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile2 << "(" << i << ", " << _qRobotVec[i](1) << ")\n"; qRobotFile2 << "}";
+
+	qRobotFile3 << "\\newcommand{\\qRobotDataC}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile3 << "(" << i << ", " << _qRobotVec[i](2) << ")\n"; qRobotFile3 << "}";
+
+	qRobotFile4 << "\\newcommand{\\qRobotDataD}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile4 << "(" << i << ", " << _qRobotVec[i](3) << ")\n"; qRobotFile4 << "}";
+
+	qRobotFile5 << "\\newcommand{\\qRobotDataE}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile5 << "(" << i << ", " << _qRobotVec[i](4) << ")\n"; qRobotFile5 << "}";
+
+	qRobotFile6 << "\\newcommand{\\qRobotDataF}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile6 << "(" << i << ", " << _qRobotVec[i](5) << ")\n"; qRobotFile6 << "}";
+
+	qRobotFile7 << "\\newcommand{\\qRobotDataG}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile7 << "(" << i << ", " << _qRobotVec[i](6) << ")\n"; qRobotFile7 << "}";
+
+
+	cameraPoseFileP0.close();
+	cameraPoseFileP1.close();
+	cameraPoseFileP2.close();
+	cameraPoseFileR0.close();
+	cameraPoseFileR1.close();
+	cameraPoseFileR2.close();
 	errorPoseFileX.close();
 	errorPoseFileY.close();
-	qRobotFile.close();
+	qRobotFile1.close();
+	qRobotFile2.close();
+	qRobotFile3.close();
+	qRobotFile4.close();
+	qRobotFile5.close();
+	qRobotFile6.close();
+	qRobotFile7.close();
 }
 
 /**
@@ -334,8 +364,8 @@ Q SamplePlugin::getdQ(Mat & image)
 	dq_aux = Zimage.transpose() * (Zimage*Zimage.transpose()).inverse() * dudv * 0.95; //0.97 is the max
 
 	//If the detected point is strange, return the previous dQ
-	//const unsigned char limitdudv = 60; //Fast
-	const unsigned char limitdudv = 20; //
+	const unsigned char limitdudv = 60; //Fast
+	//const unsigned char limitdudv = 20; //
 	//const unsigned char limitdudv = 10; //Slow
 	if(abs(dudv(0,0)) > limitdudv || abs(dudv(1,0)) > limitdudv){
 		log().info() << "Meeehh!  -  ";
