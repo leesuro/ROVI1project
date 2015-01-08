@@ -61,7 +61,7 @@ int main(void) {
 		sstm.str("");
 
 		//HARD MARKER
-		/*if (cnti < 10)
+		if (cnti < 10)
 			sstm
 					<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_0"
 					<< cnti << ".png";
@@ -69,16 +69,16 @@ int main(void) {
 			sstm
 					<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_"
 					<< cnti << ".png";
-*/
+
 		//EASY MARKER
-		if (cnti < 10)
+		/*if (cnti < 10)
 		 sstm
 		 << "/home/pyc/workspace/ROVI1project/res/markers/marker_color/marker_color_0"
 		 << cnti << ".png";
 		 else
 		 sstm
 		 << "/home/pyc/workspace/ROVI1project/res/markers/marker_color/marker_color_"
-		 << cnti << ".png";
+		 << cnti << ".png";*/
 		scene_addr = sstm.str();
 		image = imread(scene_addr);
 		markerCenter = colorDetection(image);
