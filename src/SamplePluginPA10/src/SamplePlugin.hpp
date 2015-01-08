@@ -23,10 +23,7 @@
 #include <rwlibs/simulation/GLFrameGrabber.hpp>
 
 #include <fstream>
-#include <time.h>
-#include <stdio.h>
 #include <iostream>
-#include <sys/time.h>
 
 //Namespaces
 using namespace rw::common;
@@ -65,11 +62,12 @@ public:
 	void writeData();
 	void computeError();
 	Q getdQ(Mat & image);
+	void checkVelocityLimits(Q & qToCheck);
 
 	//Detection
-	Point2f corny(Mat img_input);
-	Point2f color(Mat img_input);
-	Point2f linesH(Mat img_input);
+	Point2f cornyDetection(Mat & img_input);
+	Point2f colorDetection(Mat & img_input);
+	Point2f linesHDetection(Mat img_input);
 	float pointDistance(Point2f p, Point2f q);
 	bool acceptLinePair(Vec2f line1, Vec2f line2, float minTheta);
 	Point2f computeIntersect(Vec2f line1, Vec2f line2);
@@ -78,23 +76,21 @@ public:
 private slots:
 	void buttonPressed();
 	void loop();
-
 	void stateChangedListener(const rw::kinematics::State& state);
 
 private:
 	ifstream _motionFile;
-	ofstream _cameraPoseFile;
-	ofstream _errorPoseFile;
-	ofstream _qRobotFile;
 
 	vector<Transform3D<> > _markerPoseVec;
 	vector<Transform3D<> > _cameraPoseVec;
-	vector<Transform3D<> > _errorPoseVec;
+	vector<Vector3D<> > _errorPoseVec;
 	vector<Q> _qRobotVec;
 
 	QTimer* _loop;
 
-	float _previousPoints[3][2]; //[point][0] X coordinate, [point][1] Y coordinate
+	float _previousPoints[2]; //[0]X coordinate, [1] Y coordinate
+	float _previousdUdV[2];
+	Q _previousdQ;
 	bool _firstTime;
 
 	WorkCell::Ptr _wc;

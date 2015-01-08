@@ -7,10 +7,10 @@ const string workcellPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/
 const string imagePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
 const string markerPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
 const string backgroundPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
-const string motionFilePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/motions/MarkerMotionSlow.txt";
-const string cameraPosePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/cameraPose.txt";
-const string errorPosePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/errorPose.txt";
-const string qRobotPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/qRobot.txt";
+const string motionFilePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/motions/MarkerMotionFast.txt";
+const string cameraPosePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/cameraPose";
+const string errorPosePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/errorPose";
+const string qRobotPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/qRobot";
 
 
 /*const QString iconPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
@@ -36,9 +36,8 @@ SamplePlugin::SamplePlugin():
 	_loop = new QTimer(this);
     connect(_loop, SIGNAL(timeout()), this, SLOT(loop()));
 
-	//Now connect stuff from the ui component
+	//Now connect stuff from the UI
 	connect(_btn0, SIGNAL(pressed()), this, SLOT(buttonPressed()) );
-	connect(_btn1, SIGNAL(pressed()), this, SLOT(buttonPressed()) );
 	connect(_spinBox, SIGNAL(valueChanged(int)), this, SLOT(buttonPressed()) );
 
 	Image textureImage(300,300,Image::GRAY,Image::Depth8U);
@@ -46,7 +45,9 @@ SamplePlugin::SamplePlugin():
 	Image bgImage(0,0,Image::GRAY,Image::Depth8U);
 	_bgRender = new RenderImage(bgImage,2.5/1000.0);
 	_framegrabber = NULL;
-	_firstTime = 0;
+
+	//First time? Yes, it is!
+	_firstTime = 1;
 }
 
 SamplePlugin::~SamplePlugin()
@@ -113,16 +114,26 @@ void SamplePlugin::open(WorkCell* workcell)
 		}
 	}
 
+	// Set a new texture (one pixel = 1 mm)
+	Image::Ptr image;
+	image = ImageLoader::Factory::load(markerPath);
+	_textureRender->setImage(*image);
+	image = ImageLoader::Factory::load(backgroundPath);
+	_bgRender->setImage(*image);
+
+	getRobWorkStudio()->updateAndRepaint();
+
 	//Show the camera view in the plugin
 	getImageAndShow();
 
 	//Adjust the Spin Box Limits
 	_spinBox->setMaximum(9999);
-	_spinBox->setMinimum(0.05);
-	_spinBox->setValue(10);
+	_spinBox->setMinimum(10);
+	_spinBox->setValue(50);
 
 	Q qInit(7, 0, -0.65, 0, 1.80, 0, 0.42, 0);
 	_device->setQ(qInit, _state);
+	getRobWorkStudio()->setState(_state);
 }
 
 /**
@@ -145,8 +156,6 @@ void SamplePlugin::close()
 	_wc = NULL;
 }
 
-
-
 //--------------------------------------------------------
 //					   Methods
 //--------------------------------------------------------
@@ -164,7 +173,6 @@ Mat SamplePlugin::getImageAndShow()
 	const Image& imageGrabbed = _framegrabber->getImage();
 
 	// Convert to OpenCV image
-	//Mat im(imageGrabbed.getHeight(),imageGrabbed.getWidth(), CV_8SC3);
 	Mat im(imageGrabbed.getHeight(),imageGrabbed.getWidth(), CV_8UC3);
 	im.data = (uchar*)imageGrabbed.getImageData();
 	Mat image;
@@ -172,10 +180,7 @@ Mat SamplePlugin::getImageAndShow()
 
 	// Show in QLabel
 	QImage imageToShow(image.data, image.cols, image.rows, image.step, QImage::Format_RGB888);
-	QPixmap p = QPixmap::fromImage(imageToShow);
-	unsigned int maxW = 600;
-	unsigned int maxH = 800;
-	_label->setPixmap(p.scaled(maxW,maxH,Qt::KeepAspectRatio));
+	_label->setPixmap(QPixmap::fromImage(imageToShow).scaled(600,800,Qt::KeepAspectRatio));
 
 	return image;
 }
@@ -188,68 +193,111 @@ Mat SamplePlugin::getImageAndShow()
  */
 void SamplePlugin::writeData()
 {
-	_cameraPoseFile.open(cameraPosePath.c_str());
-	_errorPoseFile.open(errorPosePath.c_str());
-	_qRobotFile.open(qRobotPath.c_str());
+	ofstream cameraPoseFileP0; cameraPoseFileP0.open((cameraPosePath + "P0.txt").c_str()); cameraPoseFileP0.precision(3); cameraPoseFileP0.setf(std::ios::fixed);
+	ofstream cameraPoseFileP1; cameraPoseFileP1.open((cameraPosePath + "P1.txt").c_str()); cameraPoseFileP1.precision(3); cameraPoseFileP1.setf(std::ios::fixed);
+	ofstream cameraPoseFileP2; cameraPoseFileP2.open((cameraPosePath + "P2.txt").c_str()); cameraPoseFileP2.precision(3); cameraPoseFileP2.setf(std::ios::fixed);
+	ofstream cameraPoseFileR0; cameraPoseFileR0.open((cameraPosePath + "R0.txt").c_str()); cameraPoseFileR0.precision(3); cameraPoseFileR0.setf(std::ios::fixed);
+	ofstream cameraPoseFileR1; cameraPoseFileR1.open((cameraPosePath + "R1.txt").c_str()); cameraPoseFileR1.precision(3); cameraPoseFileR1.setf(std::ios::fixed);
+	ofstream cameraPoseFileR2; cameraPoseFileR2.open((cameraPosePath + "R2.txt").c_str()); cameraPoseFileR2.precision(3); cameraPoseFileR2.setf(std::ios::fixed);
 
-	_cameraPoseFile.precision(3);
-	_cameraPoseFile.setf(std::ios::fixed);
-	_errorPoseFile.precision(3);
-	_errorPoseFile.setf(std::ios::fixed);
-	_qRobotFile.precision(3);
-	_qRobotFile.setf(std::ios::fixed);
+	ofstream errorPoseFileX; errorPoseFileX.open((errorPosePath + "X.txt").c_str()); errorPoseFileX.precision(3); errorPoseFileX.setf(std::ios::fixed);
+	ofstream errorPoseFileY; errorPoseFileY.open((errorPosePath + "Y.txt").c_str()); errorPoseFileY.precision(3); errorPoseFileY.setf(std::ios::fixed);
+
+	ofstream qRobotFile1; qRobotFile1.open((qRobotPath + "1.txt").c_str()); qRobotFile1.precision(3); qRobotFile1.setf(std::ios::fixed);
+	ofstream qRobotFile2; qRobotFile2.open((qRobotPath + "2.txt").c_str()); qRobotFile2.precision(3); qRobotFile2.setf(std::ios::fixed);
+	ofstream qRobotFile3; qRobotFile3.open((qRobotPath + "3.txt").c_str()); qRobotFile3.precision(3); qRobotFile3.setf(std::ios::fixed);
+	ofstream qRobotFile4; qRobotFile4.open((qRobotPath + "4.txt").c_str()); qRobotFile4.precision(3); qRobotFile4.setf(std::ios::fixed);
+	ofstream qRobotFile5; qRobotFile5.open((qRobotPath + "5.txt").c_str()); qRobotFile5.precision(3); qRobotFile5.setf(std::ios::fixed);
+	ofstream qRobotFile6; qRobotFile6.open((qRobotPath + "6.txt").c_str()); qRobotFile6.precision(3); qRobotFile6.setf(std::ios::fixed);
+	ofstream qRobotFile7; qRobotFile7.open((qRobotPath + "7.txt").c_str()); qRobotFile7.precision(3); qRobotFile7.setf(std::ios::fixed);
+	//Pose
+	cameraPoseFileP0 << "\\newcommand{\\cameraPoseDataA}{\n";
+	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileP0 << "(" << i << ", " << _cameraPoseVec[i].P()(0) << ")\n"; cameraPoseFileP0 << "}";
+
+	cameraPoseFileP1 << "\\newcommand{\\cameraPoseDataB}{\n";
+	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileP1 << "(" << i << ", " << _cameraPoseVec[i].P()(1) << ")\n"; cameraPoseFileP1 << "}";
+
+	cameraPoseFileP2 << "\\newcommand{\\cameraPoseDataC}{\n";
+	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileP2 << "(" << i << ", " << _cameraPoseVec[i].P()(2) << ")\n"; cameraPoseFileP2 << "}";
+
+	cameraPoseFileR0 << "\\newcommand{\\cameraPoseDataD}{\n";
+	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileR0 << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(0) << ")\n"; cameraPoseFileR0 << "}";
+
+	cameraPoseFileR1 << "\\newcommand{\\cameraPoseDataE}{\n";
+	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileR1 << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(1) << ")\n"; cameraPoseFileR1 << "}";
+
+	cameraPoseFileR2 << "\\newcommand{\\cameraPoseDataF}{\n";
+	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileR2 << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(2) << ")\n"; cameraPoseFileR2 << "}";
 
 
-	_cameraPoseFile << "\\newcommand{\\cameraPoseData}{\n";
-	for (unsigned int i=0; i<_cameraPoseVec.size(); i++){
-		_cameraPoseFile << "("
-						<< _cameraPoseVec[i].P()(0) << ","
-						<< _cameraPoseVec[i].P()(1) << ","
-						<< _cameraPoseVec[i].P()(2) << ","
-						<< RPY<>(_cameraPoseVec[i].R())(0) << ","
-						<< RPY<>(_cameraPoseVec[i].R())(1) << ","
-						<< RPY<>(_cameraPoseVec[i].R())(2) << ")\n";
-	}
-	_cameraPoseFile << "}";
+	//Error
+	errorPoseFileX << "\\newcommand{\\errorPoseDataX}{\n";
+	for (unsigned int i=0; i<_errorPoseVec.size(); i++) errorPoseFileX   << "(" << i << "," << _errorPoseVec[i+1](0) << ")\n"; errorPoseFileX << "}";
 
-	_errorPoseFile << "\\newcommand{\\errorPoseData}{\n";
-	for (unsigned int i=0; i<_errorPoseVec.size(); i++){
-		_errorPoseFile  << "("
-						<< _errorPoseVec[i].P()(0) << ","
-						<< _errorPoseVec[i].P()(1) << ","
-						<< _errorPoseVec[i].P()(2) << ","
-						<< RPY<>(_errorPoseVec[i].R())(0) << ","
-						<< RPY<>(_errorPoseVec[i].R())(1) << ","
-						<< RPY<>(_errorPoseVec[i].R())(2) << ")\n";
-	}
-	_errorPoseFile << "}";
+	errorPoseFileY << "\\newcommand{\\errorPoseDataX}{\n";
+	for (unsigned int i=0; i<_errorPoseVec.size(); i++) errorPoseFileY   << "(" << i << "," << _errorPoseVec[i+1](1) << ")\n"; errorPoseFileY << "}";
 
-	for (unsigned char joint=0; joint < 7; joint++){
-		_qRobotFile << "\\newcommand{\\qRobotData}[" << (int)joint << "]{\n";
-		for (unsigned int i=0; i<_qRobotVec.size(); i++){
-			_qRobotFile << "("
-						<< i << ", "
-						<< _qRobotVec[i](joint) << ")\n";
-		}
-		_qRobotFile << "}\n\n";
-	}
 
-	_cameraPoseFile.close();
-	_errorPoseFile.close();
-	_qRobotFile.close();
+	//Q
+	qRobotFile1 << "\\newcommand{\\qRobotDataA}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile1 << "(" << i << ", " << _qRobotVec[i](0) << ")\n"; qRobotFile1 << "}";
+
+	qRobotFile2 << "\\newcommand{\\qRobotDataB}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile2 << "(" << i << ", " << _qRobotVec[i](1) << ")\n"; qRobotFile2 << "}";
+
+	qRobotFile3 << "\\newcommand{\\qRobotDataC}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile3 << "(" << i << ", " << _qRobotVec[i](2) << ")\n"; qRobotFile3 << "}";
+
+	qRobotFile4 << "\\newcommand{\\qRobotDataD}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile4 << "(" << i << ", " << _qRobotVec[i](3) << ")\n"; qRobotFile4 << "}";
+
+	qRobotFile5 << "\\newcommand{\\qRobotDataE}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile5 << "(" << i << ", " << _qRobotVec[i](4) << ")\n"; qRobotFile5 << "}";
+
+	qRobotFile6 << "\\newcommand{\\qRobotDataF}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile6 << "(" << i << ", " << _qRobotVec[i](5) << ")\n"; qRobotFile6 << "}";
+
+	qRobotFile7 << "\\newcommand{\\qRobotDataG}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile7 << "(" << i << ", " << _qRobotVec[i](6) << ")\n"; qRobotFile7 << "}";
+
+
+	cameraPoseFileP0.close();
+	cameraPoseFileP1.close();
+	cameraPoseFileP2.close();
+	cameraPoseFileR0.close();
+	cameraPoseFileR1.close();
+	cameraPoseFileR2.close();
+	errorPoseFileX.close();
+	errorPoseFileY.close();
+	qRobotFile1.close();
+	qRobotFile2.close();
+	qRobotFile3.close();
+	qRobotFile4.close();
+	qRobotFile5.close();
+	qRobotFile6.close();
+	qRobotFile7.close();
 }
 
 /**
  * Computes the error between the marker and the camera
  */
 void SamplePlugin::computeError(){
-	for (unsigned int i=0; i<_cameraPoseVec.size(); i++){
-		Vector3D<> P = _markerPoseVec[i].P()-_cameraPoseVec[i].P();
-		RPY<> RPYMarker = RPY<>(_markerPoseVec[i].R());
-		RPY<> RPYCamera = RPY<>(_cameraPoseVec[i].R());
-		RPY<> RPY (RPYMarker(0)-RPYCamera(0), RPYMarker(1)-RPYCamera(1), RPYMarker(2)-RPYCamera(2) );
-		Transform3D<> trans_aux(P, RPY.toRotation3D());
-		_errorPoseVec.push_back(trans_aux);
+	Vector3D<> Pdiff = ( (_markerPoseVec.end()-2)->P() - (_markerPoseVec.end()-1)->P()) * 823 * 2;
+	Vector3D<> dudv(_previousdUdV[0], _previousdUdV[1], 0);
+	_errorPoseVec.push_back(Pdiff - dudv);
+}
+
+/**
+ * Check if the speed is over the joint's limits and, if so, limit it to the limit
+ * @param qToCheck
+ */
+void SamplePlugin::checkVelocityLimits(Q & qToCheck){
+	for(unsigned char joint=0; joint<7; joint++){
+		//if (abs(qToCheck(joint))*1000 / _spinBox->value() > 1) log().info() << abs(qToCheck(joint))*1000 / _spinBox->value() << "\n";
+		if ( abs(qToCheck(joint))*1000 / _spinBox->value() > _device->getVelocityLimits()(joint) ){
+			log().info() << "Too fast!";
+			qToCheck(joint) = _device->getVelocityLimits()(joint)*_spinBox->value()/1000;
+		}
 	}
 }
 
@@ -260,47 +308,36 @@ void SamplePlugin::computeError(){
  */
 Q SamplePlugin::getdQ(Mat & image)
 {
+	//Get the point directly from the marker frame. From Camera to base, from base to world, from world to Marker
+/*	Vector3D<> Pt = (inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * _wc->findFrame("Marker")->getTransform(_state)) * Vector3D<>(0,0,0);
+	float u = Pt(0)*823*2;
+	float v = Pt(1)*823*2;*/
+
 	//Get points from OpenCV algorithms
-/*	Vector3D<> P = (_wc->findFrame("Marker"))->getTransform(_state).P();
-	Vector3D<> Pt = inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * P * 1000;
-	float u = Pt(0);
-	float v = Pt(1);*/
+	//Point2f point = cornyDetection(image);
+	Point2f point = colorDetection(image);
+	//Point2f point = linesHDetection(image);
 
-	//Point2f point = corny(image);
-	Point2f point = color(image);
-	//Point2f point = linesH(image);
-
-	float u = point.x + 1024/2;
-	float v = point.y + 768/2;
-
-	log().info() << "x:" << u << ", y:" << v << "\n";
+	float u = point.x - 1024/2;
+	float v = point.y - 768/2;
 
 	//Continue with the device's jacobian
-	Jacobian deviceJacobian_aux = _device->baseJframe(_wc->findFrame("Camera"), _state);
 	MatrixXd deviceJacobian(6,7);
-	for (unsigned char row=0; row<6; row++){
-		for (unsigned char col=0; col<7; col++){
-			deviceJacobian(row, col) = deviceJacobian_aux(row, col);
-		}
-	}
+	deviceJacobian = _device->baseJframe(_wc->findFrame("Camera"), _state).e();
 
 	//Now the image's jacobian. f and z are fixed values given in the description
 	MatrixXd imageJacobian(2,6);
-	double z = 0.5, f = 823;
+	float z = 0.5, f = 823;
 
 	imageJacobian(0,0)=f/z; imageJacobian(0,1)= 0; imageJacobian(0,2)=-u/z;
 	imageJacobian(0,3)=-u*v/f; imageJacobian(0,4)=(f*f+u*u)/f; imageJacobian(0,5)=-v;
 	imageJacobian(1,0)=0; imageJacobian(1,1)=f/z; imageJacobian(1,2)=-v/z;
 	imageJacobian(1,3)=-(f*f+u*u)/f; imageJacobian(1,4)=u*v/f; imageJacobian(1,5)=u;
 
-	//As the d(u,v) is not referenced to the base, we need to adapt it
-	MatrixXd Sq(6,6);
-
-	//Matrix3d R_device_T = (_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)).R().e().transpose();
-	//Rotation3D<> R_device_T = inverse( (_device->worldTbase(_state).R() * _device->baseTframe(_wc->findFrame("Camera"), _state).R() ) );
+	//As the d(u,v) is not referenced to the base, we need to adapt it with Sq
 	Matrix3d R_device_T = (_device->baseTframe(_wc->findFrame("Camera"), _state).R().e()).transpose();
-	//Rotation3D<> R_device_T = inverse(_device->baseTframe(_wc->findFrame("Camera"), _state).R());
 
+	MatrixXd Sq(6,6);
 	for (unsigned char row=0; row<6; row++){
 		for (unsigned char col=0; col<6; col++){
 			if (row<3 && col<3) Sq(row, col) = R_device_T(row, col);
@@ -315,25 +352,32 @@ Q SamplePlugin::getdQ(Mat & image)
 
 	//Perhaps, now the du and dv
 	MatrixXd dudv(2,1);
-
-	if (_firstTime){
-		dudv(0,0) = u - _previousPoints[0][0];
-		dudv(1,0) = v - _previousPoints[0][1];
-	}
-	_firstTime = 1;
-
-	//Show the differential
-	//log().info() << "x:" << dudv(0,0) << ", y:" << dudv(1,0) << "\n";
+	dudv(0,0) = u - _previousPoints[0];
+	dudv(1,0) = v - _previousPoints[1];
 
 	//Store the actual point
-	_previousPoints[0][0] = u;
-	_previousPoints[0][1] = v;
+	_previousPoints[0] = u;
+	_previousPoints[1] = v;
 
 	//And calculate dq
 	MatrixXd dq_aux (7,1);
-	dq_aux = Zimage.transpose() * (Zimage*Zimage.transpose()).inverse() * dudv;
+	dq_aux = Zimage.transpose() * (Zimage*Zimage.transpose()).inverse() * dudv * 0.95; //0.97 is the max
+
+	//If the detected point is strange, return the previous dQ
+	const unsigned char limitdudv = 60; //Fast
+	//const unsigned char limitdudv = 20; //
+	//const unsigned char limitdudv = 10; //Slow
+	if(abs(dudv(0,0)) > limitdudv || abs(dudv(1,0)) > limitdudv){
+		log().info() << "Meeehh!  -  ";
+		return _previousdQ;
+	}
+
+	_previousdUdV[0] = dudv(0,0);
+	_previousdUdV[1] = dudv(1,0);
 
 	Q dq = Q(7, dq_aux(0,0), dq_aux(1,0), dq_aux(2,0), dq_aux(3,0),	dq_aux(4,0), dq_aux(5,0), dq_aux(6,0));
+	checkVelocityLimits(dq);
+	_previousdQ = dq;
 
 	return dq;
 }
@@ -341,7 +385,6 @@ Q SamplePlugin::getdQ(Mat & image)
 //--------------------------------------------------------
 //					 Private Slots
 //--------------------------------------------------------
-
 /**
  * The loop to be repeated with each frame
  */
@@ -361,8 +404,23 @@ void SamplePlugin::loop()
 			Transform3D<> markerTransformation = Transform3D<>(Vector3D<>(data[0], data[1], data[2]), RPY<>(data[3], data[4], data[5]).toRotation3D());
 			//So now the position is updated
 			markerFrame->setTransform(markerTransformation,_state);
+			//Updates the state in the RobWork Studio
+			getRobWorkStudio()->setState(_state);
 			//Get the image seen from the camera and show it in the plugin
 			Mat image = getImageAndShow();
+			//Take the values of the first frame
+			if(_firstTime){
+				//Get the image seen from the camera and show it in the plugin
+/*				Vector3D<> Pt = (inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * _wc->findFrame("Marker")->getTransform(_state)) * Vector3D<>(0,0,0);
+				_previousPoints[0] = Pt(0)*823*2;
+				_previousPoints[1] = Pt(1)*823*2;*/
+
+				Point2f point = colorDetection(image);
+				_previousPoints[0] = point.x - 1024/2;
+				_previousPoints[1] = point.y - 768/2;
+
+				_firstTime=0;
+			}
 			//Calculates dq due to the image movement
 			Q dq = getdQ(image);
 			//Updates the position based on that dq
@@ -373,17 +431,15 @@ void SamplePlugin::loop()
 			_markerPoseVec.push_back(markerFrame->getTransform(_state));
 			_cameraPoseVec.push_back(_device->worldTbase(_state)*_device->baseTframe(_wc->findFrame("Camera"), _state));
 			_qRobotVec.push_back(_device->getQ(_state));
-
+			computeError();
 		} else {
 			log().info() << "Motion file finished!" << "\n";
-			computeError();
 			writeData();
 			log().info() << "Data exported!" << "\n!";
 
 			_motionFile.close();
 		}
 	}
-
 }
 
 /**
@@ -392,23 +448,11 @@ void SamplePlugin::loop()
 void SamplePlugin::buttonPressed()
 {
 	QObject *obj = sender();
-	//Button 0
+	//Button Start/Stop
 	if(obj==_btn0){
-		log().info() << "Button 0\n";
-		// Set a new texture (one pixel = 1 mm)
-		Image::Ptr image;
-		image = ImageLoader::Factory::load(markerPath);
-		_textureRender->setImage(*image);
-		image = ImageLoader::Factory::load(backgroundPath);
-		_bgRender->setImage(*image);
-
-		getRobWorkStudio()->updateAndRepaint();
-	}
-	//Button 1
-	else if(obj==_btn1) {
 		log().info() << "Button 1\n";
 		// Toggle the loop on and off
-		if (!_loop->isActive()) _loop->start(_spinBox->value()); // run 10 Hz
+		if (!_loop->isActive()) _loop->start(_spinBox->value());
 		else _loop->stop();
 	}
 	//SpinBox
@@ -427,7 +471,7 @@ void SamplePlugin::stateChangedListener(const State& state) {
 //--------------------------------------------------------
 //					   Detection
 //--------------------------------------------------------
-Point2f SamplePlugin::corny (Mat img_input)
+Point2f SamplePlugin::cornyDetection (Mat & img_input)
 {
 	//Calculate the processing time
 	Timer calculationTime;
@@ -439,7 +483,7 @@ Point2f SamplePlugin::corny (Mat img_input)
 
 	Mat img_object = imread(markerPath, CV_LOAD_IMAGE_GRAYSCALE);
 
-	//Detect the keypoints using SURF Detector
+	//Detect the key points using SURF Detector
 	unsigned int minHessian = 400;
 
 	SurfFeatureDetector detector(minHessian);
@@ -513,15 +557,16 @@ Point2f SamplePlugin::corny (Mat img_input)
 	//Show the processing time
 	long totalTime = calculationTime.getTimeMs();
 	log().info() << "Processing Time: " << totalTime << "[ms]\n";
+	//Average time is 800ms
 
 	//log().info() << "-----x:" << scene_corners[0].x << ", y:" << scene_corners[0].y << "\n";
 
 	return scene_corners[0];
 }
 
-Point2f SamplePlugin::color(Mat img_input) {
-	Timer timer;
-	timer.reset();
+Point2f SamplePlugin::colorDetection(Mat & img_input) {
+	//Timer timer;
+	//timer.reset();
 
 	Mat im_thresh, im_cont,imHSV;
 	Point2f centerMass, centerMasstemp;
@@ -632,8 +677,9 @@ Point2f SamplePlugin::color(Mat img_input) {
 		//imshow("Original", imHSV); //show the original image*
 		//imshow("Contoured", im_contFin); //show the original image*
 
-		float time = timer.getTimeMs();
-		log().info() << "Processing Time: " << time << "[ms]\n";
+		//float time = timer.getTimeMs();
+		//log().info() << "Processing Time: " << time << "[ms]\n";
+		//Average time is 16ms
 
 		/*
  		if (waitKey(30) == 27) { //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
@@ -645,7 +691,9 @@ Point2f SamplePlugin::color(Mat img_input) {
 }
 
 
-Point2f SamplePlugin::linesH (Mat img_input) {
+Point2f SamplePlugin::linesHDetection(Mat img_input)
+{
+/*
 Mat img_gray,edges,img_thresh,img_output;
 int min_threshold = 50;
 /// Pass the image to gray
@@ -725,7 +773,7 @@ int min_threshold = 50;
 		vector<size_t> ignored;
 		Point2f actual;
 		float distance;
-		/*for (size_t i = 0; i < intersections.size(); i++) {
+		for (size_t i = 0; i < intersections.size(); i++) {
 		 actual=intersections[i];
 		 intersections_new.push_back(actual);
 		 for (size_t j = i; j < intersections.size(); j++) {
@@ -740,7 +788,7 @@ int min_threshold = 50;
 		 }
 		 }
 		 intersections.erase();
-		 }*/
+		 }
 		for (size_t i = 0; i < intersections.size(); i++) {
 
 			actual = intersections[i];
@@ -786,6 +834,7 @@ int min_threshold = 50;
 		return centerMass;
 
 	}
+*/
 
 
 }
