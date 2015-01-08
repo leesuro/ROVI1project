@@ -1,6 +1,6 @@
 %\input{../data/cameraPose.txt}
 %\input{../data/errorPose.txt}
-\input{../data/qRobot.txt}
+\input{../data/errorPoseX.txt}
 
 %Time Plot
 % \newcommand{\cameraPosePlot}{
@@ -28,7 +28,7 @@
 		\begin{axis}[height=9cm, width=\textwidth, grid=major,xlabel={Step},ylabel={Time[s]}]
 			
 			\addplot [color=SkyBlue, mark=o] coordinates {
-				\qRobotData
+				\errorPoseDataX
 			};
 			\addlegendentry{t}
 
