@@ -168,7 +168,7 @@ Point2f colorDetection(Mat img_input) {
 
 		for (unsigned int i = 0; i < contours.size(); i++) {
 			approxPolyDP(Mat(contours[i]), contours_poly[i], 3, true);
-			boundRect[i] = boundingRect(Mat(contours_poly[i]));
+			//boundRect[i] = boundingRect(Mat(contours_poly[i]));
 			minEnclosingCircle((Mat) contours_poly[i], center[i], radius[i]);
 		}
 		//cout << "number of circles: " << center.size() << endl;
@@ -193,8 +193,7 @@ Point2f colorDetection(Mat img_input) {
 						rng.uniform(0, 255));
 				drawContours(im_contFin, contours, i, color, 2, 8, hierarchy, 0,
 						Point());
-				rectangle(im_contFin, boundRect[i].tl(), boundRect[i].br(),
-						color, 2, 8, 0);
+				//rectangle(im_contFin, boundRect[i].tl(), boundRect[i].br(),color, 2, 8, 0);
 				circle(im_contFin, center[i], (int) radius[i], color, 2, 8, 0);
 				circle(im_contFin, mc[i], 5, 255);
 			}
