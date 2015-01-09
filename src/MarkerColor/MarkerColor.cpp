@@ -166,18 +166,20 @@ Point2f colorDetection(Mat img_input) {
 
 		// Approximate contours to polygons + get bounding rects and circles
 		vector<vector<Point> > contours_poly(contours.size());
-		vector<Rect> boundRect(contours.size());
 		vector<Point2f> center(contours.size());
 		vector<float> radius(contours.size());
 
 		for (unsigned int i = 0; i < contours.size(); i++) {
-			approxPolyDP(Mat(contours[i]), contours_poly[i], 3, true);
-			//boundRect[i] = boundingRect(Mat(contours_poly[i]));
-			minEnclosingCircle((Mat) contours_poly[i], center[i], radius[i]);
+			//approxPolyDP(Mat(contours[i]), contours_poly[i], 3, true);
+			//minEnclosingCircle((Mat) contours_poly[i], center[i], radius[i]);
+			minEnclosingCircle((Mat) contours[i], center[i], radius[i]);
 		}
 		//cout << "number of circles: " << center.size() << endl;
-		/*//Moments and the centre of mass
+
+
+		//Moments and the centre of mass
 		vector<Moments> mu(contours.size());
+
 		for (unsigned int i = 0; i < contours.size(); i++) {
 			if (radius[i] > 50)
 				mu[i] = moments(contours[i], false);
@@ -187,8 +189,10 @@ Point2f colorDetection(Mat img_input) {
 		for (unsigned int i = 0; i < contours.size(); i++) {
 			if (radius[i] > radiusMin)
 				mc[i] = Point2f(mu[i].m10 / mu[i].m00, mu[i].m01 / mu[i].m00);
+			circle(im_contFin, mc[i], 3, Scalar(0, 100, 255), 1);
+			circle(im_contFin, center[i], 5, Scalar(0,255,255), 2, 8, 0);
 		}
-		*/
+
 
 		// Draw contours
 
@@ -199,7 +203,7 @@ Point2f colorDetection(Mat img_input) {
 				drawContours(im_contFin, contours, i, color, 2, 8, hierarchy, 0,
 						Point());
 				//rectangle(im_contFin, boundRect[i].tl(), boundRect[i].br(),color, 2, 8, 0);
-				circle(im_contFin, center[i], (int) radius[i], color, 2, 8, 0);
+				//circle(im_contFin, center[i], (int) radius[i], color, 2, 8, 0);
 				//circle(im_contFin, mc[i], 5, 255);
 			}
 		}
@@ -209,6 +213,7 @@ Point2f colorDetection(Mat img_input) {
 		centerMass.y = 0;
 		if ((radius[0] > radiusMin)&&(radius[0] < radiusMax)) {
 			centerMass = center[0];
+			//circle(im_contFin, centerMasstemp, 1, Scalar(0, 0, 255), 3);
 			counter++;
 		}
 
@@ -218,7 +223,7 @@ Point2f colorDetection(Mat img_input) {
 			if ((radius[i] > radiusMin)&&(radius[i] < radiusMax)) {
 				centerMass.x = centerMass.x + centerMasstemp.x;
 				centerMass.y = centerMass.y + centerMasstemp.y;
-				circle(im_contFin, centerMasstemp, 1, Scalar(0, 0, 255), 3);
+				//circle(im_contFin, centerMasstemp, 1, Scalar(0, 0, 255), 3);
 				counter++;
 			}
 			//cout << "Center is " << centerMasstemp.x << ", " << centerMasstemp.y
@@ -238,17 +243,17 @@ Point2f colorDetection(Mat img_input) {
 
 		cout << "mass center = " << centerMass << endl;
 		circle(im_contFin, centerMass, 5, Scalar(0, 255, 0));
-		imshow("Thresholded Image", im_thresh); //show the thresholded image
+/*		imshow("Thresholded Image", im_thresh); //show the thresholded image
 				//imshow("Original", imHSV); //show the original image*
 				imshow("Contoured", im_contFin); //show the original image*
 				waitKey();
-
+*/
 	}
-	/*imshow("Thresholded Image", im_thresh); //show the thresholded image
+	imshow("Thresholded Image", im_thresh); //show the thresholded image
 		//imshow("Original", imHSV); //show the original image*
 		imshow("Contoured", im_contFin); //show the original image*
 		//waitKey();
-*/
+
 
 	//if (waitKey(30) == 27) { //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
 	//cout << "esc key is pressed by user" << endl;
