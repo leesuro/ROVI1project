@@ -61,11 +61,11 @@ int main(void) {
 		sstm.str("");
 
 		//HARD MARKER
-		sstm
-							<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_"
-							<< 33 << ".png";
+		//sstm
+			//				<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_"
+				//			<< 33 << ".png";
 
-		/*if (cnti < 10)
+		if (cnti < 10)
 			sstm
 					<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_0"
 					<< cnti << ".png";
@@ -73,7 +73,6 @@ int main(void) {
 			sstm
 					<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_"
 					<< cnti << ".png";
-*/
 		//EASY MARKER
 		/*if (cnti < 10)
 		 sstm
@@ -106,7 +105,7 @@ Point2f colorDetection(Mat img_input) {
 	Point2f centerMass, centerMasstemp, centerMassRed;
 	vector<vector<Point> > contours, contoursTotal;
 	vector<Vec4i> hierarchy;
-	float radiusMin = 37;
+	float radiusMin = 37,radiusMax=100;
 
 	cvtColor(img_input, imHSV, CV_BGR2HSV);
 	Mat im_contFin = Mat::zeros(img_input.size(), CV_8UC3);
@@ -177,37 +176,38 @@ Point2f colorDetection(Mat img_input) {
 			minEnclosingCircle((Mat) contours_poly[i], center[i], radius[i]);
 		}
 		//cout << "number of circles: " << center.size() << endl;
+		/*//Moments and the centre of mass
 		vector<Moments> mu(contours.size());
 		for (unsigned int i = 0; i < contours.size(); i++) {
 			if (radius[i] > 50)
 				mu[i] = moments(contours[i], false);
 		}
 
-		//Mass center
 		vector<Point2f> mc(contours.size());
 		for (unsigned int i = 0; i < contours.size(); i++) {
 			if (radius[i] > radiusMin)
 				mc[i] = Point2f(mu[i].m10 / mu[i].m00, mu[i].m01 / mu[i].m00);
 		}
+		*/
 
 		// Draw contours
 
 		for (unsigned int i = 0; i < contours.size(); i++) {
-			if (radius[i] > radiusMin) {
+			if ((radius[i] > radiusMin)&&(radius[i] < radiusMax)) {
 				Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255),
 						rng.uniform(0, 255));
 				drawContours(im_contFin, contours, i, color, 2, 8, hierarchy, 0,
 						Point());
 				//rectangle(im_contFin, boundRect[i].tl(), boundRect[i].br(),color, 2, 8, 0);
 				circle(im_contFin, center[i], (int) radius[i], color, 2, 8, 0);
-				circle(im_contFin, mc[i], 5, 255);
+				//circle(im_contFin, mc[i], 5, 255);
 			}
 		}
 
 		int counter = 0;
 		centerMass.x = 0;
 		centerMass.y = 0;
-		if (radius[0] > radiusMin) {
+		if ((radius[0] > radiusMin)&&(radius[0] < radiusMax)) {
 			centerMass = center[0];
 			counter++;
 		}
@@ -215,7 +215,7 @@ Point2f colorDetection(Mat img_input) {
 		for (size_t i = 1; i < center.size(); i++) {
 			//for (i = intersections.begin(); i != intersections.end(); ++i) {
 			centerMasstemp = center[i];
-			if (radius[i] > 30) {
+			if ((radius[i] > radiusMin)&&(radius[i] < radiusMax)) {
 				centerMass.x = centerMass.x + centerMasstemp.x;
 				centerMass.y = centerMass.y + centerMasstemp.y;
 				circle(im_contFin, centerMasstemp, 1, Scalar(0, 0, 255), 3);
