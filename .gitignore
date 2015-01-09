@@ -16,6 +16,7 @@ report-blx.bib
 
 #Sublime Text
 *.sublime*
+*.orig
 
 #Compilation Folders
 release
