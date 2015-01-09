@@ -170,7 +170,7 @@ Point2f colorDetection(Mat img_input) {
 		vector<float> radius(contours.size());
 
 		for (unsigned int i = 0; i < contours.size(); i++) {
-			//approxPolyDP(Mat(contours[i]), contours_poly[i], 3, true);
+			approxPolyDP(Mat(contours[i]), contours_poly[i], 3, true);
 			//minEnclosingCircle((Mat) contours_poly[i], center[i], radius[i]);
 			minEnclosingCircle((Mat) contours[i], center[i], radius[i]);
 		}
@@ -189,6 +189,8 @@ Point2f colorDetection(Mat img_input) {
 		for (unsigned int i = 0; i < contours.size(); i++) {
 			if (radius[i] > radiusMin)
 				mc[i] = Point2f(mu[i].m10 / mu[i].m00, mu[i].m01 / mu[i].m00);
+			circle(img_input, mc[i], 3, Scalar(0,255, 250), 1); //mass center
+			circle(img_input, center[i], 5, Scalar(0,0,255), 2, 8, 0); // circle center
 			circle(im_contFin, mc[i], 3, Scalar(0,255, 250), 1); //mass center
 			circle(im_contFin, center[i], 5, Scalar(0,0,255), 2, 8, 0); // circle center
 		}
@@ -200,10 +202,9 @@ Point2f colorDetection(Mat img_input) {
 			if ((radius[i] > radiusMin)&&(radius[i] < radiusMax)) {
 				Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255),
 						rng.uniform(0, 255));
-				drawContours(im_contFin, contours, i, color, 2, 8, hierarchy, 0,
-						Point());
-				//rectangle(im_contFin, boundRect[i].tl(), boundRect[i].br(),color, 2, 8, 0);
-				//circle(im_contFin, center[i], (int) radius[i], color, 2, 8, 0);
+				drawContours(im_contFin, contours, i, color, 2, 8, hierarchy, 0,Point());
+				drawContours(img_input, contours, i, color, 2, 8, hierarchy, 0,Point());
+				circle(im_contFin, center[i], (int) radius[i], color, 2, 8, 0);
 				//circle(im_contFin, mc[i], 5, 255);
 			}
 		}
@@ -250,7 +251,7 @@ Point2f colorDetection(Mat img_input) {
 */
 	}
 	imshow("Thresholded Image", im_thresh); //show the thresholded image
-		//imshow("Original", imHSV); //show the original image*
+		imshow("Original", img_input); //show the original image*
 		imshow("Contoured", im_contFin); //show the original image*
 		//waitKey();
 
