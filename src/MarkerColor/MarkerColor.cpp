@@ -61,7 +61,11 @@ int main(void) {
 		sstm.str("");
 
 		//HARD MARKER
-		if (cnti < 10)
+		sstm
+							<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_"
+							<< 33 << ".png";
+
+		/*if (cnti < 10)
 			sstm
 					<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_0"
 					<< cnti << ".png";
@@ -69,7 +73,7 @@ int main(void) {
 			sstm
 					<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_"
 					<< cnti << ".png";
-
+*/
 		//EASY MARKER
 		/*if (cnti < 10)
 		 sstm
@@ -234,13 +238,17 @@ Point2f colorDetection(Mat img_input) {
 
 		cout << "mass center = " << centerMass << endl;
 		circle(im_contFin, centerMass, 5, Scalar(0, 255, 0));
+		imshow("Thresholded Image", im_thresh); //show the thresholded image
+				//imshow("Original", imHSV); //show the original image*
+				imshow("Contoured", im_contFin); //show the original image*
+				waitKey();
 
 	}
-	imshow("Thresholded Image", im_thresh); //show the thresholded image
+	/*imshow("Thresholded Image", im_thresh); //show the thresholded image
 		//imshow("Original", imHSV); //show the original image*
 		imshow("Contoured", im_contFin); //show the original image*
 		//waitKey();
-
+*/
 
 	//if (waitKey(30) == 27) { //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
 	//cout << "esc key is pressed by user" << endl;
