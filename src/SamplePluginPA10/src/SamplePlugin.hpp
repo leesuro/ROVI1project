@@ -58,7 +58,7 @@ public:
 	virtual void close();
 
 	//Methods
-	Mat getImageAndShow();
+	Mat getImageAndShow(); ytsyts
 	void writeData();
 	void computeError();
 	Q getdQ(Mat & image);
