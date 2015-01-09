@@ -58,7 +58,7 @@ public:
 	virtual void close();
 
 	//Methods
-	Mat getImageAndShow(); fdsa
+	Mat getImageAndShow();
 	void writeData();
 	void computeError();
 	Q getdQ(Mat & image);
