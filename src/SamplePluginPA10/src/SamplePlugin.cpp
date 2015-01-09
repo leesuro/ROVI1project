@@ -19,9 +19,9 @@ const string imagePath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/
 const string markerPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/markers/Marker3.ppm";
 const string backgroundPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
 const string motionFilePath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/motions/MarkerMotionSlow.txt";
-const string cameraPosePath = "/home/pyc/workspace/ROVI1project/data/cameraPose.txt";
-const string errorPosePath = "/home/pyc/workspace/ROVI1project/data/errorPose.txt";
-const string qRobotPath = "/home/pyc/workspace/ROVI1project/data/qRobot.txt";*/
+const string cameraPosePath = "/home/pyc/workspace/ROVI1project/data/cameraPose";
+const string errorPosePath = "/home/pyc/workspace/ROVI1project/data/errorPose";
+const string qRobotPath = "/home/pyc/workspace/ROVI1project/data/qRobot;*/
 
 
 
@@ -213,19 +213,14 @@ void SamplePlugin::writeData()
 	//Pose
 	cameraPoseFileP0 << "\\newcommand{\\cameraPoseDataA}{\n";
 	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileP0 << "(" << i << ", " << _cameraPoseVec[i].P()(0) << ")\n"; cameraPoseFileP0 << "}";
-
 	cameraPoseFileP1 << "\\newcommand{\\cameraPoseDataB}{\n";
 	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileP1 << "(" << i << ", " << _cameraPoseVec[i].P()(1) << ")\n"; cameraPoseFileP1 << "}";
-
 	cameraPoseFileP2 << "\\newcommand{\\cameraPoseDataC}{\n";
 	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileP2 << "(" << i << ", " << _cameraPoseVec[i].P()(2) << ")\n"; cameraPoseFileP2 << "}";
-
 	cameraPoseFileR0 << "\\newcommand{\\cameraPoseDataD}{\n";
 	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileR0 << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(0) << ")\n"; cameraPoseFileR0 << "}";
-
 	cameraPoseFileR1 << "\\newcommand{\\cameraPoseDataE}{\n";
 	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileR1 << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(1) << ")\n"; cameraPoseFileR1 << "}";
-
 	cameraPoseFileR2 << "\\newcommand{\\cameraPoseDataF}{\n";
 	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileR2 << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(2) << ")\n"; cameraPoseFileR2 << "}";
 
@@ -233,7 +228,6 @@ void SamplePlugin::writeData()
 	//Error
 	errorPoseFileX << "\\newcommand{\\errorPoseDataX}{\n";
 	for (unsigned int i=0; i<_errorPoseVec.size(); i++) errorPoseFileX   << "(" << i << "," << _errorPoseVec[i+1](0) << ")\n"; errorPoseFileX << "}";
-
 	errorPoseFileY << "\\newcommand{\\errorPoseDataX}{\n";
 	for (unsigned int i=0; i<_errorPoseVec.size(); i++) errorPoseFileY   << "(" << i << "," << _errorPoseVec[i+1](1) << ")\n"; errorPoseFileY << "}";
 
@@ -241,22 +235,16 @@ void SamplePlugin::writeData()
 	//Q
 	qRobotFile1 << "\\newcommand{\\qRobotDataA}{\n";
 	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile1 << "(" << i << ", " << _qRobotVec[i](0) << ")\n"; qRobotFile1 << "}";
-
 	qRobotFile2 << "\\newcommand{\\qRobotDataB}{\n";
 	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile2 << "(" << i << ", " << _qRobotVec[i](1) << ")\n"; qRobotFile2 << "}";
-
 	qRobotFile3 << "\\newcommand{\\qRobotDataC}{\n";
 	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile3 << "(" << i << ", " << _qRobotVec[i](2) << ")\n"; qRobotFile3 << "}";
-
 	qRobotFile4 << "\\newcommand{\\qRobotDataD}{\n";
 	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile4 << "(" << i << ", " << _qRobotVec[i](3) << ")\n"; qRobotFile4 << "}";
-
 	qRobotFile5 << "\\newcommand{\\qRobotDataE}{\n";
 	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile5 << "(" << i << ", " << _qRobotVec[i](4) << ")\n"; qRobotFile5 << "}";
-
 	qRobotFile6 << "\\newcommand{\\qRobotDataF}{\n";
 	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile6 << "(" << i << ", " << _qRobotVec[i](5) << ")\n"; qRobotFile6 << "}";
-
 	qRobotFile7 << "\\newcommand{\\qRobotDataG}{\n";
 	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile7 << "(" << i << ", " << _qRobotVec[i](6) << ")\n"; qRobotFile7 << "}";
 
@@ -365,7 +353,7 @@ Q SamplePlugin::getdQ(Mat & image)
 
 	//If the detected point is strange, return the previous dQ
 	const unsigned char limitdudv = 60; //Fast
-	//const unsigned char limitdudv = 20; //
+	//const unsigned char limitdudv = 20; //Medium
 	//const unsigned char limitdudv = 10; //Slow
 	if(abs(dudv(0,0)) > limitdudv || abs(dudv(1,0)) > limitdudv){
 		log().info() << "Meeehh!  -  ";
