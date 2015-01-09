@@ -1,75 +1,165 @@
-%\input{../data/cameraPose.txt}
-%\input{../data/errorPose.txt}
-\input{../data/qRobot7.txt}
-\input{../data/qRobot1.txt}
-\input{../data/qRobot2.txt}
-\input{../data/qRobot3.txt}
-\input{../data/qRobot4.txt}
-\input{../data/qRobot5.txt}
-\input{../data/qRobot6.txt}
+%Tracking
+\input{data/tracking/qRobot1SlowTracking.txt}
+\input{data/tracking/qRobot2SlowTracking.txt}
+\input{data/tracking/qRobot3SlowTracking.txt}
+\input{data/tracking/qRobot4SlowTracking.txt}
+\input{data/tracking/qRobot5SlowTracking.txt}
+\input{data/tracking/qRobot6SlowTracking.txt}
+\input{data/tracking/qRobot7SlowTracking.txt}
 
-%Time Plot
-% \newcommand{\cameraPosePlot}{
-% \label{plo:cameraPosePlot}
-% \begin{figure}[!ht]
-% \centering
-% 	\begin{tikzpicture}
-% 		\begin{axis}[height=9cm, width=\textwidth, grid=major,xlabel={Step},ylabel={Time[s]}]
-			
-% 			\addplot [color=SkyBlue, mark=o] coordinates {
-% 				\cameraPose
-% 			};
-% 			\addlegendentry{t}
+\input{data/tracking/cameraPoseP0SlowTracking.txt}
+\input{data/tracking/cameraPoseP1SlowTracking.txt}
+\input{data/tracking/cameraPoseP2SlowTracking.txt}
+\input{data/tracking/cameraPoseR0SlowTracking.txt}
+\input{data/tracking/cameraPoseR1SlowTracking.txt}
+\input{data/tracking/cameraPoseR2SlowTracking.txt}
 
-% 		\end{axis}
-% 	\end{tikzpicture}
-% \end{figure}
-% }
+\input{data/tracking/errorPoseXSlowTracking.txt}
+\input{data/tracking/errorPoseYSlowTracking.txt}
+\input{data/tracking/errorPoseXMediumTracking.txt}
+\input{data/tracking/errorPoseYMediumTracking.txt}
+\input{data/tracking/errorPoseXFastTracking.txt}
+\input{data/tracking/errorPoseYFastTracking.txt}
 
-\newcommand{\qRobotPlot}{
-\label{plo:qRobotPlot}
+
+\newcommand{\trackingSlowQRobotPlot}{
+\label{plo:trackingQRobotPlot}
 \begin{figure}[!ht]
 \centering
+	\tikzset{every mark/.append style={scale=0.5}}
 	\begin{tikzpicture}
-		\begin{axis}[height=9cm, width=\textwidth, grid=major,xlabel={Step},ylabel={Time[s]}]
-			
+		\begin{axis}[height=9cm, width=\textwidth, grid=major,
+		xlabel={Step},ylabel={rad}
+		]	
 			\addplot [color=Cyan, mark=o] coordinates {
-				\qRobotDataA
+				\trackingSlowQRobotDataA
 			};
 			\addlegendentry{q1}
 
 			\addplot [color=DarkOrchid, mark=o] coordinates {
-				\qRobotDataB
+				\trackingSlowQRobotDataB
 			};
 			\addlegendentry{q2}
 			
 			\addplot [color=LimeGreen, mark=o] coordinates {
-				\qRobotDataC
+				\trackingSlowQRobotDataC
 			};
 			\addlegendentry{q3}
 			
 			\addplot [color=OrangeRed, mark=o] coordinates {
-				\qRobotDataD
+				\trackingSlowQRobotDataD
 			};
 			\addlegendentry{q4}
 			
 			\addplot [color=Goldenrod, mark=o] coordinates {
-				\qRobotDataE
+				\trackingSlowQRobotDataE
 			};
 			\addlegendentry{q5}
 			
 			\addplot [color=CarnationPink, mark=o] coordinates {
-				\qRobotDataF
+				\trackingSlowQRobotDataF
 			};
 			\addlegendentry{q6}
 
 			\addplot [color=RoyalBlue, mark=o] coordinates {
-				\qRobotDataG
+				\trackingSlowQRobotDataG
 			};
 			\addlegendentry{q7}
-
-
 		\end{axis}
 	\end{tikzpicture}
+	\caption{Robot's State while tracking the marker at slow speed.}
+\end{figure}
+}
+
+\newcommand{\trackingSlowCameraPose}{
+\label{plo:trackingSlowCameraPose}
+\begin{figure}[!ht]
+\centering
+	\tikzset{every mark/.append style={scale=0.5}}
+	\begin{tikzpicture} [spy using outlines=
+	{circle, magnification=10, connect spies}
+	]
+		\begin{axis}[height=9cm, width=\textwidth, grid=major,
+		xlabel={Step},ylabel={rad}
+		]	
+			\addplot [color=Cyan, mark=o] coordinates {
+				\trackingSlowCameraPoseDataA
+			};
+			\addlegendentry{P0}
+
+			\addplot [color=DarkOrchid, mark=o] coordinates {
+				\trackingSlowCameraPoseDataB
+			};
+			\addlegendentry{P1}
+			
+			\addplot [color=LimeGreen, mark=o] coordinates {
+				\trackingSlowCameraPoseDataC
+			};
+			\addlegendentry{P2}
+			
+			\addplot [color=OrangeRed, mark=o] coordinates {
+				\trackingSlowCameraPoseDataD
+			};
+			\addlegendentry{R}
+			
+			\addplot [color=Goldenrod, mark=o] coordinates {
+				\trackingSlowCameraPoseDataE
+			};
+			\addlegendentry{P}
+			
+			\addplot [color=CarnationPink, mark=o] coordinates {
+				\trackingSlowCameraPoseDataF
+			};
+			\addlegendentry{Y}
+
+			\coordinate (spypoint) at (axis cs:200,-0.31);
+ 			\coordinate (magnifyglass) at (axis cs:350,0.85);
+		\end{axis}
+		\spy [blue, size=2.0cm] on (spypoint) in node[fill=white] at (magnifyglass);
+	\end{tikzpicture}
+	\caption{Camera pose when tracking the marker at slow speed}
+\end{figure}
+}
+
+\newcommand{\trackingErrorPlot}{
+\label{plo:trackingErrorPlot}
+\begin{figure}[!ht]
+\centering
+	\begin{tikzpicture}
+		\begin{axis}[height=9cm, width=\textwidth, grid=major,
+		xlabel={Step},ylabel={rad}
+		]	
+			\addplot [color=Cyan, mark=o] coordinates {
+				\trackingSlowErrorPoseDataX
+			};
+			\addlegendentry{Slow Error X}
+
+			\addplot [color=DarkOrchid, mark=o] coordinates {
+				\trackingSlowErrorPoseDataY
+			};
+			\addlegendentry{Slow Error Y}
+			
+			\addplot [color=LimeGreen, mark=o] coordinates {
+				\trackingMediumErrorPoseDataX
+			};
+			\addlegendentry{Medium Error X}
+			
+			\addplot [color=OrangeRed, mark=o] coordinates {
+				\trackingMediumErrorPoseDataY
+			};
+			\addlegendentry{Medium Error Y}
+			
+			\addplot [color=Goldenrod, mark=o] coordinates {
+				\trackingFastErrorPoseDataX
+			};
+			\addlegendentry{Fast Error X}
+			
+			\addplot [color=CarnationPink, mark=o] coordinates {
+				\trackingFastErrorPoseDataY
+			};
+			\addlegendentry{Fast Error Y}
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Error in the X and Y coordinates. Tracking marker at different speeds}
 \end{figure}
 }

@@ -193,59 +193,59 @@ Mat SamplePlugin::getImageAndShow()
  */
 void SamplePlugin::writeData()
 {
-	ofstream cameraPoseFileP0; cameraPoseFileP0.open((cameraPosePath + "P0.txt").c_str()); cameraPoseFileP0.precision(3); cameraPoseFileP0.setf(std::ios::fixed);
-	ofstream cameraPoseFileP1; cameraPoseFileP1.open((cameraPosePath + "P1.txt").c_str()); cameraPoseFileP1.precision(3); cameraPoseFileP1.setf(std::ios::fixed);
-	ofstream cameraPoseFileP2; cameraPoseFileP2.open((cameraPosePath + "P2.txt").c_str()); cameraPoseFileP2.precision(3); cameraPoseFileP2.setf(std::ios::fixed);
-	ofstream cameraPoseFileR0; cameraPoseFileR0.open((cameraPosePath + "R0.txt").c_str()); cameraPoseFileR0.precision(3); cameraPoseFileR0.setf(std::ios::fixed);
-	ofstream cameraPoseFileR1; cameraPoseFileR1.open((cameraPosePath + "R1.txt").c_str()); cameraPoseFileR1.precision(3); cameraPoseFileR1.setf(std::ios::fixed);
-	ofstream cameraPoseFileR2; cameraPoseFileR2.open((cameraPosePath + "R2.txt").c_str()); cameraPoseFileR2.precision(3); cameraPoseFileR2.setf(std::ios::fixed);
+	ofstream cameraPoseFileP0; cameraPoseFileP0.open((cameraPosePath + "P0SlowTracking.txt").c_str()); cameraPoseFileP0.precision(3); cameraPoseFileP0.setf(std::ios::fixed);
+	ofstream cameraPoseFileP1; cameraPoseFileP1.open((cameraPosePath + "P1SlowTracking.txt").c_str()); cameraPoseFileP1.precision(3); cameraPoseFileP1.setf(std::ios::fixed);
+	ofstream cameraPoseFileP2; cameraPoseFileP2.open((cameraPosePath + "P2SlowTracking.txt").c_str()); cameraPoseFileP2.precision(3); cameraPoseFileP2.setf(std::ios::fixed);
+	ofstream cameraPoseFileR0; cameraPoseFileR0.open((cameraPosePath + "R0SlowTracking.txt").c_str()); cameraPoseFileR0.precision(3); cameraPoseFileR0.setf(std::ios::fixed);
+	ofstream cameraPoseFileR1; cameraPoseFileR1.open((cameraPosePath + "R1SlowTracking.txt").c_str()); cameraPoseFileR1.precision(3); cameraPoseFileR1.setf(std::ios::fixed);
+	ofstream cameraPoseFileR2; cameraPoseFileR2.open((cameraPosePath + "R2SlowTracking.txt").c_str()); cameraPoseFileR2.precision(3); cameraPoseFileR2.setf(std::ios::fixed);
 
-	ofstream errorPoseFileX; errorPoseFileX.open((errorPosePath + "X.txt").c_str()); errorPoseFileX.precision(3); errorPoseFileX.setf(std::ios::fixed);
-	ofstream errorPoseFileY; errorPoseFileY.open((errorPosePath + "Y.txt").c_str()); errorPoseFileY.precision(3); errorPoseFileY.setf(std::ios::fixed);
+	ofstream errorPoseFileX; errorPoseFileX.open((errorPosePath + "XFastTracking.txt").c_str()); errorPoseFileX.precision(3); errorPoseFileX.setf(std::ios::fixed);
+	ofstream errorPoseFileY; errorPoseFileY.open((errorPosePath + "YFastTracking.txt").c_str()); errorPoseFileY.precision(3); errorPoseFileY.setf(std::ios::fixed);
 
-	ofstream qRobotFile1; qRobotFile1.open((qRobotPath + "1.txt").c_str()); qRobotFile1.precision(3); qRobotFile1.setf(std::ios::fixed);
-	ofstream qRobotFile2; qRobotFile2.open((qRobotPath + "2.txt").c_str()); qRobotFile2.precision(3); qRobotFile2.setf(std::ios::fixed);
-	ofstream qRobotFile3; qRobotFile3.open((qRobotPath + "3.txt").c_str()); qRobotFile3.precision(3); qRobotFile3.setf(std::ios::fixed);
-	ofstream qRobotFile4; qRobotFile4.open((qRobotPath + "4.txt").c_str()); qRobotFile4.precision(3); qRobotFile4.setf(std::ios::fixed);
-	ofstream qRobotFile5; qRobotFile5.open((qRobotPath + "5.txt").c_str()); qRobotFile5.precision(3); qRobotFile5.setf(std::ios::fixed);
-	ofstream qRobotFile6; qRobotFile6.open((qRobotPath + "6.txt").c_str()); qRobotFile6.precision(3); qRobotFile6.setf(std::ios::fixed);
-	ofstream qRobotFile7; qRobotFile7.open((qRobotPath + "7.txt").c_str()); qRobotFile7.precision(3); qRobotFile7.setf(std::ios::fixed);
+	ofstream qRobotFile1; qRobotFile1.open((qRobotPath + "1SlowTracking.txt").c_str()); qRobotFile1.precision(3); qRobotFile1.setf(std::ios::fixed);
+	ofstream qRobotFile2; qRobotFile2.open((qRobotPath + "2SlowTracking.txt").c_str()); qRobotFile2.precision(3); qRobotFile2.setf(std::ios::fixed);
+	ofstream qRobotFile3; qRobotFile3.open((qRobotPath + "3SlowTracking.txt").c_str()); qRobotFile3.precision(3); qRobotFile3.setf(std::ios::fixed);
+	ofstream qRobotFile4; qRobotFile4.open((qRobotPath + "4SlowTracking.txt").c_str()); qRobotFile4.precision(3); qRobotFile4.setf(std::ios::fixed);
+	ofstream qRobotFile5; qRobotFile5.open((qRobotPath + "5SlowTracking.txt").c_str()); qRobotFile5.precision(3); qRobotFile5.setf(std::ios::fixed);
+	ofstream qRobotFile6; qRobotFile6.open((qRobotPath + "6SlowTracking.txt").c_str()); qRobotFile6.precision(3); qRobotFile6.setf(std::ios::fixed);
+	ofstream qRobotFile7; qRobotFile7.open((qRobotPath + "7SlowTracking.txt").c_str()); qRobotFile7.precision(3); qRobotFile7.setf(std::ios::fixed);
 	//Pose
-	cameraPoseFileP0 << "\\newcommand{\\cameraPoseDataA}{\n";
+	cameraPoseFileP0 << "\\newcommand{\\trackingSlowCameraPoseDataA}{\n";
 	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileP0 << "(" << i << ", " << _cameraPoseVec[i].P()(0) << ")\n"; cameraPoseFileP0 << "}";
-	cameraPoseFileP1 << "\\newcommand{\\cameraPoseDataB}{\n";
+	cameraPoseFileP1 << "\\newcommand{\\trackingSlowCameraPoseDataB}{\n";
 	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileP1 << "(" << i << ", " << _cameraPoseVec[i].P()(1) << ")\n"; cameraPoseFileP1 << "}";
-	cameraPoseFileP2 << "\\newcommand{\\cameraPoseDataC}{\n";
+	cameraPoseFileP2 << "\\newcommand{\\trackingSlowCameraPoseDataC}{\n";
 	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileP2 << "(" << i << ", " << _cameraPoseVec[i].P()(2) << ")\n"; cameraPoseFileP2 << "}";
-	cameraPoseFileR0 << "\\newcommand{\\cameraPoseDataD}{\n";
+	cameraPoseFileR0 << "\\newcommand{\\trackingSlowCameraPoseDataD}{\n";
 	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileR0 << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(0) << ")\n"; cameraPoseFileR0 << "}";
-	cameraPoseFileR1 << "\\newcommand{\\cameraPoseDataE}{\n";
+	cameraPoseFileR1 << "\\newcommand{\\trackingSlowCameraPoseDataE}{\n";
 	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileR1 << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(1) << ")\n"; cameraPoseFileR1 << "}";
-	cameraPoseFileR2 << "\\newcommand{\\cameraPoseDataF}{\n";
+	cameraPoseFileR2 << "\\newcommand{\\trackingSlowCameraPoseDataF}{\n";
 	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileR2 << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(2) << ")\n"; cameraPoseFileR2 << "}";
 
 
 	//Error
-	errorPoseFileX << "\\newcommand{\\errorPoseDataX}{\n";
+	errorPoseFileX << "\\newcommand{\\trackingMediumErrorPoseDataX}{\n";
 	for (unsigned int i=0; i<_errorPoseVec.size(); i++) errorPoseFileX   << "(" << i << "," << _errorPoseVec[i+1](0) << ")\n"; errorPoseFileX << "}";
-	errorPoseFileY << "\\newcommand{\\errorPoseDataX}{\n";
+	errorPoseFileY << "\\newcommand{\\trackingMediumErrorPoseDataY}{\n";
 	for (unsigned int i=0; i<_errorPoseVec.size(); i++) errorPoseFileY   << "(" << i << "," << _errorPoseVec[i+1](1) << ")\n"; errorPoseFileY << "}";
 
 
 	//Q
-	qRobotFile1 << "\\newcommand{\\qRobotDataA}{\n";
+	qRobotFile1 << "\\newcommand{\\trackingSlowQRobotDataA}{\n";
 	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile1 << "(" << i << ", " << _qRobotVec[i](0) << ")\n"; qRobotFile1 << "}";
-	qRobotFile2 << "\\newcommand{\\qRobotDataB}{\n";
+	qRobotFile2 << "\\newcommand{\\trackingSlowQRobotDataB}{\n";
 	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile2 << "(" << i << ", " << _qRobotVec[i](1) << ")\n"; qRobotFile2 << "}";
-	qRobotFile3 << "\\newcommand{\\qRobotDataC}{\n";
+	qRobotFile3 << "\\newcommand{\\trackingSlowQRobotDataC}{\n";
 	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile3 << "(" << i << ", " << _qRobotVec[i](2) << ")\n"; qRobotFile3 << "}";
-	qRobotFile4 << "\\newcommand{\\qRobotDataD}{\n";
+	qRobotFile4 << "\\newcommand{\\trackingSlowQRobotDataD}{\n";
 	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile4 << "(" << i << ", " << _qRobotVec[i](3) << ")\n"; qRobotFile4 << "}";
-	qRobotFile5 << "\\newcommand{\\qRobotDataE}{\n";
+	qRobotFile5 << "\\newcommand{\\trackingSlowQRobotDataE}{\n";
 	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile5 << "(" << i << ", " << _qRobotVec[i](4) << ")\n"; qRobotFile5 << "}";
-	qRobotFile6 << "\\newcommand{\\qRobotDataF}{\n";
+	qRobotFile6 << "\\newcommand{\\trackingSlowQRobotDataF}{\n";
 	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile6 << "(" << i << ", " << _qRobotVec[i](5) << ")\n"; qRobotFile6 << "}";
-	qRobotFile7 << "\\newcommand{\\qRobotDataG}{\n";
+	qRobotFile7 << "\\newcommand{\\trackingSlowQRobotDataG}{\n";
 	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile7 << "(" << i << ", " << _qRobotVec[i](6) << ")\n"; qRobotFile7 << "}";
 
 
@@ -297,17 +297,17 @@ void SamplePlugin::checkVelocityLimits(Q & qToCheck){
 Q SamplePlugin::getdQ(Mat & image)
 {
 	//Get the point directly from the marker frame. From Camera to base, from base to world, from world to Marker
-/*	Vector3D<> Pt = (inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * _wc->findFrame("Marker")->getTransform(_state)) * Vector3D<>(0,0,0);
+	Vector3D<> Pt = (inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * _wc->findFrame("Marker")->getTransform(_state)) * Vector3D<>(0,0,0);
 	float u = Pt(0)*823*2;
-	float v = Pt(1)*823*2;*/
+	float v = Pt(1)*823*2;
 
-	//Get points from OpenCV algorithms
+/*	//Get points from OpenCV algorithms
 	//Point2f point = cornyDetection(image);
 	Point2f point = colorDetection(image);
 	//Point2f point = linesHDetection(image);
 
 	float u = point.x - 1024/2;
-	float v = point.y - 768/2;
+	float v = point.y - 768/2;*/
 
 	//Continue with the device's jacobian
 	MatrixXd deviceJacobian(6,7);
@@ -352,7 +352,7 @@ Q SamplePlugin::getdQ(Mat & image)
 	dq_aux = Zimage.transpose() * (Zimage*Zimage.transpose()).inverse() * dudv * 0.95; //0.97 is the max
 
 	//If the detected point is strange, return the previous dQ
-	const unsigned char limitdudv = 60; //Fast
+	const unsigned char limitdudv = 90; //Fast
 	//const unsigned char limitdudv = 20; //Medium
 	//const unsigned char limitdudv = 10; //Slow
 	if(abs(dudv(0,0)) > limitdudv || abs(dudv(1,0)) > limitdudv){
@@ -399,13 +399,13 @@ void SamplePlugin::loop()
 			//Take the values of the first frame
 			if(_firstTime){
 				//Get the image seen from the camera and show it in the plugin
-/*				Vector3D<> Pt = (inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * _wc->findFrame("Marker")->getTransform(_state)) * Vector3D<>(0,0,0);
+				Vector3D<> Pt = (inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * _wc->findFrame("Marker")->getTransform(_state)) * Vector3D<>(0,0,0);
 				_previousPoints[0] = Pt(0)*823*2;
-				_previousPoints[1] = Pt(1)*823*2;*/
+				_previousPoints[1] = Pt(1)*823*2;
 
-				Point2f point = colorDetection(image);
+/*				Point2f point = colorDetection(image);
 				_previousPoints[0] = point.x - 1024/2;
-				_previousPoints[1] = point.y - 768/2;
+				_previousPoints[1] = point.y - 768/2;*/
 
 				_firstTime=0;
 			}
