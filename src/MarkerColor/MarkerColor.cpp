@@ -189,8 +189,8 @@ Point2f colorDetection(Mat img_input) {
 		for (unsigned int i = 0; i < contours.size(); i++) {
 			if (radius[i] > radiusMin)
 				mc[i] = Point2f(mu[i].m10 / mu[i].m00, mu[i].m01 / mu[i].m00);
-			circle(im_contFin, mc[i], 3, Scalar(0, 100, 255), 1);
-			circle(im_contFin, center[i], 5, Scalar(0,255,255), 2, 8, 0);
+			circle(im_contFin, mc[i], 3, Scalar(0,255, 250), 1); //mass center
+			circle(im_contFin, center[i], 5, Scalar(0,0,255), 2, 8, 0); // circle center
 		}
 
 
@@ -242,7 +242,7 @@ Point2f colorDetection(Mat img_input) {
 		}
 
 		cout << "mass center = " << centerMass << endl;
-		circle(im_contFin, centerMass, 5, Scalar(0, 255, 0));
+		//circle(im_contFin, centerMass, 5, Scalar(0, 255, 0));
 /*		imshow("Thresholded Image", im_thresh); //show the thresholded image
 				//imshow("Original", imHSV); //show the original image*
 				imshow("Contoured", im_contFin); //show the original image*

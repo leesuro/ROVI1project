@@ -2,19 +2,21 @@
 \label{chap:feature_extraction}
 This chapters describes different approaches on the marker detection. It explains the trade-offs,methods that have been considered and applied for the different markers. The markers that have been analysed and detected in this project are Marker 1 (Color), Marker 2 (Thin lines) and Marker 3 (Corny). 
 
-\begin{figure}[ht!]
-	\centering
-	\includegraphics[width=\textwidth]{figures/Marker1png.png}
-	\caption{Marker 1 Color}
-	\label{fig:markerColor}
-\end{figure}
-\section{Marker 1 (Color)} 
+
 It is a trade-off between speed (how many detections per second) and precision (how precise the detection is). It is necessary to know whether a fast or a slowly moving object is being tracked. There are several options available. As more features are added to the code, runtime is likely to become longer. The runtime also depends on the computational capability of the computer.
 
 Another trade-off lies in the universality of the detection - whether the detection is effective in a closed artificial environment (easier to detect) or in real "chaotic" environment (the simple methods may fail).
 
 \newpage
 
+%\begin{figure}[ht!]
+%	\centering
+%	\includegraphics[width=\textwidth]{figures/Marker1png.png}
+%	\caption{Marker 1 Color}
+%	\label{fig:markerColor}
+%\end{figure}
+
+\section{Marker 1 (Color)} 
 Here goes first marker
 
 
@@ -27,6 +29,14 @@ objects with various shapes. This method seems to work perfectly for the easy an
 for the HARD sequence. Problem of this method occurs when detecting the marker in the hard sequence,
 there sometimes the detected circle contours are not complete (luminosity differences) and the resulting
 center of mass is shifted. 
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=\textwidth]{figures/Marker1centers}
+	\caption{Marker 1 Color}
+	\label{fig:markerColorcenter1}
+\end{figure}
+\section{Marker 1 (Color)} 
 
 The shapes that need to be detected have circle shapes. For this reason another less time-consuming 
 method has been implemented. The center of mass is calculed with function minEnclosingCircle() whitch calculates
