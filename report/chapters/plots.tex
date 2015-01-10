@@ -23,30 +23,29 @@
 
 
 \newcommand{\trackingSlowQRobotPlot}{
-\label{plot:trackingSlowQRobotPlot}
 \begin{figure}[!ht]
-\centering
+	\centering
 	\tikzset{every mark/.append style={scale=0.5}}
 	\begin{tikzpicture}
 		\begin{axis}[height=9cm, width=\textwidth, grid=major,
 		xlabel={Step},ylabel={rad}
 		]	
-			\addplot [color=Cyan, mark=o] coordinates {
+			\addplot [color=Turquoise, mark=o] coordinates {
 				\trackingSlowQRobotDataA
 			};
 			\addlegendentry{q1}
 
-			\addplot [color=DarkOrchid, mark=o] coordinates {
+			\addplot [color=Orchid, mark=o] coordinates {
 				\trackingSlowQRobotDataB
 			};
 			\addlegendentry{q2}
 			
-			\addplot [color=LimeGreen, mark=o] coordinates {
+			\addplot [color=YellowGreen, mark=o] coordinates {
 				\trackingSlowQRobotDataC
 			};
 			\addlegendentry{q3}
 			
-			\addplot [color=OrangeRed, mark=o] coordinates {
+			\addplot [color=WildStrawberry, mark=o] coordinates {
 				\trackingSlowQRobotDataD
 			};
 			\addlegendentry{q4}
@@ -56,7 +55,7 @@
 			};
 			\addlegendentry{q5}
 			
-			\addplot [color=CarnationPink, mark=o] coordinates {
+			\addplot [color=BlueGreen, mark=o] coordinates {
 				\trackingSlowQRobotDataF
 			};
 			\addlegendentry{q6}
@@ -68,11 +67,11 @@
 		\end{axis}
 	\end{tikzpicture}
 	\caption{Robot's State while tracking the marker at slow speed.}
+	\label{fig:trackingSlowQRobotPlot}
 \end{figure}
 }
 
 \newcommand{\trackingSlowCameraPose}{
-\label{plot:trackingSlowCameraPose}
 \begin{figure}[!ht]
 \centering
 	\tikzset{every mark/.append style={scale=0.5}}
@@ -82,22 +81,22 @@
 		\begin{axis}[height=9cm, width=\textwidth, grid=major,
 		xlabel={Step},ylabel={rad}
 		]	
-			\addplot [color=Cyan, mark=o] coordinates {
+			\addplot [color=Turquoise, mark=o] coordinates {
 				\trackingSlowCameraPoseDataA
 			};
 			\addlegendentry{P0}
 
-			\addplot [color=DarkOrchid, mark=o] coordinates {
+			\addplot [color=Orchid, mark=o] coordinates {
 				\trackingSlowCameraPoseDataB
 			};
 			\addlegendentry{P1}
 			
-			\addplot [color=LimeGreen, mark=o] coordinates {
+			\addplot [color=YellowGreen, mark=o] coordinates {
 				\trackingSlowCameraPoseDataC
 			};
 			\addlegendentry{P2}
 			
-			\addplot [color=OrangeRed, mark=o] coordinates {
+			\addplot [color=WildStrawberry, mark=o] coordinates {
 				\trackingSlowCameraPoseDataD
 			};
 			\addlegendentry{R}
@@ -107,7 +106,7 @@
 			};
 			\addlegendentry{P}
 			
-			\addplot [color=CarnationPink, mark=o] coordinates {
+			\addplot [color=BlueGreen, mark=o] coordinates {
 				\trackingSlowCameraPoseDataF
 			};
 			\addlegendentry{Y}
@@ -118,33 +117,33 @@
 		\spy [blue, size=2.0cm] on (spypoint) in node[fill=white] at (magnifyglass);
 	\end{tikzpicture}
 	\caption{Camera pose when tracking the marker at slow speed}
+	\label{fig:trackingSlowCameraPose}
 \end{figure}
 }
 
 \newcommand{\trackingErrorPlot}{
-\label{plot:trackingErrorPlot}
 \begin{figure}[!ht]
 \centering
 	\begin{tikzpicture}
 		\begin{axis}[height=9cm, width=\textwidth, grid=major,
 		xlabel={Step},ylabel={pixels}
 		]	
-			\addplot [color=Cyan, mark=o] coordinates {
+			\addplot [color=Turquoise, mark=o] coordinates {
 				\trackingSlowErrorPoseDataX
 			};
 			\addlegendentry{Slow Error X}
 
-			\addplot [color=DarkOrchid, mark=o] coordinates {
+			\addplot [color=Orchid, mark=o] coordinates {
 				\trackingSlowErrorPoseDataY
 			};
 			\addlegendentry{Slow Error Y}
 			
-			\addplot [color=LimeGreen, mark=o] coordinates {
+			\addplot [color=YellowGreen, mark=o] coordinates {
 				\trackingMediumErrorPoseDataX
 			};
 			\addlegendentry{Medium Error X}
 			
-			\addplot [color=OrangeRed, mark=o] coordinates {
+			\addplot [color=WildStrawberry, mark=o] coordinates {
 				\trackingMediumErrorPoseDataY
 			};
 			\addlegendentry{Medium Error Y}
@@ -154,12 +153,13 @@
 			};
 			\addlegendentry{Fast Error X}
 			
-			\addplot [color=CarnationPink, mark=o] coordinates {
+			\addplot [color=BlueGreen, mark=o] coordinates {
 				\trackingFastErrorPoseDataY
 			};
 			\addlegendentry{Fast Error Y}
 		\end{axis}
 	\end{tikzpicture}
 	\caption{Error in the X and Y coordinates. Tracking marker at different speeds}
+	\label{fig:trackingErrorPlot}
 \end{figure}
 }

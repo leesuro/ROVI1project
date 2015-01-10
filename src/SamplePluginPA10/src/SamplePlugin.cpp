@@ -142,7 +142,7 @@ void SamplePlugin::open(WorkCell* workcell)
 	_spinBox->setMaximum(9999);
 	_spinBox->setMinimum(10);
 	_spinBox->setValue(50);
-	if (TRACKING == 4)_spinBox->setValue(900);
+	if (TRACKING == 4)_spinBox->setValue(1000);
 
 	Q qInit(7, 0, -0.65, 0, 1.80, 0, 0.42, 0);
 	_device->setQ(qInit, _state);
