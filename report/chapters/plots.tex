@@ -23,7 +23,7 @@
 
 
 \newcommand{\trackingSlowQRobotPlot}{
-\label{plo:trackingQRobotPlot}
+\label{plot:trackingSlowQRobotPlot}
 \begin{figure}[!ht]
 \centering
 	\tikzset{every mark/.append style={scale=0.5}}
@@ -72,7 +72,7 @@
 }
 
 \newcommand{\trackingSlowCameraPose}{
-\label{plo:trackingSlowCameraPose}
+\label{plot:trackingSlowCameraPose}
 \begin{figure}[!ht]
 \centering
 	\tikzset{every mark/.append style={scale=0.5}}
@@ -122,12 +122,12 @@
 }
 
 \newcommand{\trackingErrorPlot}{
-\label{plo:trackingErrorPlot}
+\label{plot:trackingErrorPlot}
 \begin{figure}[!ht]
 \centering
 	\begin{tikzpicture}
 		\begin{axis}[height=9cm, width=\textwidth, grid=major,
-		xlabel={Step},ylabel={rad}
+		xlabel={Step},ylabel={pixels}
 		]	
 			\addplot [color=Cyan, mark=o] coordinates {
 				\trackingSlowErrorPoseDataX

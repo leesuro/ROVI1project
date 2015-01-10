@@ -2,11 +2,26 @@
 
 \chapter{Tracking points using the image Jacobian} % (fold)
 \label{chap:tracking_points_using_the_image_jacobian}
+The robot's inverse kinematics has been implemented as explained in the book and two features has been adapted respect to this. 
+First, the input of the coordinates has been adapted for receive the OpenCV points and, second, the algorithm is able to track until three points (however, is easily expandable).
 
+Despite is possible to track three points the algorithms developed for the feature extraction only returns one point, so this tracking has been only tested following the marker's frame. 
+For this reason only the experiments and conclusions with one-point tracking are going to be presented.
+
+For the marker's frame tracking three sets of data are presented. 
+First, the state of the robot (Q), second the camera's pose and third the error obtained between the real frame movement and the calculated from the camera.
+
+It is a requirement show when the robot lost the marker but in all this cases the robot was able to track the marker and no over link's speed were reached. 
+For the Q and the camera's pose only the data from the slow-speed marker is going to be shown. 
+This is due to this both sets of data are the same is all the speed but in the slow there is more information.
+In the plot \ref{plot:trackingSlowCameraPose} the robot's state is presented while the same is done in the plot \ref{plot:trackingSlowCameraPose} with camera's pose.
 \trackingSlowQRobotPlot
-
 \trackingSlowCameraPose
+As can be seen, the great quantity of experiments make the different values look like a line, but in \ref{plot:trackingSlowCameraPose} an magnifying glass show that there are actually different points.
 
+For last, the error is calculated as the difference between the real movement gotten from the data sets given and the difference calculated from one difference between the the movement of a point seen from the virtual camera.
+This error occurs in the X and Y coordinates and it differs depending on the velocity's marker so all the errors are presented in one single plot \ref{trackingErrorPlot}.
 \trackingErrorPlot
+As
 
 % chapter tracking_points_using_the_image_jacobian (end)

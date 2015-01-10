@@ -8,14 +8,6 @@
 	const string userPath = "/home/pyc/workspace/";
 #endif
 
-const QString iconPath = QString::fromStdString(userPath) + "ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
-const string workcellPath = userPath + "ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
-const string backgroundPath = userPath + "ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
-const string cameraPosePath = userPath + "ROVI1project/data/cameraPose";
-const string errorPosePath = userPath + "ROVI1project/data/errorPose";
-const string qRobotPath = userPath + "ROVI1project/data/qRobot";
-
-
 #if (SPEED==0)
 	const string motionFilePath = userPath + "ROVI1project/src/SamplePluginPA10/motions/MarkerMotionSlow.txt";
 #elif (SPEED==1)
@@ -35,6 +27,15 @@ const string qRobotPath = userPath + "ROVI1project/data/qRobot";
 #elif (TRACKING==4)
 	const string markerPath = userPath + "ROVI1project/src/SamplePluginPA10/markers/Marker3.ppm";
 #endif
+
+const QString iconPath = QString::fromStdString(userPath) + "ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
+const string workcellPath = userPath + "ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
+const string backgroundPath = userPath + "ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
+const string cameraPosePath = userPath + "ROVI1project/data/cameraPose";
+const string errorPosePath = userPath + "ROVI1project/data/errorPose";
+const string qRobotPath = userPath + "ROVI1project/data/qRobot";
+
+
 //--------------------------------------------------------
 //					  Constructors
 //--------------------------------------------------------
