@@ -27,3 +27,9 @@ src/SamplePluginPA10/src/libs
 src/MarkerColor/.project 
 src/MarkerColor/.cproject 
 *~
+
+#Merge
+*.BACKUP.*
+*.BASE.*
+*.LOCAL.*
+*.REMOTE.*
