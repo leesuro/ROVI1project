@@ -609,6 +609,167 @@ Point2f SamplePlugin::cornyDetection (Mat & img_input)
 	return scene_corners[0];
 }
 
+Point2f SamplePlugin::colorDetection(Mat & img_input){
+	Mat im_thresh, im_cont, imHSV;
+		Point2f centerMass, centerMasstemp, centerMassRed;
+		vector<vector<Point> > contours, contoursTotal;
+		vector<Vec4i> hierarchy;
+		float radiusMin = 37,radiusMax=100;
+
+		cvtColor(img_input, imHSV, CV_BGR2HSV);
+		Mat im_contFin = Mat::zeros(img_input.size(), CV_8UC3);
+
+		//namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
+
+		/*int iLowH = 108;
+		 int iHighH = 120;
+
+		 int iLowS = 95;
+		 int iHighS = 168;
+
+		 int iLowV = 39;
+		 int iHighV = 143;//110
+
+		 cvCreateTrackbar("LowH", "Control", &iLowH, 179); //Hue (0 - 179)
+		 cvCreateTrackbar("HighH", "Control", &iHighH, 179);
+
+		 cvCreateTrackbar("LowS", "Control", &iLowS, 255); //Saturation (0 - 255)
+		 cvCreateTrackbar("HighS", "Control", &iHighS, 255);
+
+		 cvCreateTrackbar("LowV", "Control", &iLowV, 255); //Value (0 - 255)
+		 cvCreateTrackbar("HighV", "Control", &iHighV, 255);
+		 */
+		int icounter = 0;
+		//while (true) {
+		for (icounter = 0; icounter < 2; icounter++) {
+
+			//inRange(imHSV, Scalar(iLowH, iLowS, iLowV),Scalar(iHighH, iHighS, iHighV), im_thresh); //Threshold the image
+
+			//THRESHOLDING
+
+
+			if (icounter == 0)
+				inRange(imHSV, Scalar(0, 150, 85), Scalar(8, 214, 213), im_thresh); //Threshold the image red circle
+			else
+				inRange(imHSV, Scalar(108, 95, 39), Scalar(120, 168, 143),
+						im_thresh); //Threshold the image blue circles
+
+			erode(im_thresh, im_thresh,
+					getStructuringElement(MORPH_ELLIPSE, Size(6, 6)));
+			dilate(im_thresh, im_thresh,
+					getStructuringElement(MORPH_ELLIPSE, Size(6, 6)));
+
+			dilate(im_thresh, im_thresh,
+					getStructuringElement(MORPH_ELLIPSE, Size(10, 10)));
+			erode(im_thresh, im_thresh,
+					getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
+
+			//contours
+			RNG rng(12345);
+			im_cont = im_thresh.clone();
+			findContours(im_cont, contours, hierarchy, CV_RETR_TREE,
+					CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+
+			// Approximate contours and enclosing circle calculation
+			vector<vector<Point> > contours_poly(contours.size());
+			vector<Point2f> center(contours.size());
+			vector<float> radius(contours.size());
+
+			for (unsigned int i = 0; i < contours.size(); i++) {
+				approxPolyDP(Mat(contours[i]), contours_poly[i], 3, true);
+				//minEnclosingCircle((Mat) contours_poly[i], center[i], radius[i]);
+				minEnclosingCircle((Mat) contours_poly[i], center[i], radius[i]);
+			}
+
+	/*
+			//Moments and the centre of mass
+			vector<Moments> mu(contours.size());
+
+			for (unsigned int i = 0; i < contours.size(); i++) {
+				if (radius[i] > 50)
+					mu[i] = moments(contours[i], false);
+			}
+
+			vector<Point2f> mc(contours.size());
+			for (unsigned int i = 0; i < contours.size(); i++) {
+				if (radius[i] > radiusMin)
+					mc[i] = Point2f(mu[i].m10 / mu[i].m00, mu[i].m01 / mu[i].m00);
+				circle(img_input, mc[i], 3, Scalar(0,255, 250), 1); //mass center
+				circle(img_input, center[i], 5, Scalar(0,0,255), 2, 8, 0); // circle center
+				circle(im_contFin, mc[i], 3, Scalar(0,255, 250), 1); //mass center
+				circle(im_contFin, center[i], 5, Scalar(0,0,255), 2, 8, 0); // circle center
+			}*/
+
+
+			// Draw contours
+	/*
+			for (unsigned int i = 0; i < contours.size(); i++) {
+				if ((radius[i] > radiusMin)&&(radius[i] < radiusMax)) {
+					Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255),
+							rng.uniform(0, 255));
+					drawContours(im_contFin, contours, i, color, 2, 8, hierarchy, 0,Point());
+					drawContours(img_input, contours, i, color, 2, 8, hierarchy, 0,Point());
+					circle(im_contFin, center[i], (int) radius[i], color, 2, 8, 0);
+					//circle(im_contFin, mc[i], 5, 255);
+				}
+			}
+	*/
+			int counter = 0;
+			centerMass.x = 0;
+			centerMass.y = 0;
+			if ((radius[0] > radiusMin)&&(radius[0] < radiusMax)) {
+				centerMass = center[0];
+				//circle(im_contFin, centerMasstemp, 1, Scalar(0, 0, 255), 3);
+				counter++;
+			}
+
+			for (size_t i = 1; i < center.size(); i++) {
+				//for (i = intersections.begin(); i != intersections.end(); ++i) {
+				centerMasstemp = center[i];
+				if ((radius[i] > radiusMin)&&(radius[i] < radiusMax)) {
+					centerMass.x = centerMass.x + centerMasstemp.x;
+					centerMass.y = centerMass.y + centerMasstemp.y;
+					//circle(im_contFin, centerMasstemp, 1, Scalar(0, 0, 255), 3);
+					counter++;
+				}
+				//cout << "Center is " << centerMasstemp.x << ", " << centerMasstemp.y
+				//		<< "  " << "  " << endl;
+
+			}
+
+			//Estimating Center of the marker
+			if (icounter == 0) {
+				centerMassRed.x = centerMass.x / counter;
+				centerMassRed.y = centerMass.y / counter;
+
+			} else {
+				centerMass.x = (centerMass.x + centerMassRed.x) / (counter+1);
+				centerMass.y = (centerMass.y + centerMassRed.y) / (counter+1);
+			}
+
+			//cout << "mass center = " << centerMass << endl;
+			//circle(im_contFin, centerMass, 5, Scalar(0, 255, 0));
+	/*		imshow("Thresholded Image", im_thresh); //show the thresholded image
+					//imshow("Original", imHSV); //show the original image*
+					imshow("Contoured", im_contFin); //show the original image*
+					waitKey();
+	*/
+		}
+		//imshow("Thresholded Image", im_thresh); //show the thresholded image
+			//imshow("Original", img_input); //show the original image*
+			//imshow("Contoured", im_contFin); //show the original image*
+			//waitKey();
+
+
+		//if (waitKey(30) == 27) { //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
+		//cout << "esc key is pressed by user" << endl;
+		//break;
+		//}
+		//}
+		return centerMass;
+}
+
+/*
 Point2f SamplePlugin::colorDetection(Mat & img_input) {
 	//Timer timer;
 	//timer.reset();
@@ -638,7 +799,7 @@ Point2f SamplePlugin::colorDetection(Mat & img_input) {
 
 	cvCreateTrackbar("LowV", "Control", &iLowV, 255); //Value (0 - 255)
 	cvCreateTrackbar("HighV", "Control", &iHighV, 255);
-	*/
+
 
 	vector<vector<Point> > contours;
 	vector<Vec4i> hierarchy;
@@ -730,10 +891,10 @@ Point2f SamplePlugin::colorDetection(Mat & img_input) {
  		if (waitKey(30) == 27) { //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
 			cout << "esc key is pressed by user" << endl;
 			break;
-		}*/
+		}
 	//}
 	return centerMass;
-}
+}*/
 
 
 Point2f SamplePlugin::linesHDetection(Mat img_input)
