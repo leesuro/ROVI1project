@@ -55,8 +55,9 @@ int main(void) {
 	stringstream sstm;
 	string scene_addr;
 	Point2f markerCenter;
-	for (cnti = 1; cnti < 51; cnti++) {
-		clock_gettime(CLOCK_MONOTONIC, &t2);
+	float averageT=0;
+	for (cnti = 1; cnti < 31; cnti++) {
+
 
 		sstm.str("");
 
@@ -65,35 +66,38 @@ int main(void) {
 			//				<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_"
 				//			<< 33 << ".png";
 
-		if (cnti < 10)
+		/*if (cnti < 10)
 			sstm
 					<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_0"
 					<< cnti << ".png";
 		else
 			sstm
 					<< "/home/pyc/workspace/ROVI1project/res/markers/marker_color_hard/marker_color_hard_"
-					<< cnti << ".png";
+					<< cnti << ".png";*/
 		//EASY MARKER
-		/*if (cnti < 10)
+		if (cnti < 10)
 		 sstm
 		 << "/home/pyc/workspace/ROVI1project/res/markers/marker_color/marker_color_0"
 		 << cnti << ".png";
 		 else
 		 sstm
 		 << "/home/pyc/workspace/ROVI1project/res/markers/marker_color/marker_color_"
-		 << cnti << ".png";*/
+		 << cnti << ".png";
 		scene_addr = sstm.str();
 		cout<<scene_addr;
 		image = imread(scene_addr);
+		clock_gettime(CLOCK_MONOTONIC, &t2);
 		markerCenter = colorDetection(image);
 		clock_gettime(CLOCK_MONOTONIC, &t3);
 		dt1 = (t3.tv_sec - t2.tv_sec)
 				+ (double) (t3.tv_nsec - t2.tv_nsec) * 1e-9;
 		cout << "elapsed time: " << dt1 << " s  " << endl;
-		waitKey(0);
+		averageT+=dt1;
+		//waitKey(0);
 //mark();
 	}
-	cout << "its over \n";
+	cout <<"average time"<< averageT/31.0<<"s \nits over \n";
+
 	waitKey(0);
 
 	return 0;
@@ -110,7 +114,7 @@ Point2f colorDetection(Mat img_input) {
 	cvtColor(img_input, imHSV, CV_BGR2HSV);
 	Mat im_contFin = Mat::zeros(img_input.size(), CV_8UC3);
 
-	namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
+	//namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
 
 	/*int iLowH = 108;
 	 int iHighH = 120;
@@ -155,7 +159,7 @@ Point2f colorDetection(Mat img_input) {
 		dilate(im_thresh, im_thresh,
 				getStructuringElement(MORPH_ELLIPSE, Size(6, 6)));
 
-		imshow("Thresholded Image", im_thresh); //show the thresholded image
+		//imshow("Thresholded Image", im_thresh); //show the thresholded image
 		//waitKey();
 		//morphological closing
 		dilate(im_thresh, im_thresh,
@@ -179,11 +183,11 @@ Point2f colorDetection(Mat img_input) {
 		for (unsigned int i = 0; i < contours.size(); i++) {
 			approxPolyDP(Mat(contours[i]), contours_poly[i], 3, true);
 			//minEnclosingCircle((Mat) contours_poly[i], center[i], radius[i]);
-			minEnclosingCircle((Mat) contours[i], center[i], radius[i]);
+			minEnclosingCircle((Mat) contours_poly[i], center[i], radius[i]);
 		}
 		//cout << "number of circles: " << center.size() << endl;
 
-
+/*
 		//Moments and the centre of mass
 		vector<Moments> mu(contours.size());
 
@@ -200,11 +204,11 @@ Point2f colorDetection(Mat img_input) {
 			circle(img_input, center[i], 5, Scalar(0,0,255), 2, 8, 0); // circle center
 			circle(im_contFin, mc[i], 3, Scalar(0,255, 250), 1); //mass center
 			circle(im_contFin, center[i], 5, Scalar(0,0,255), 2, 8, 0); // circle center
-		}
+		}*/
 
 
 		// Draw contours
-
+/*
 		for (unsigned int i = 0; i < contours.size(); i++) {
 			if ((radius[i] > radiusMin)&&(radius[i] < radiusMax)) {
 				Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255),
@@ -215,7 +219,7 @@ Point2f colorDetection(Mat img_input) {
 				//circle(im_contFin, mc[i], 5, 255);
 			}
 		}
-
+*/
 		int counter = 0;
 		centerMass.x = 0;
 		centerMass.y = 0;
@@ -249,17 +253,17 @@ Point2f colorDetection(Mat img_input) {
 			centerMass.y = (centerMass.y + centerMassRed.y) / (counter+1);
 		}
 
-		cout << "mass center = " << centerMass << endl;
-		circle(im_contFin, centerMass, 5, Scalar(0, 255, 0));
+		//cout << "mass center = " << centerMass << endl;
+		//circle(im_contFin, centerMass, 5, Scalar(0, 255, 0));
 /*		imshow("Thresholded Image", im_thresh); //show the thresholded image
 				//imshow("Original", imHSV); //show the original image*
 				imshow("Contoured", im_contFin); //show the original image*
 				waitKey();
 */
 	}
-	imshow("Thresholded Image", im_thresh); //show the thresholded image
-		imshow("Original", img_input); //show the original image*
-		imshow("Contoured", im_contFin); //show the original image*
+	//imshow("Thresholded Image", im_thresh); //show the thresholded image
+		//imshow("Original", img_input); //show the original image*
+		//imshow("Contoured", im_contFin); //show the original image*
 		//waitKey();
 
 
