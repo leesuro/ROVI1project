@@ -33,3 +33,6 @@ src/MarkerColor/.cproject
 *.BASE.*
 *.LOCAL.*
 *.REMOTE.*
+
+#Data
+data/
