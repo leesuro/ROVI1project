@@ -27,7 +27,7 @@
 
 //Defines
 #define NUMBER_OF_POINTS 1 //1, 2 or 3
-#define TRACKING 1 //0=Marker's frame, 1=Color, 2=LinesA, 3=LinesB, 4=Corny
+#define TRACKING 2 //0=Marker's frame, 1=Color, 2=LinesA, 3=LinesB, 4=Corny
 #define SPEED 1 //0=Slow, 1=Medium, 2=Fast
 #define USER 0 //Jorge = 0, Lukash = 1
 
@@ -73,11 +73,11 @@ public:
 	//Detection
 	Point2f cornyDetection(Mat & img_input);
 	Point2f colorDetection(Mat & img_input);
-	Point2f linesHDetection(Mat img_input);
-	Point2f calculateLineCrossing(Vec2f line_1, Vec2f line_2);
-	vector<Point2f> pointExtractFromLine(Vec2f line);
-	bool isPossible(Vec2f line_1, Vec2f line_2, float minAngle);
-	float pointDistance(Point2f p, Point2f q);
+	Point2f linesHDetection(Mat & img_input);
+	float pointDistance(Point2f & p, Point2f & q);
+	bool isPossible(Vec2f & line_1, Vec2f & line_2, const float minAngle);
+	Point2f calculateLineCrossing(Vec2f & line_1, Vec2f & line_2);
+	vector<Point2f> pointExtractFromLine(Vec2f & line);
 
 private slots:
 	void buttonPressed();
