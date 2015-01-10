@@ -23,33 +23,20 @@ using namespace std;
 struct timespec t2, t3;
 double dt1;
 
-Point2f computeIntersect(Vec2f line1, Vec2f line2);
+Point2f calculateLineCrossing(Vec2f line_1, Vec2f line_2);
 vector<Point2f> pointExtractFromLine(Vec2f line);
-bool acceptLinePair(Vec2f line1, Vec2f line2, float minTheta);
+bool isPossible(Vec2f line_1, Vec2f line_2, float minAngle);
 float pointDistance(Point2f p, Point2f q);
 
-/// Global variables
-
-Mat src, edges;
-Mat src_gray;
-Mat standard_hough, probabilistic_hough, standard_hough_edit;
-int min_threshold = 50;
-int max_trackbar = 150;
-
-const char* standard_name = "Standard Hough Lines Demo";
-const char* standard_name_edit = "Edit Standard Hough Lines Demo";
-const char* probabilistic_name = "Probabilistic Hough Lines Demo";
-int s_trackbar = max_trackbar;
-int p_trackbar = max_trackbar;
-/// Function Headers
-
-void Standard_Hough(int, void*);
+Point2f linesH(Mat img_input);
 
 int main() {
 /// Read the image
+	Mat img_in;
 	int cnti = 1;
 	stringstream sstm;
 	string scene_addr;
+	Point2f centerOfMass;
 	for (cnti = 1; cnti < 51; cnti++) {
 		clock_gettime(CLOCK_MONOTONIC, &t2);
 		sstm.str("");
@@ -69,22 +56,10 @@ int main() {
 					<< "/home/pyc/workspace/ROVI1project/res/markers/marker_thinline/marker_thinline_"
 					<< cnti << ".png";
 		scene_addr = sstm.str();
-		src = imread(scene_addr);
-/// Pass the image to gray
-		cvtColor(src, src_gray, COLOR_RGB2GRAY);
-/// Apply Canny edge detector
-		Canny(src_gray, edges, 150, 250, 3);
-/// Create Trackbars for Thresholds
-		char thresh_label[50];
-		sprintf(thresh_label, "Thres: %d + input", min_threshold);
-		namedWindow(standard_name, WINDOW_AUTOSIZE);
-		createTrackbar(thresh_label, standard_name, &s_trackbar, max_trackbar,
-				Standard_Hough);
-		//namedWindow(probabilistic_name, WINDOW_AUTOSIZE);
-		//createTrackbar(thresh_label, probabilistic_name, &p_trackbar, max_trackbar,
-		//		Probabilistic_Hough);
+		img_in = imread(scene_addr);
+
 /// Initialize
-		Standard_Hough(0, 0);
+		centerOfMass = linesH(img_in);
 		clock_gettime(CLOCK_MONOTONIC, &t3);
 		dt1 = (t3.tv_sec - t2.tv_sec)
 				+ (double) (t3.tv_nsec - t2.tv_nsec) * 1e-9;
@@ -95,42 +70,56 @@ int main() {
 	}
 	return 0;
 }
-void Standard_Hough(int, void*) {
-	vector<Vec2f> s_lines,s_lines_new;
+Point2f linesH(Mat img_input) {
+	Mat img_gray,img_edges, thinHough, thinHoughEdit;
+	vector<Vec2f> s_lines, s_lines_new;
+	Point2f mc, centerMass;
+	const int extra_thresh=150;
 
-	cvtColor(edges, standard_hough, COLOR_GRAY2BGR);
-	standard_hough_edit = standard_hough.clone();
+	/// Create Trackbars for Thresholds
+			char thresh_label[50];
+			sprintf(thresh_label, "Thres: %d + input", 50);
+			namedWindow("LinesH", WINDOW_AUTOSIZE);
+			//createTrackbar(thresh_label, "LinesH", &s_trackbar, max_trackbar,
+			//	thinHough);
+
+
+
+	/// Edge detection - Canny
+	cvtColor(img_input, img_gray, COLOR_RGB2GRAY);
+	Canny(img_gray, img_edges, 150, 250, 3);
+	cvtColor(img_edges, thinHough, COLOR_GRAY2BGR);
+	thinHoughEdit = thinHough.clone();
+
 /// 1. Use Standard Hough Transform
-	HoughLines(edges, s_lines_new, 2, CV_PI / 180, min_threshold + s_trackbar, 0,
-			0);
-
+	HoughLines(img_edges, s_lines_new, 2, CV_PI / 180, 50 + extra_thresh,
+			0, 0);
 
 /// Show the result
-	float r, t,lactual,ldiff;
+	float r, t, lactual, ldiff;
 
 	Point pt1, pt2;
 
 	vector<Point2f> pt;
 	vector<size_t> lignored;
 
-
 	//filter ortogonal lines
 	for (size_t i = 0; i < s_lines_new.size(); i++) {
-		lactual=s_lines_new[i][1];
+		lactual = s_lines_new[i][1];
 
-			for (size_t j = 0; j < s_lines_new.size(); j++) {
-				ldiff=fabs((s_lines_new[j][1])-lactual);
-				cout<<ldiff<<endl;
-				if(((ldiff>1.565)&&(ldiff<1.575))||(ldiff<0.0005)){
-					lignored.push_back(j);
-					s_lines.push_back(s_lines_new[j]);
-					s_lines_new.erase(s_lines_new.begin()+j);
-				}
+		for (size_t j = 0; j < s_lines_new.size(); j++) {
+			ldiff = fabs((s_lines_new[j][1]) - lactual);
+			cout << ldiff << endl;
+			if (((ldiff > 1.565) && (ldiff < 1.575)) || (ldiff < 0.0005)) {
+				lignored.push_back(j);
+				s_lines.push_back(s_lines_new[j]);
+				s_lines_new.erase(s_lines_new.begin() + j);
 			}
+		}
 	}
 
 	//for (size_t i = 0; i < lignored.size(); i++) {
-		//s_lines.push_back(s_lines_new[lignored[i]]);
+	//s_lines.push_back(s_lines_new[lignored[i]]);
 
 	//}
 
@@ -142,7 +131,7 @@ void Standard_Hough(int, void*) {
 
 		//calculate the points from hough lines r and theta
 
-		line(standard_hough, pt[0], pt[1], Scalar(255, 0, 0), 3, CV_AA);
+		line(thinHough, pt[0], pt[1], Scalar(255, 0, 0), 3, CV_AA);
 	}
 	cout << "starting averaging" << endl;
 
@@ -155,8 +144,8 @@ void Standard_Hough(int, void*) {
 		for (size_t j = 0; j < s_lines.size(); j++) {
 			Vec2f line1 = s_lines[i];
 			Vec2f line2 = s_lines[j];
-			if (acceptLinePair(line1, line2, CV_PI / 3)) {
-				Point2f intersection = computeIntersect(line1, line2);
+			if (isPossible(line1, line2, CV_PI / 3)) {
+				Point2f intersection = calculateLineCrossing(line1, line2);
 				intersections.push_back(intersection);
 			}
 		}
@@ -203,15 +192,15 @@ void Standard_Hough(int, void*) {
 			//Detect clusters and filter the lonely points
 			//cout << "\n ignored: ";
 			//for (size_t k = 0; k < ignored.size(); k++) {
-				//cout << ignored[k] << " ";
-				if (ignored.size() > 3)
-					//intersections.erase(intersections.begin() + ignored[k]);
-					intersections_new.push_back(actual);
+			//cout << ignored[k] << " ";
+			if (ignored.size() > 3)
+				//intersections.erase(intersections.begin() + ignored[k]);
+				intersections_new.push_back(actual);
 			//}
 			ignored.clear();
 			cout << endl;
 		}
-		Point2f mc, centerMass = intersections[0];
+		centerMass = intersections[0];
 
 		for (size_t i = 1; i < intersections_new.size(); i++) {
 			//for (i = intersections.begin(); i != intersections.end(); ++i) {
@@ -219,16 +208,19 @@ void Standard_Hough(int, void*) {
 			centerMass.x = centerMass.x + mc.x;
 			centerMass.y = centerMass.y + mc.y;
 			//cout << "Intersection is " << mc.x << ", " << mc.y << "  " << "  "<< endl;
-			circle(standard_hough_edit, mc, 1, Scalar(0, 0, 255), 3);
+			circle(thinHoughEdit, mc, 1, Scalar(0, 0, 255), 3);
 		}
 		//Estimated Centre of Marker
 		centerMass.x = centerMass.x / intersections_new.size();
 		centerMass.y = centerMass.y / intersections_new.size();
-		circle(standard_hough_edit, centerMass, 5, 255);
+		circle(thinHoughEdit, centerMass, 5, 255);
 	}
 
-	imshow(standard_name, standard_hough);
-	imshow(standard_name_edit, standard_hough_edit);
+	imshow("LinesH", thinHough);
+	imshow("LinesH processed", thinHoughEdit);
+	//cout<< centerMass<<endl;
+	//waitKey();
+	return centerMass;
 }
 
 float pointDistance(Point2f p, Point2f q) {
@@ -236,51 +228,42 @@ float pointDistance(Point2f p, Point2f q) {
 	return cv::sqrt(diff.x * diff.x + diff.y * diff.y);
 }
 
-bool acceptLinePair(Vec2f line1, Vec2f line2, float minTheta) {
-	float theta1 = line1[1], theta2 = line2[1];
-
-	if (theta1 < minTheta) {
-		theta1 += CV_PI; // dealing with 0 and 180 ambiguities...
+bool isPossible(Vec2f line_1, Vec2f line_2, float minAngle) {
+	float theta_1 = line_1[1], theta_2 = line_2[1];
+	//check if not parallel
+	if (theta_1 < minAngle) {
+		theta_1 += CV_PI;
+	}
+	if (theta_2 < minAngle) {
+		theta_2 += CV_PI;
 	}
 
-	if (theta2 < minTheta) {
-		theta2 += CV_PI; // dealing with 0 and 180 ambiguities...
-	}
-
-	return abs(theta1 - theta2) > minTheta;
+	return abs(theta_1 - theta_2) > minAngle;
 }
 
 // calculate intersection
-Point2f computeIntersect(Vec2f line1, Vec2f line2) {
-	vector<Point2f> pt1 = pointExtractFromLine(line1);
-	vector<Point2f> pt2 = pointExtractFromLine(line2);
+Point2f calculateLineCrossing(Vec2f line_1, Vec2f line_2) {
+	vector<Point2f> pt1 = pointExtractFromLine(line_1);
+	vector<Point2f> pt2 = pointExtractFromLine(line_2);
+	Point2f intersect;
 
 	Point2f line1_pt1 = pt1[0], line_1_pt2 = pt1[1];
 	Point2f line2_pt1 = pt2[0], line2_pt2 = pt2[1];
 
-	float denom = (line1_pt1.x - line_1_pt2.x) * (line2_pt1.y - line2_pt2.y)
+	float denumerator = (line1_pt1.x - line_1_pt2.x) * (line2_pt1.y - line2_pt2.y)
 			- (line1_pt1.y - line_1_pt2.y) * (line2_pt1.x - line2_pt2.x);
-	Point2f intersect(
+	intersect.x=
 			((line1_pt1.x * line_1_pt2.y - line1_pt1.y * line_1_pt2.x)
 					* (line2_pt1.x - line2_pt2.x)
 					- (line1_pt1.x - line_1_pt2.x)
 							* (line2_pt1.x * line2_pt2.y
-									- line2_pt1.y * line2_pt2.x)) / denom,
-			((line1_pt1.x * line_1_pt2.y - line1_pt1.y * line_1_pt2.x)
+									- line2_pt1.y * line2_pt2.x)) / denumerator;
+			intersect.y=((line1_pt1.x * line_1_pt2.y - line1_pt1.y * line_1_pt2.x)
 					* (line2_pt1.y - line2_pt2.y)
 					- (line1_pt1.y - line_1_pt2.y)
 							* (line2_pt1.x * line2_pt2.y
-									- line2_pt1.y * line2_pt2.x)) / denom);
+									- line2_pt1.y * line2_pt2.x)) / denumerator;
 
-	/*	 vector<Point2f> p1 = pointExtractFromLine(line1);
-	 vector<Point2f> p2 = pointExtractFromLine(line2);
-
-	 float denom = (p1[0].x - p1[1].x)*(p2[0].y - p2[1].y) - (p1[0].y - p1[1].y)*(p2[0].x - p2[1].x);
-	 Point2f intersect(((p1[0].x*p1[1].y - p1[0].y*p1[1].x)*(p2[0].x - p2[1].x) -
-	 (p1[0].x - p1[1].x)*(p2[0].x*p2[1].y - p2[0].y*p2[1].x)) / denom,
-	 ((p1[0].x*p1[1].y - p1[0].y*p1[1].x)*(p2[0].y - p2[1].y) -
-	 (p1[0].y - p1[1].y)*(p2[0].x*p2[1].y - p2[0].y*p2[1].x)) / denom);
-	 */
 	return intersect;
 }
 

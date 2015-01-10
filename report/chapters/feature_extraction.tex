@@ -24,13 +24,10 @@ This section focuses on detection of marker 1 (figure \ref{fig:markerColor}) and
 Here very satisfying results have been achieved with both EASY and HARD sequences. To identify the marker a following approach has been used: color segmentation, contour finding and detecting color blobs, filtering all results, getting reference points from the marker. 
 
 \subsection{Segmentation and contours}
-For color segmentation method has been implemented. First the image has been converted into HSV color space, which
-is better (than RBG) to use with the purposes of computer vision. Then on the HSV image has been applied a threshold, first
-using euclidean  distance, which was quite effective for the EASY sequence, but for the HARD sequence an extended threshold
-range is required (luminosity changes as well as disturbing background). Therefore we used threshold with extended range.
+For color segmentation method has been implemented. First the image has been converted into HSV color space (figure \ref{fig:c1}), which is better (than RBG) to use with the purposes of computer vision. Then on the HSV image has been applied a threshold (figure \ref{fig:c2}), first using euclidean  distance, which was quite effective for the EASY sequence, but for the HARD sequence an extended threshold range is required (luminosity changes as well as disturbing background). Therefore we used threshold with extended range.
 
 After threshold many small points and small areas remain detected. To eliminate these disturbing features, the morphological 
-opening is applied first (Erode-Dilate), then closing is applied (Dilate-Erode) to fill the small holes. 
+opening(figure \ref{fig:c3})  is applied first (Erode-Dilate), then closing (figure \ref{fig:c4}) is applied (Dilate-Erode) to fill the small holes. 
 
 To get the contours from the image, findContours() is used. This method records all the found contours on the previously thresholded
 image.
@@ -112,8 +109,10 @@ omitted using the previously calculated contour dimensions (minimal enclosing ci
 This feature extraction program was tested with EASY and also HARD sequence. EASY sequence required much less effort (possible to track only the green marker plane). The HARD sequence required much closer analysis. A lot of disturbing features occur there (luminosity changes, background objects with color similarities, etc.). Here the filtering is more important as well as proper
 thresholding. The implemented method required advanced tuning and proper parameter settings. 
 
-In the end the marker is always detected in EASY, and also in the HARD sequence. In HARD sequence the detection is very precise when
-the marker is facing straight against the camera, when the marker is turned to side (shear), the center of mass detection is around 4 pixels more precise with the moments method (however this method quite fails if the contours are not complete), but otherwise the minEnclosingCircle() method is satisfying.
+In the end the marker is detected in all EASY, and also in the HARD sequence. In HARD sequence the detection is very precise when
+the marker is facing straight against the camera, when the marker is turned to side (shear), the center of mass detection is around 4 pixels more precise with the moments method (however this method quite fails if the contours are not complete), but otherwise the minEnclosingCircle() method is satisfying. 
+
+The average runtime for HARD is 24.6782 ms, for EASY 17.0602 ms with the complex and precise algorithm. Around 50 ms with the simple algorithm (less precise, one color threshold only - RED, BLUE, or GREEN plate).
 
 
 \newpage
