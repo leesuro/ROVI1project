@@ -105,7 +105,7 @@ When having extracted all the contours, it is necessary to filter the desired an
 omitted using the previously calculated contour dimensions (minimal enclosing circle). In the algorithm the position of both, the RED circle and BLUE circles is detected. It is possible both to calculate the center of marker by averaging the points and also export individual points separately. 
 
 
-\subsection{Marker 1 - Testing and Conclusions}
+\subsection{Marker 1 - Conclusions}
 This feature extraction program was tested with EASY and also HARD sequence. EASY sequence required much less effort (possible to track only the green marker plane). The HARD sequence required much closer analysis. A lot of disturbing features occur there (luminosity changes, background objects with color similarities, etc.). Here the filtering is more important as well as proper
 thresholding. The implemented method required advanced tuning and proper parameter settings. 
 
@@ -125,14 +125,82 @@ The average runtime for HARD is 24.6782 ms, for EASY 17.0602 ms with the complex
 	\label{fig:markerLines}
 \end{figure}
 
-Detection of lines in the image using the Canny edge detector and the
-Hough transform. (Rejection/selection of lines based on the color on
-each side). Combining lines to find possible intersections. Verifying
-the marker by looking at the distances between intersections. This
-approach covers aspect C (and B). This would work with the markers
-in Figures 1b and 1c.
+For the second, Marker 2a a following approach was selected: Canny edge detection, then applying Hough line transform,
+line assuming and finding intersections, filtering proper intersections and finally detecting the marker. The implemented 
+program was able to detect the marker 2a in 100 \% EASY sequence pictures and in 50 \% of the HARD sequence markers. This 
+detecting method however was the fastest one (among Marker 1 and 3).
 
+\subsection{Line detecting}
+To detect the lines openCV hough lines transform has been applied. The perform the method, first edge detection is necessary.
+Canny and Sobel edge detections have been considered. Canny detection has been selected (figure \ref{fig:linesCanny}), because it can detect edges very good with the smooth continuous pixels (Sobel doesn't produce so continuous pixels). Canny edge detection parameters depend on given environment. 
 
+\begin{figure}[ht!]
+	\begin{subfigure}{.49\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figures/lines1}
+	\caption{Original image}
+	\label{fig:l1}
+	\end{subfigure}
+	\begin{subfigure}{\textwidth}
+		\centering
+\includegraphics[width=0.5\textwidth]{figures/lines2}
+	\caption{Canny edge}
+	\label{fig:l2}
+	\end{subfigure}
+\caption{Canny edge detection}
+\label{fig:linesCanny}
+\end{figure}
+
+After the detection has been performed, the Hough line transform has been applied (figure \ref{fig:linesHough}). When setting the parameters better result have been achieved when setting higher vote count (around 200), the line thickness has been set 2 pix, angle 1°. Otherwise too many undesired lines are found.
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=\textwidth]{figures/lines3}
+	\caption{Detected and filtered lines }
+	\label{fig:linesHough}
+\end{figure}
+
+\subsection{Finding and filtering line crossings}
+After finding the lines the crossing detections is initiated (figure \ref{fig:l4}). From the vector of found lines are selected all possible line pairs. First, for each pair a calculations is performed (with function isPossible()) whether the lines have a chance to cross each other.
+
+If the lines cross, a function calculateLineCrossing() is called which calculates the point of intersection. 
+
+\begin{figure}[ht!]
+	\begin{subfigure}{.49\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figures/lines4}
+	\caption{Detected crossings}
+	\label{fig:l4}
+	\end{subfigure}
+		\begin{subfigure}{.49\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figures/lines5}
+	\caption{Detected crossings 2}
+	\label{fig:l5}
+	\end{subfigure}
+	\begin{subfigure}{\textwidth}
+		\centering
+\includegraphics[width=0.5\textwidth]{figures/lines6}
+	\caption{Filtered crossings}
+	\label{fig:l6}
+	\end{subfigure}
+\caption{Canny edge detection}
+\label{fig:linesCrossings}
+\end{figure}
+
+\subsection{Filtering and marker position establishing}
+First filtering is performed right after the Hough line transform had been called. There only orthogonal lines are selected (all other astray lines are filtered out). This assures that we get closer to the marker - all the lines that are not parallel or orthogonal to the marker lines are erased.
+
+Then the calculated crossings require filtering. The lines crossing the marker have higher density (more lines crosses one single marker line) therefore more line crossings appear on the marker line crossings. This has been used to filter the crossings - places with higher crossing density
+remain, while less density crossings are omitted (figure \ref{fig:l6}). 
+
+Finally from the remaining crossings the center of gravity
+is calculated. 
+
+\subsection{Marker 2 - Conclusions}
+The methods implemented detect the marker in EASY sequence 
+every time, in HARD sequence 50 \%, but they detect the center of marker imprecisely (localization of the marker moves around 100-150 pixels in the border of the marker).
+Therefore additional crossings filtering is required (filter by mutual crossings distance and angles).
 
 \newpage
 \section{Marker 3 (Corny)}
