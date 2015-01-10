@@ -317,8 +317,8 @@ Q SamplePlugin::getdQ(Mat & image)
 		Vector3D<> Pt2 = (inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * _wc->findFrame("Marker")->getTransform(_state)) * Vector3D<>(0,0.1,0);
 		u[0] = Pt0(0)*823*2;
 		v[0] = Pt0(1)*823*2;
-		if (NUMBER_OF_POINTS==2) u[1] = Pt1(0)*823*2;
-		if (NUMBER_OF_POINTS==2) v[1] = Pt1(1)*823*2;
+		if (NUMBER_OF_POINTS==2 || NUMBER_OF_POINTS==3) u[1] = Pt1(0)*823*2;
+		if (NUMBER_OF_POINTS==2 || NUMBER_OF_POINTS==3) v[1] = Pt1(1)*823*2;
 		if (NUMBER_OF_POINTS==3) u[2] = Pt2(0)*823*2;
 		if (NUMBER_OF_POINTS==3) v[2] = Pt2(1)*823*2;
 	}
@@ -369,16 +369,16 @@ Q SamplePlugin::getdQ(Mat & image)
 	MatrixXd dudv(NUMBER_OF_POINTS*2,1);
 	dudv(0,0) = u[0] - _previousPoints[0][0];
 	dudv(1,0) = v[0] - _previousPoints[0][1];
-	if (NUMBER_OF_POINTS==2) dudv(2,0) = u[1] - _previousPoints[1][0];
-	if (NUMBER_OF_POINTS==2) dudv(3,0) = v[1] - _previousPoints[1][1];
+	if (NUMBER_OF_POINTS==2 || NUMBER_OF_POINTS==3) dudv(2,0) = u[1] - _previousPoints[1][0];
+	if (NUMBER_OF_POINTS==2 || NUMBER_OF_POINTS==3) dudv(3,0) = v[1] - _previousPoints[1][1];
 	if (NUMBER_OF_POINTS==3) dudv(4,0) = u[2] - _previousPoints[2][0];
 	if (NUMBER_OF_POINTS==3) dudv(5,0) = v[2] - _previousPoints[2][1];
 
 	//Store the actual point
 	_previousPoints[0][0] = u[0];
 	_previousPoints[0][1] = v[0];
-	if (NUMBER_OF_POINTS==2) _previousPoints[1][0] = u[1];
-	if (NUMBER_OF_POINTS==2) _previousPoints[1][1] = v[1];
+	if (NUMBER_OF_POINTS==2 || NUMBER_OF_POINTS==3) _previousPoints[1][0] = u[1];
+	if (NUMBER_OF_POINTS==2 || NUMBER_OF_POINTS==3) _previousPoints[1][1] = v[1];
 	if (NUMBER_OF_POINTS==3) _previousPoints[2][0] = u[2];
 	if (NUMBER_OF_POINTS==3) _previousPoints[2][1] = v[2];
 
@@ -403,8 +403,8 @@ Q SamplePlugin::getdQ(Mat & image)
 
 	_previousdUdV[0][0] = dudv(0,0);
 	_previousdUdV[0][1] = dudv(1,0);
-	if (NUMBER_OF_POINTS==2) _previousdUdV[1][0] = dudv(2,0);
-	if (NUMBER_OF_POINTS==2) _previousdUdV[1][1] = dudv(3,0);
+	if (NUMBER_OF_POINTS==2 || NUMBER_OF_POINTS==3) _previousdUdV[1][0] = dudv(2,0);
+	if (NUMBER_OF_POINTS==2 || NUMBER_OF_POINTS==3) _previousdUdV[1][1] = dudv(3,0);
 	if (NUMBER_OF_POINTS==3) _previousdUdV[2][0] = dudv(4,0);
 	if (NUMBER_OF_POINTS==3) _previousdUdV[2][1] = dudv(5,0);
 
@@ -450,8 +450,8 @@ void SamplePlugin::loop()
 					Vector3D<> Pt2 = (inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * _wc->findFrame("Marker")->getTransform(_state)) * Vector3D<>(0,0.1,0);
 					_previousPoints[0][0] = Pt0(0)*823*2;
 					_previousPoints[0][1] = Pt0(1)*823*2;
-					if (NUMBER_OF_POINTS==2) _previousPoints[1][0] = Pt1(0)*823*2;
-					if (NUMBER_OF_POINTS==2) _previousPoints[1][1] = Pt1(1)*823*2;
+					if (NUMBER_OF_POINTS==2 || NUMBER_OF_POINTS==3) _previousPoints[1][0] = Pt1(0)*823*2;
+					if (NUMBER_OF_POINTS==2 || NUMBER_OF_POINTS==3) _previousPoints[1][1] = Pt1(1)*823*2;
 					if (NUMBER_OF_POINTS==3) _previousPoints[2][0] = Pt2(0)*823*2;
 					if (NUMBER_OF_POINTS==3) _previousPoints[2][1] = Pt2(1)*823*2;
 				}
