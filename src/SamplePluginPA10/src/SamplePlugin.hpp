@@ -25,6 +25,12 @@
 #include <fstream>
 #include <iostream>
 
+//Defines
+#define NUMBER_OF_POINTS 3 //1, 2 or 3
+#define TRACKING 0 //0=Marker's frame, 1=Color, 2=LinesA, 3=LinesB, 4=Corny
+#define SPEED 2 //0=Slow, 1=Medium, 2=Fast
+#define USER 0 //Jorge = 0, Lukash = 1
+
 //Namespaces
 using namespace rw::common;
 using namespace rw::math;
@@ -88,8 +94,8 @@ private:
 
 	QTimer* _loop;
 
-	float _previousPoints[2]; //[0]X coordinate, [1] Y coordinate
-	float _previousdUdV[2];
+	float _previousPoints[3][2]; //[0]X coordinate, [1] Y coordinate
+	float _previousdUdV[3][2];
 	Q _previousdQ;
 	bool _firstTime;
 
@@ -98,6 +104,7 @@ private:
 	State _state;
 	RenderImage *_textureRender, *_bgRender;
 	GLFrameGrabber* _framegrabber;
+
 };
 
 #endif /*RINGONHOOKPLUGIN_HPP_*/

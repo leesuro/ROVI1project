@@ -2,29 +2,39 @@
 #include "SamplePlugin.hpp"
 
 //Global variables
-const QString iconPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
-const string workcellPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
-const string imagePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
-const string markerPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
-const string backgroundPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
-const string motionFilePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/src/SamplePluginPA10/motions/MarkerMotionFast.txt";
-const string cameraPosePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/cameraPose";
-const string errorPosePath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/errorPose";
-const string qRobotPath = "/mnt/Free/Dropbox/Programming/robWork/ROVI1project/data/qRobot";
+#if (USER == 0)
+	string userPath = "/mnt/Free/Dropbox/Programming/robWork/";
+#elif (USER == 1)
+	userPath = "/home/pyc/workspace/";
+#endif
+
+const QString iconPath = QString::fromStdString(userPath) + "ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
+const string workcellPath = userPath + "ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
+const string backgroundPath = userPath + "ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
+const string cameraPosePath = userPath + "ROVI1project/data/cameraPose";
+const string errorPosePath = userPath + "ROVI1project/data/errorPose";
+const string qRobotPath = userPath + "ROVI1project/data/qRobot";
 
 
-/*const QString iconPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
-const string workcellPath = "/home/pyc/workspace/ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
-const string imagePath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/src/lena.bmp";
-const string markerPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/markers/Marker3.ppm";
-const string backgroundPath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
-const string motionFilePath = "/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/motions/MarkerMotionSlow.txt";
-const string cameraPosePath = "/home/pyc/workspace/ROVI1project/data/cameraPose";
-const string errorPosePath = "/home/pyc/workspace/ROVI1project/data/errorPose";
-const string qRobotPath = "/home/pyc/workspace/ROVI1project/data/qRobot;*/
+#if (SPEED==0)
+	const string motionFilePath = userPath + "ROVI1project/src/SamplePluginPA10/motions/MarkerMotionSlow.txt";
+#elif (SPEED==1)
+	const string motionFilePath = userPath + "ROVI1project/src/SamplePluginPA10/motions/MarkerMotionMedium.txt";
+#elif (SPEED==2)
+	const string motionFilePath = userPath + "ROVI1project/src/SamplePluginPA10/motions/MarkerMotionFast.txt";
+#endif
 
-
-
+#if (TRACKING==0)
+	const string markerPath = userPath + "ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
+#elif (TRACKING==1)
+	const string markerPath = userPath + "ROVI1project/src/SamplePluginPA10/markers/Marker1.ppm";
+#elif (TRACKING==2)
+	const string markerPath = userPath + "ROVI1project/src/SamplePluginPA10/markers/Marker2a.ppm";
+#elif (TRACKING==3)
+	const string markerPath = userPath + "ROVI1project/src/SamplePluginPA10/markers/Marker2b.ppm";
+#elif (TRACKING==4)
+	const string markerPath = userPath + "ROVI1project/src/SamplePluginPA10/markers/Marker3.ppm";
+#endif
 //--------------------------------------------------------
 //					  Constructors
 //--------------------------------------------------------
@@ -85,7 +95,6 @@ void SamplePlugin::open(WorkCell* workcell)
 	_wc = workcell;
 	_state = _wc->getDefaultState();
 	_device = _wc->findDevice("PA10");
-	_motionFile.open(motionFilePath.c_str());
 
 	if (_wc != NULL) {
 		// Add the texture render to this workcell if there is a frame for texture
@@ -114,7 +123,9 @@ void SamplePlugin::open(WorkCell* workcell)
 		}
 	}
 
-	// Set a new texture (one pixel = 1 mm)
+	_motionFile.open(motionFilePath.c_str());
+
+	//Set a new texture (one pixel = 1 mm)
 	Image::Ptr image;
 	image = ImageLoader::Factory::load(markerPath);
 	_textureRender->setImage(*image);
@@ -130,6 +141,7 @@ void SamplePlugin::open(WorkCell* workcell)
 	_spinBox->setMaximum(9999);
 	_spinBox->setMinimum(10);
 	_spinBox->setValue(50);
+	if (TRACKING == 4)_spinBox->setValue(900);
 
 	Q qInit(7, 0, -0.65, 0, 1.80, 0, 0.42, 0);
 	_device->setQ(qInit, _state);
@@ -271,7 +283,7 @@ void SamplePlugin::writeData()
  */
 void SamplePlugin::computeError(){
 	Vector3D<> Pdiff = ( (_markerPoseVec.end()-2)->P() - (_markerPoseVec.end()-1)->P()) * 823 * 2;
-	Vector3D<> dudv(_previousdUdV[0], _previousdUdV[1], 0);
+	Vector3D<> dudv(_previousdUdV[0][0], _previousdUdV[0][1], 0);
 	_errorPoseVec.push_back(Pdiff - dudv);
 }
 
@@ -296,31 +308,46 @@ void SamplePlugin::checkVelocityLimits(Q & qToCheck){
  */
 Q SamplePlugin::getdQ(Mat & image)
 {
+	float u[3];
+	float v[3];
 	//Get the point directly from the marker frame. From Camera to base, from base to world, from world to Marker
-	Vector3D<> Pt = (inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * _wc->findFrame("Marker")->getTransform(_state)) * Vector3D<>(0,0,0);
-	float u = Pt(0)*823*2;
-	float v = Pt(1)*823*2;
+	if (TRACKING == 0){
+		Vector3D<> Pt0 = (inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * _wc->findFrame("Marker")->getTransform(_state)) * Vector3D<>(0,0,0);
+		Vector3D<> Pt1 = (inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * _wc->findFrame("Marker")->getTransform(_state)) * Vector3D<>(0.1,0,0);
+		Vector3D<> Pt2 = (inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * _wc->findFrame("Marker")->getTransform(_state)) * Vector3D<>(0,0.1,0);
+		u[0] = Pt0(0)*823*2;
+		v[0] = Pt0(1)*823*2;
+		if (NUMBER_OF_POINTS==2) u[1] = Pt1(0)*823*2;
+		if (NUMBER_OF_POINTS==2) v[1] = Pt1(1)*823*2;
+		if (NUMBER_OF_POINTS==3) u[2] = Pt2(0)*823*2;
+		if (NUMBER_OF_POINTS==3) v[2] = Pt2(1)*823*2;
+	}
 
-/*	//Get points from OpenCV algorithms
-	//Point2f point = cornyDetection(image);
-	Point2f point = colorDetection(image);
-	//Point2f point = linesHDetection(image);
+	//Get points from OpenCV algorithms
+	else {
+		Point2f point;
+		if (TRACKING == 1) point = colorDetection(image);
+		if (TRACKING == 2) point = linesHDetection(image);
+		if (TRACKING == 4) point = cornyDetection(image);
 
-	float u = point.x - 1024/2;
-	float v = point.y - 768/2;*/
+		u[0] = point.x - 1024/2;
+		v[0] = point.y - 768/2;
+	}
 
 	//Continue with the device's jacobian
 	MatrixXd deviceJacobian(6,7);
 	deviceJacobian = _device->baseJframe(_wc->findFrame("Camera"), _state).e();
 
 	//Now the image's jacobian. f and z are fixed values given in the description
-	MatrixXd imageJacobian(2,6);
+	MatrixXd imageJacobian(NUMBER_OF_POINTS*2,6);
 	float z = 0.5, f = 823;
 
-	imageJacobian(0,0)=f/z; imageJacobian(0,1)= 0; imageJacobian(0,2)=-u/z;
-	imageJacobian(0,3)=-u*v/f; imageJacobian(0,4)=(f*f+u*u)/f; imageJacobian(0,5)=-v;
-	imageJacobian(1,0)=0; imageJacobian(1,1)=f/z; imageJacobian(1,2)=-v/z;
-	imageJacobian(1,3)=-(f*f+u*u)/f; imageJacobian(1,4)=u*v/f; imageJacobian(1,5)=u;
+	for(unsigned char i=0; i<NUMBER_OF_POINTS; i++){
+		imageJacobian(i*2,0)=f/z; imageJacobian(i*2,1)= 0; imageJacobian(i*2,2)=-u[i]/z;
+		imageJacobian(i*2,3)=-u[i]*v[i]/f; imageJacobian(i*2,4)=(f*f+u[i]*u[i])/f; imageJacobian(i*2,5)=-v[i];
+		imageJacobian(i*2+1,0)=0; imageJacobian(i*2+1,1)=f/z; imageJacobian(i*2+1,2)=-v[i]/z;
+		imageJacobian(i*2+1,3)=-(f*f+u[i]*u[i])/f; imageJacobian(i*2+1,4)=u[i]*v[i]/f; imageJacobian(i*2+1,5)=u[i];
+	}
 
 	//As the d(u,v) is not referenced to the base, we need to adapt it with Sq
 	Matrix3d R_device_T = (_device->baseTframe(_wc->findFrame("Camera"), _state).R().e()).transpose();
@@ -335,33 +362,51 @@ Q SamplePlugin::getdQ(Mat & image)
 	}
 
 	//Now we can calculate Zimage
-	MatrixXd Zimage(2, 7);
+	MatrixXd Zimage(NUMBER_OF_POINTS*2, 7);
 	Zimage = imageJacobian*Sq*deviceJacobian;
 
 	//Perhaps, now the du and dv
-	MatrixXd dudv(2,1);
-	dudv(0,0) = u - _previousPoints[0];
-	dudv(1,0) = v - _previousPoints[1];
+	MatrixXd dudv(NUMBER_OF_POINTS*2,1);
+	dudv(0,0) = u[0] - _previousPoints[0][0];
+	dudv(1,0) = v[0] - _previousPoints[0][1];
+	if (NUMBER_OF_POINTS==2) dudv(2,0) = u[1] - _previousPoints[1][0];
+	if (NUMBER_OF_POINTS==2) dudv(3,0) = v[1] - _previousPoints[1][1];
+	if (NUMBER_OF_POINTS==3) dudv(4,0) = u[2] - _previousPoints[2][0];
+	if (NUMBER_OF_POINTS==3) dudv(5,0) = v[2] - _previousPoints[2][1];
 
 	//Store the actual point
-	_previousPoints[0] = u;
-	_previousPoints[1] = v;
+	_previousPoints[0][0] = u[0];
+	_previousPoints[0][1] = v[0];
+	if (NUMBER_OF_POINTS==2) _previousPoints[1][0] = u[1];
+	if (NUMBER_OF_POINTS==2) _previousPoints[1][1] = v[1];
+	if (NUMBER_OF_POINTS==3) _previousPoints[2][0] = u[2];
+	if (NUMBER_OF_POINTS==3) _previousPoints[2][1] = v[2];
 
 	//And calculate dq
 	MatrixXd dq_aux (7,1);
-	dq_aux = Zimage.transpose() * (Zimage*Zimage.transpose()).inverse() * dudv * 0.95; //0.97 is the max
+	dq_aux = Zimage.transpose() * (Zimage*Zimage.transpose()).inverse() * dudv * 0.96; //0.97 is the max
 
 	//If the detected point is strange, return the previous dQ
-	const unsigned char limitdudv = 90; //Fast
-	//const unsigned char limitdudv = 20; //Medium
-	//const unsigned char limitdudv = 10; //Slow
-	if(abs(dudv(0,0)) > limitdudv || abs(dudv(1,0)) > limitdudv){
-		log().info() << "Meeehh!  -  ";
-		return _previousdQ;
+	unsigned char limitdudv = 255; //Fast
+	if (SPEED==0) limitdudv = 10; //Slow
+	if (SPEED==1) limitdudv = 20; //Medium
+	if (SPEED==2) limitdudv = 90; //Fast
+
+	for (unsigned char i=0; i<3; i++){
+		if(abs(dudv(0,0)) > limitdudv || abs(dudv(1,0)) > limitdudv ||
+		   abs(dudv(2,0)) > limitdudv || abs(dudv(3,0)) > limitdudv ||
+		   abs(dudv(4,0)) > limitdudv || abs(dudv(5,0)) > limitdudv){
+			log().info() << "Meeehh!  -  ";
+			return _previousdQ;
+		}
 	}
 
-	_previousdUdV[0] = dudv(0,0);
-	_previousdUdV[1] = dudv(1,0);
+	_previousdUdV[0][0] = dudv(0,0);
+	_previousdUdV[0][1] = dudv(1,0);
+	if (NUMBER_OF_POINTS==2) _previousdUdV[1][0] = dudv(2,0);
+	if (NUMBER_OF_POINTS==2) _previousdUdV[1][1] = dudv(3,0);
+	if (NUMBER_OF_POINTS==3) _previousdUdV[2][0] = dudv(4,0);
+	if (NUMBER_OF_POINTS==3) _previousdUdV[2][1] = dudv(5,0);
 
 	Q dq = Q(7, dq_aux(0,0), dq_aux(1,0), dq_aux(2,0), dq_aux(3,0),	dq_aux(4,0), dq_aux(5,0), dq_aux(6,0));
 	checkVelocityLimits(dq);
@@ -399,14 +444,26 @@ void SamplePlugin::loop()
 			//Take the values of the first frame
 			if(_firstTime){
 				//Get the image seen from the camera and show it in the plugin
-				Vector3D<> Pt = (inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * _wc->findFrame("Marker")->getTransform(_state)) * Vector3D<>(0,0,0);
-				_previousPoints[0] = Pt(0)*823*2;
-				_previousPoints[1] = Pt(1)*823*2;
+				if (TRACKING == 0){
+					Vector3D<> Pt0 = (inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * _wc->findFrame("Marker")->getTransform(_state)) * Vector3D<>(0,0,0);
+					Vector3D<> Pt1 = (inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * _wc->findFrame("Marker")->getTransform(_state)) * Vector3D<>(0.1,0,0);
+					Vector3D<> Pt2 = (inverse(_device->worldTbase(_state) * _device->baseTframe(_wc->findFrame("Camera"), _state)) * _wc->findFrame("Marker")->getTransform(_state)) * Vector3D<>(0,0.1,0);
+					_previousPoints[0][0] = Pt0(0)*823*2;
+					_previousPoints[0][1] = Pt0(1)*823*2;
+					if (NUMBER_OF_POINTS==2) _previousPoints[1][0] = Pt1(0)*823*2;
+					if (NUMBER_OF_POINTS==2) _previousPoints[1][1] = Pt1(1)*823*2;
+					if (NUMBER_OF_POINTS==3) _previousPoints[2][0] = Pt2(0)*823*2;
+					if (NUMBER_OF_POINTS==3) _previousPoints[2][1] = Pt2(1)*823*2;
+				}
 
-/*				Point2f point = colorDetection(image);
-				_previousPoints[0] = point.x - 1024/2;
-				_previousPoints[1] = point.y - 768/2;*/
-
+				else {
+				Point2f point;
+					if (TRACKING == 1) point = colorDetection(image);
+					if (TRACKING == 2) point = linesHDetection(image);
+					if (TRACKING == 4) point = cornyDetection(image);
+					_previousPoints[0][0] = point.x - 1024/2;
+					_previousPoints[0][1] = point.y - 768/2;
+				}
 				_firstTime=0;
 			}
 			//Calculates dq due to the image movement
