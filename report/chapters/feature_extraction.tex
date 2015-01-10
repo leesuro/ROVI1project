@@ -24,7 +24,46 @@ This section focuses on detection of marker 1 (figure \ref{fig:markerColor}) and
 Here very satisfying results have been achieved with both EASY and HARD sequences. To identify the marker a following approach has been used: color segmentation, contour finding and detecting color blobs, filtering all results, getting reference points from the marker. 
 
 \subsection{Segmentation and contours}
-Considering Euclidean distance, simple threshold, wider range threshold.
+For color segmentation method has been implemented. First the image has been converted into HSV color space, which
+is better (than RBG) to use with the purposes of computer vision. Then on the HSV image has been applied a threshold, first
+using euclidean  distance, which was quite effective for the EASY sequence, but for the HARD sequence an extended threshold
+range is required (luminosity changes as well as disturbing background). Therefore we used threshold with extended range.
+
+After threshold many small points and small areas remain detected. To eliminate these disturbing features, the morphological 
+opening is applied first (Erode-Dilate), then closing is applied (Dilate-Erode) to fill the small holes. 
+
+To get the contours from the image, findContours() is used. This method records all the found contours on the previously thresholded
+image.
+
+\begin{figure}[ht!]
+	\begin{subfigure}{.49\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figures/color1}
+	\caption{HSV}
+	\label{fig:c1}
+	\end{subfigure}
+	\begin{subfigure}{\textwidth}
+		\centering
+\includegraphics[width=0.5\textwidth]{figures/color2}
+	\caption{threshold}
+	\label{fig:c2}
+	\end{subfigure}
+		\begin{subfigure}{.49\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figures/color3}
+	\caption{after morphological Opening}
+	\label{fig:c3}
+	\end{subfigure}
+	\begin{subfigure}{\textwidth}
+		\centering
+\includegraphics[width=0.5\textwidth]{figures/color4}
+	\caption{after morphological Closing}
+	\label{fig:c4}
+	\end{subfigure}
+\caption{HARD sequence - Segmentation}
+\label{fig:markerColorSegmenation}
+\end{figure}
+
 \subsection{Center of mass}
 For calculating the center of mass of the circles several options are available.
 One possible solution is to calculate the centre of mass with use of the openCV function
@@ -62,15 +101,55 @@ a surround circle for a given contour. This method also eliminates the marker de
 the moments method).When using this function the output circle center point is the center of mass of the detected circle. this method improves the performance over the previously used moment method and the HARD sequence detection then proceeds without problems. This method can be improved with using approxPolyDP() before calling the minEnclosingCircle(). This functions approximates the contour polygon and smoothens possible holes. Without approxPolyDP() the marker detection is faster. 
 
 The difference in outputs of both methods is ranging from 1-5 pixels. When having discovered all the contours very good the first (moments) method is more accurate, but when it comes to problems with damaged contours (luminosity changes) the second method is performing better (figure \ref{fig:markerColorcenter}). 
-\subsection{Filtering and detecting separate circles}
-Filtering by contour size, by position, possible with shape....
+
+\subsection{Filtering}
+
+When having extracted all the contours, it is necessary to filter the desired and undesired results. To do so, the bad results are
+omitted using the previously calculated contour dimensions (minimal enclosing circle). In the algorithm the position of both, the RED circle and BLUE circles is detected. It is possible both to calculate the center of marker by averaging the points and also export individual points separately. 
 
 
+\subsection{Marker 1 - Testing and Conclusions}
+This feature extraction program was tested with EASY and also HARD sequence. EASY sequence required much less effort (possible to track only the green marker plane). The HARD sequence required much closer analysis. A lot of disturbing features occur there (luminosity changes, background objects with color similarities, etc.). Here the filtering is more important as well as proper
+thresholding. The implemented method required advanced tuning and proper parameter settings. 
+
+In the end the marker is always detected in EASY, and also in the HARD sequence. In HARD sequence the detection is very precise when
+the marker is facing straight against the camera, when the marker is turned to side (shear), the center of mass detection is around 4 pixels more precise with the moments method (however this method quite fails if the contours are not complete), but otherwise the minEnclosingCircle() method is satisfying.
 
 
 \newpage
 \section{Marker 2 (2a Thin lines)}
 
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=100px]{figures/Marker2a}
+	\caption{Marker 2 Thin lines}
+	\label{fig:markerLines}
+\end{figure}
+
+Detection of lines in the image using the Canny edge detector and the
+Hough transform. (Rejection/selection of lines based on the color on
+each side). Combining lines to find possible intersections. Verifying
+the marker by looking at the distances between intersections. This
+approach covers aspect C (and B). This would work with the markers
+in Figures 1b and 1c.
+
+
+
 \newpage
 \section{Marker 3 (Corny)}
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=100px]{figures/Marker3}
+	\caption{Marker 3 Corny}
+	\label{fig:markerColor}
+\end{figure}
+
+
+Extracting SIFT features. Matching the extracted SIFT features against
+SIFT features in a marker reference model. Using RANSAC to find
+a homography that aligns the reference model with the observations.
+Use the homography to transform the marker reference points from
+the model to the image. This approach covers aspect D. This would
+work with the marker in Figure 1d.
 % chapter featre_extraction (end)

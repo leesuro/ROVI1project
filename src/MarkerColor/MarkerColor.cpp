@@ -145,25 +145,32 @@ Point2f colorDetection(Mat img_input) {
 		else
 			inRange(imHSV, Scalar(108, 95, 39), Scalar(120, 168, 143),
 					im_thresh); //Threshold the image blue circles
+		//imshow("HSV Image", imHSV); //show the thresholded image
+		//morphological opening
+		//imshow("Thresholded Image", im_thresh); //show the thresholded image
+		//		waitKey();
 
-		//morphological opening (remove small objects from the foreground)
+		erode(im_thresh, im_thresh,
+				getStructuringElement(MORPH_ELLIPSE, Size(6, 6)));
+		dilate(im_thresh, im_thresh,
+				getStructuringElement(MORPH_ELLIPSE, Size(6, 6)));
+
+		imshow("Thresholded Image", im_thresh); //show the thresholded image
+		//waitKey();
+		//morphological closing
+		dilate(im_thresh, im_thresh,
+				getStructuringElement(MORPH_ELLIPSE, Size(10, 10)));
 		erode(im_thresh, im_thresh,
 				getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
-		dilate(im_thresh, im_thresh,
-				getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
-
-		//morphological closing (fill small holes in the foreground)
-		dilate(im_thresh, im_thresh,
-				getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
-		erode(im_thresh, im_thresh,
-				getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
-
+		//imshow("Thresholded Image", im_thresh); //show the thresholded image
+		//		waitKey();
 		//contours
 		RNG rng(12345);
 		im_cont = im_thresh.clone();
 		findContours(im_cont, contours, hierarchy, CV_RETR_TREE,
 				CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
-
+		//imshow("Thresholded Image", im_thresh); //show the thresholded image
+		//		waitKey();
 		// Approximate contours to polygons + get bounding rects and circles
 		vector<vector<Point> > contours_poly(contours.size());
 		vector<Point2f> center(contours.size());
@@ -243,7 +250,7 @@ Point2f colorDetection(Mat img_input) {
 		}
 
 		cout << "mass center = " << centerMass << endl;
-		//circle(im_contFin, centerMass, 5, Scalar(0, 255, 0));
+		circle(im_contFin, centerMass, 5, Scalar(0, 255, 0));
 /*		imshow("Thresholded Image", im_thresh); //show the thresholded image
 				//imshow("Original", imHSV); //show the original image*
 				imshow("Contoured", im_contFin); //show the original image*
