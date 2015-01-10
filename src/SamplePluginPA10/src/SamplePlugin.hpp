@@ -26,8 +26,8 @@
 #include <iostream>
 
 //Defines
-#define NUMBER_OF_POINTS 3 //1, 2 or 3
-#define TRACKING 0 //0=Marker's frame, 1=Color, 2=LinesA, 3=LinesB, 4=Corny
+#define NUMBER_OF_POINTS 1 //1, 2 or 3
+#define TRACKING 1 //0=Marker's frame, 1=Color, 2=LinesA, 3=LinesB, 4=Corny
 #define SPEED 1 //0=Slow, 1=Medium, 2=Fast
 #define USER 0 //Jorge = 0, Lukash = 1
 

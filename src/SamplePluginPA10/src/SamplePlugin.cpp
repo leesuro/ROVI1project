@@ -3,9 +3,9 @@
 
 //Global variables
 #if (USER == 0)
-	string userPath = "/mnt/Free/Dropbox/Programming/robWork/";
+	const string userPath = "/mnt/Free/Dropbox/Programming/robWork/";
 #elif (USER == 1)
-	userPath = "/home/pyc/workspace/";
+	const string userPath = "/home/pyc/workspace/";
 #endif
 
 const QString iconPath = QString::fromStdString(userPath) + "ROVI1project/src/SamplePluginPA10/src/pa_icon.png";
