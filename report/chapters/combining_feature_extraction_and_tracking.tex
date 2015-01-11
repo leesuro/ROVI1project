@@ -16,10 +16,11 @@
 	Two test have been carried out, the corny's marker (\ref{sec:dot_s_marker}) and the dots' marker (\ref{sec:dot_s_marker}), and both has been tested with only one point tracking.
 	For both test the experimental results of robot's state, robot's speed and the error produced in the tracking are going to be presented to finish with some conclusions.
 
-	For both test, the points has been adapted to the inverse kinematics developed in the previous chapter and the method used to calculate $\Delta T$ has been use the class $Timer$ from RobWork to measure the total time of the feature extraction process. This time is finally used to calculate the average time to have an estimation of the loop's time quality.
+	For both test, the points have been adapted to the inverse kinematics developed in the previous chapter and the method used to calculate $\Delta T$ has been use the class $Timer$ from RobWork to measure the total time of the feature extraction process. This time is finally used to calculate the average time to have an estimation of the loop's time quality.
 
 	\section{Dot's marker} % (fold)
 	\label{sec:dot_s_marker}
+	In the artificial environment of RobWorkStudio, the detection of the marker with dots has been quite simplified, the effects like different luminosities and changes in shades have been eliminated, therefore thresholding and recognizing the marker has been more precise. It has been also possible to detect the center of marker with just one threshold, even the threshold of the green plate.
 		The average time in this case has been 24.0818 $ms$ than, added to the proximately 1 $ms$ of the inverse kinematics calculation gives about 25 $ms$. 
 		This is under the 50 $ms$ stated as the minimum $\Delta T$ in the report so this has been the election for the experiments. 
 		The results presented are for the test in medium marker's speed for the robot's state and speed, and all the speed for the error. 
@@ -59,6 +60,7 @@
 
 	\section{Corny's marker} % (fold)
 	\label{sec:corny_s_marker}
+	The detection of this marker has consumed the same amount of time as with the EASY and HARD sequence, because no simplifications could have possibly been done. 
 		The average time for the corny extraction has been 380.667 $ms$. A $\Delta T$ of 700 $ms$ has been chosen based on different test. 
 		As explained before, depending on the CPU's load the feature's extraction time changed over the time.
 		We found this value be a good balance between no lost of the marker and speed.
