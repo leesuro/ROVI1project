@@ -212,17 +212,40 @@ Therefore additional crossings filtering is required (filter by mutual crossings
 	\label{fig:markerColor}
 \end{figure}
 
-For the third marker, the previous approaches would not achieve big success detecting the corny image. Colour segmentation would be fast, but only partially effective and imprecise. The lines extraction method would not be able to extract lines from the edgy image. On the other hand, the rich marker structure is very appropriate for the SIFT (Scale-invariant feature transform) feature detection. 
+For the third marker, the previous approaches would not achieve big success detecting the corny image. Colour segmentation would be fast, but only partially effective and imprecise. The lines extraction method would not be able to extract lines from the edgy image. On the other hand, the rich marker structure is very appropriate for the SIFT (Scale-invariant feature transform) feature detection. Although this detection method brings good results it is quite slow, therefore a faster SURF (Speeded Up Robust Features) feature detection method has been applied. 
 
 \subsection{Feature extraction and marker recognition}
 
-When detecting the marker in the given environment, first thing that is done is extracting features from the clear marker image, so later these features can be compared and searched for in the image with marker put in the environment. To do SURF detection is 
+When detecting the marker in the given environment, first thing that is done is extracting features from the clear marker image, so later these features can be compared and searched for in the scene with marker put in the environment. The images are loaded in gray scale. Then a SURF detector is created to find the matches between the marker image and the scene. 
 
-Extracting SIFT features. Matching the extracted SIFT features against
-SIFT features in a marker reference model. Using RANSAC to find
-a homography that aligns the reference model with the observations.
-Use the homography to transform the marker reference points from
-the model to the image. This approach covers aspect D. This would
-work with the marker in Figure 1d.
+For the SURF detector, various parameters were set to calibrate it properly, for instance with the hessian threshold, smaller values (100-400) cause detecting a lot of matches, bigger (500-1000) produce less matches, but then errors may occur. 
+
+Key points are extracted from both object and also scene. After getting the key points, the descriptors are being calculated for both marker image and scene image with the compute() method of descriptor extactor (SurfDescriptorExtractor). 
+
+To find the matches in features between both images, fast FLANN matcher is applied. Other methods like brute force give good results, even in difficult image contexts, where FLANN is weaker, but the focus was to get fast results. The bad matches are then filtered out.
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=\textwidth]{figures/corny1}
+	\caption{Corny marker detection}
+	\label{fig:corny1}
+\end{figure}
+\newpage
+Finally to localize the object, findHomography() method is applied. This method finds homography between two images from given sets of points. These points are the good matches in both marker and scene images. When calculating homography RANSAC (Random Sample Consensus) robust method is used. To detect perspective changes, perspectiveTransform() method is applied to calculate the marker corners. These corners then serve to calculate the center of marker. 
+
+
+
 \subsection{Marker 3 - Conclusions}
+Detecting markers containing a lot of features with SURF method is very effective and precise, 100\% markers have been detected in the EASY and also in the HARD sequence. 
+
+The negative property of this method compared to the previous methods is the detection speed. It is very slow, as the feature finding, calculating and matching takes too long time (average 380.667 ms).
 % chapter featre_extraction (end)
+
+\section{Feature extraction Conclusions}
+It has been discovered that multiple detecting methods can be applied and combined to achieve different results. There are trade-offs that have to be done - whether to detect precisely or fast, or when dealing with different environments. 
+
+The color blob method is very fast, but sensitive to environment changes. It is also a quite low-resource consuming method.
+
+The line extraction method works good when having a proper environment, but the line allignment on marker assures good detection. 
+
+The SURF method among all is very precise in a variety of different kinds of environments, but is very slow. 

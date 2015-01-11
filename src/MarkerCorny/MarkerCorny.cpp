@@ -25,6 +25,9 @@ void readme();
 int main() {
 	std::string scene_addr;
 	std::stringstream sstm;
+	SurfDescriptorExtractor extractor;
+
+	Mat descriptors_object, descriptors_scene;
 	 struct timespec t2, t3;
 	    double dt1;
 	int cnti;
@@ -62,9 +65,9 @@ int main() {
 		}
 
 
-		int minHessian = 1000;
+		int hessianThresh = 1000;
 
-		SurfFeatureDetector detector(minHessian);
+		SurfFeatureDetector detector(hessianThresh);
 		std::vector<KeyPoint> keypoints_object, keypoints_scene;
 
 		//Key points detection
@@ -72,10 +75,6 @@ int main() {
 		detector.detect(img_scene, keypoints_scene);
 
 		//Calculate descriptors (feature vectors)
-		SurfDescriptorExtractor extractor;
-
-		Mat descriptors_object, descriptors_scene;
-
 		extractor.compute(img_object, keypoints_object, descriptors_object);
 		extractor.compute(img_scene, keypoints_scene, descriptors_scene);
 
@@ -109,9 +108,9 @@ int main() {
 		}
 
 		Mat img_matches=img_scene;
-		//drawMatches(img_object, keypoints_object, img_scene, keypoints_scene,
-			//	good_matches, img_matches, Scalar::all(-1), Scalar::all(-1),
-				//vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+		drawMatches(img_object, keypoints_object, img_scene, keypoints_scene,
+				good_matches, img_matches, Scalar::all(-1), Scalar::all(-1),
+				vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
 
 		//-- Localize the object
 		std::vector<Point2f> obj;
@@ -140,8 +139,7 @@ int main() {
 		//line(img_matches, scene_corners[1],	scene_corners[2] , Scalar(0, 255, 0), 4);
 		//line(img_matches, scene_corners[2],	scene_corners[3] , Scalar(0, 255, 0), 4);
 		//line(img_matches, scene_corners[3],	scene_corners[0] , Scalar(0, 255, 0), 4);
-
-		circle(img_matches,scene_corners[0],5, Scalar(0,255,0));
+		//circle(img_matches,<Scalar>(scene_corners[0].x+img_object.cols, scene_corners[0].y+img_object.rows),5, Scalar(0,255,0));
 		//-- Show detected matches
 		imshow("Good Matches & Object detection", img_matches);
 		clock_gettime(CLOCK_MONOTONIC,  &t3);
