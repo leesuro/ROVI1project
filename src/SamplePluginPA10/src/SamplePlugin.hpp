@@ -27,9 +27,9 @@
 
 //Defines
 #define NUMBER_OF_POINTS 1 //1, 2 or 3
-#define TRACKING 0 //0=Marker's frame, 1=Color, 2=LinesA, 3=LinesB, 4=Corny
+#define TRACKING 4 //0=Marker's frame, 1=Color, 2=LinesA, 3=LinesB, 4=Corny
 #define USER 0 //Jorge = 0, Lukash = 1
-#define SPEED 1	 //0=Slow, 1=Medium, 2=Fast
+#define SPEED 2	 //0=Slow, 1=Medium, 2=Fast
 
 //Namespaces
 using namespace rw::common;

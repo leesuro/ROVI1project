@@ -1,21 +1,51 @@
 %\input{chapters/plots}
-\input{data/color/qRobotColorFast.tex}
-\input{data/color/speedColorFast.tex}
-\input{data/color/cameraPoseColorFast.tex}
+\input{data/color/qRobotColorMedium.tex}
+\input{data/color/speedColorMedium.tex}
+\input{data/color/cameraPoseColorMedium.tex}
 \input{data/color/errorColor.tex}
+
+\input{data/corny/qRobotCornyMedium.tex}
+\input{data/corny/speedCornyMedium.tex}
+\input{data/corny/cameraPoseCornyMedium.tex}
+\input{data/corny/errorCorny.tex}
 
 \chapter{Combining feature extraction and tracking} % (fold)
 \label{chap:combining_feature_extraction_and_tracking}
 
 	\ifx \plots \yes
-		\colorErrorPlot
+		\qRobotColorMediumPlot
 	\fi
 
-	\qRobotColorFastPlot
-	\speedColorFastPlot
-	\cameraPoseColorFastPlot
-	\errorColorPlot
+	\ifx \plots \yes
+		\speedColorMediumPlot
+	\fi
 
-Average time for color in fast speed: 24.0818 [ms]
+	\ifx \plots \yes
+		\cameraPoseColorMediumPlot
+	\fi
+
+	\ifx \plots \yes
+		\errorColorPlot
+	\fi
+
+	\ifx \plots \yes
+		\qRobotCornyMediumPlot
+	\fi
+
+	\ifx \plots \yes
+		\speedCornyMediumPlot
+	\fi
+
+	\ifx \plots \yes
+		\cameraPoseCornyMediumPlot
+	\fi
+
+	\ifx \plots \yes
+		\errorCornyPlot
+	\fi
+
+Average time for color extraction: 24.0818 [ms]
+
+Average time for corny extraction: 380.667 [ms]
 
 % chapter combining_feature_extraction_and_tracking (end)
