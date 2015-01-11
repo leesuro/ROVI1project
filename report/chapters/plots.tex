@@ -45,11 +45,17 @@
 	\input{data/tracking/three/errorThreeTrackingFastX.txt}
 	\input{data/tracking/three/errorThreeTrackingFastY.txt}
 
-%---Tracking---%
-\input{data/color/errorPoseXColorSlow.txt}
-\input{data/color/errorPoseYColorSlow.txt}
+%---Color---%
+	\input{data/color/errorPoseXColorSlow.txt}
+	\input{data/color/errorPoseYColorSlow.txt}
+
+%---Corny---%
 
 
+
+% ---------------------
+% Tracking One Points
+% ---------------------
 \providecommand{\trackingSlowQRobotPlot}{
 \begin{figure}[!ht]
 	\centering
@@ -192,7 +198,148 @@
 \end{figure}
 }
 
+% ---------------------
+% Tracking Three Points
+% ---------------------
+\providecommand{\qRobotThreeTrackingMediumPlot}{
+\begin{figure}[!ht]
+	\centering
+	\tikzset{every mark/.append style={scale=0.5}}
+	\begin{tikzpicture}
+		\begin{axis}[height=9cm, width=\textwidth, grid=major,
+		xlabel={Step},ylabel={Rad}
+		]	
+			\addplot [color=Turquoise, mark=o] coordinates {
+				\qRobotThreeTrackingMediumAData
+			};
+			\addlegendentry{q1}
 
+			\addplot [color=Orchid, mark=o] coordinates {
+				\qRobotThreeTrackingMediumBData
+			};
+			\addlegendentry{q2}
+			
+			\addplot [color=YellowGreen, mark=o] coordinates {
+				\qRobotThreeTrackingMediumCData
+			};
+			\addlegendentry{q3}
+			
+			\addplot [color=WildStrawberry, mark=o] coordinates {
+				\qRobotThreeTrackingMediumDData
+			};
+			\addlegendentry{q4}
+			
+			\addplot [color=Goldenrod, mark=o] coordinates {
+				\qRobotThreeTrackingMediumEData
+			};
+			\addlegendentry{q5}
+			
+			\addplot [color=BlueGreen, mark=o] coordinates {
+				\qRobotThreeTrackingMediumFData
+			};
+			\addlegendentry{q6}
+
+			\addplot [color=CadetBlue, mark=o] coordinates {
+				\qRobotThreeTrackingMediumGData
+			};
+			\addlegendentry{q7}
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Robot's state while tracking three points of the marker at medium speed.}
+	\label{fig:qRobotThreeTrackingMediumPlot}
+\end{figure}
+}
+
+\providecommand{\cameraPoseThreeTrackingMediumPlot}{
+\begin{figure}[!ht]
+\centering
+	\tikzset{every mark/.append style={scale=0.5}}
+	\begin{tikzpicture}
+		\begin{axis}[height=9cm, width=\textwidth, grid=major,
+		xlabel={Step},ylabel={Rad}
+		]	
+			\addplot [color=Turquoise, mark=o] coordinates {
+				\cameraPoseThreeTrackingMediumAData
+			};
+			\addlegendentry{P0}
+
+			\addplot [color=Orchid, mark=o] coordinates {
+				\cameraPoseThreeTrackingMediumBData
+			};
+			\addlegendentry{P1}
+			
+			\addplot [color=YellowGreen, mark=o] coordinates {
+				\cameraPoseThreeTrackingMediumCData
+			};
+			\addlegendentry{P2}
+			
+			\addplot [color=WildStrawberry, mark=o] coordinates {
+				\cameraPoseThreeTrackingMediumRData
+			};
+			\addlegendentry{R}
+			
+			\addplot [color=Goldenrod, mark=o] coordinates {
+				\cameraPoseThreeTrackingMediumPData
+			};
+			\addlegendentry{P}
+			
+			\addplot [color=BlueGreen, mark=o] coordinates {
+				\cameraPoseThreeTrackingMediumYData
+			};
+			\addlegendentry{Y}
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Camera pose when tracking three points of the marker at medium speed.}
+	\label{fig:cameraPoseThreeTrackingMediumPlot}
+\end{figure}
+}
+
+\providecommand{\errorThreeTrackingPlot}{
+\begin{figure}[!ht]
+\centering
+	\begin{tikzpicture}
+		\begin{axis}[height=9cm, width=\textwidth, grid=major,
+		xlabel={T[s]},ylabel={Pixels}
+		]	
+			\addplot [color=Turquoise, mark=o] coordinates {
+				\errorThreeTrackingSlowXData
+			};
+			\addlegendentry{Slow Error X}
+
+			\addplot [color=Orchid, mark=o] coordinates {
+				\errorThreeTrackingSlowYData
+			};
+			\addlegendentry{Slow Error Y}
+			
+			\addplot [color=YellowGreen, mark=o] coordinates {
+				\errorThreeTrackingMediumXData
+			};
+			\addlegendentry{Medium Error X}
+			
+			\addplot [color=WildStrawberry, mark=o] coordinates {
+				\errorThreeTrackingMediumYData
+			};
+			\addlegendentry{Medium Error Y}
+			
+			\addplot [color=Goldenrod, mark=o] coordinates {
+				\errorThreeTrackingFastXData
+			};
+			\addlegendentry{Fast Error X}
+			
+			\addplot [color=BlueGreen, mark=o] coordinates {
+				\errorThreeTrackingFastYData
+			};
+			\addlegendentry{Fast Error Y}
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Error in the X and Y coordinates. Tracking three points of the marker at different speeds.}
+	\label{fig:errorThreeTrackingPlot}
+\end{figure}
+}
+
+% ---------------------
+%		Color
+% ---------------------
 \providecommand{\colorErrorPlot}{
 \begin{figure}[!ht]
 \centering
@@ -215,3 +362,8 @@
 	\label{fig:colorErrorPlot}
 \end{figure}
 }
+
+
+% ---------------------
+%		Corny
+% ---------------------

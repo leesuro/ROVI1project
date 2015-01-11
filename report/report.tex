@@ -4,17 +4,16 @@
 %---Packages---%
 \usepackage{authblk} %Title
 \usepackage[hidelinks]{hyperref} %Emails in Title
-\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
-\usepackage{listings} %Insert code
-\usepackage{xcolor} %Change colors
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor} %Change colors
 \usepackage{mathtools}
-\usepackage{tikz}
-\usepackage{pgfplots}
 \usepackage{subcaption}
-\pgfplotsset{compat=newest}
-\usetikzlibrary{spy, calc}
+\usepackage{tikz} %Plots
+\usepackage{pgfplots} %Plots
+\pgfplotsset{compat=newest} %Plots
+\usetikzlibrary{spy, calc} %Plots and Magnify glass
 
 %---Format---%
+\usepackage[top=3.1cm, bottom=3.1cm, left=2.84cm, right=2.84cm]{geometry}
 
 %---Conditions---%
 \def \plots{yes} %yes = plots, somethingDifferentThanYes = !plots
@@ -28,8 +27,8 @@
 	\tableofcontents
  
 	\include{chapters/introduction}
-	\include{chapters/feature_extraction}
-	%\include{chapters/tracking_points_using_the_image_jacobian}
+	%\include{chapters/feature_extraction}
+	\include{chapters/tracking_points_using_the_image_jacobian}
 	%\include{chapters/combining_feature_extraction_and_tracking}
 	\include{chapters/conclusions}
 
