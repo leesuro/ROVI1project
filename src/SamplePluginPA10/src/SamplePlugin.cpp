@@ -142,7 +142,7 @@ void SamplePlugin::open(WorkCell* workcell)
 	_spinBox->setMaximum(9999);
 	_spinBox->setMinimum(10);
 	_spinBox->setValue(50);
-	if (TRACKING == 4)_spinBox->setValue(1200);
+	if (TRACKING == 4)_spinBox->setValue(700);
 	if (TRACKING == 2)_spinBox->setValue(900);
 
 	Q qInit(7, 0, -0.65, 0, 1.80, 0, 0.42, 0);
@@ -394,13 +394,13 @@ Q SamplePlugin::getdQ(Mat & image)
 
 	//And calculate dq
 	MatrixXd dq_aux (7,1);
-	dq_aux = Zimage.transpose() * (Zimage*Zimage.transpose()).inverse() * dudv * 0.96; //0.97 is the max
+	dq_aux = Zimage.transpose() * (Zimage*Zimage.transpose()).inverse() * dudv ; //0.97 is the max
 
 	//If the detected point is strange, return the previous dQ
 	unsigned char limitdudv = 255; //Fast
 	if (SPEED==0) limitdudv = 10; //Slow
 	if (SPEED==1) limitdudv = 50; //Medium
-	if (SPEED==2) limitdudv = 100; //Fast
+	if (SPEED==2) limitdudv = 200; //Fast
 
 	for (unsigned char i=0; i<3; i++){
 		if(abs(dudv(0,0)) > limitdudv || abs(dudv(1,0)) > limitdudv ||
