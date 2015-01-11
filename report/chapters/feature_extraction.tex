@@ -39,9 +39,9 @@ image.
 	\caption{HSV}
 	\label{fig:c1}
 	\end{subfigure}
-	\begin{subfigure}{\textwidth}
+	\begin{subfigure}{0.49\textwidth}
 		\centering
-\includegraphics[width=0.5\textwidth]{figures/color2}
+		\includegraphics[width=\textwidth]{figures/color2}
 	\caption{threshold}
 	\label{fig:c2}
 	\end{subfigure}
@@ -51,9 +51,9 @@ image.
 	\caption{after morphological Opening}
 	\label{fig:c3}
 	\end{subfigure}
-	\begin{subfigure}{\textwidth}
+	\begin{subfigure}{0.49\textwidth}
 		\centering
-\includegraphics[width=0.5\textwidth]{figures/color4}
+		\includegraphics[width=\textwidth]{figures/color4}
 	\caption{after morphological Closing}
 	\label{fig:c4}
 	\end{subfigure}
@@ -82,9 +82,9 @@ require more computational time.
 	\caption{Contour view}
 	\label{fig:markerColorcenter1}
 	\end{subfigure}
-	\begin{subfigure}{\textwidth}
+	\begin{subfigure}{0.49\textwidth}
 		\centering
-\includegraphics[width=0.5\textwidth]{figures/Marker1centers2}
+		\includegraphics[width=\textwidth]{figures/Marker1centers2}
 	\caption{Actual image}
 	\label{fig:markerColorcenter2}
 	\end{subfigure}
@@ -141,9 +141,9 @@ Canny and Sobel edge detections have been considered. Canny detection has been s
 	\caption{Original image}
 	\label{fig:l1}
 	\end{subfigure}
-	\begin{subfigure}{\textwidth}
+	\begin{subfigure}{0.49\textwidth}
 		\centering
-\includegraphics[width=0.5\textwidth]{figures/lines2}
+		\includegraphics[width=\textwidth]{figures/lines2}
 	\caption{Canny edge}
 	\label{fig:l2}
 	\end{subfigure}
@@ -209,7 +209,7 @@ Therefore additional crossings filtering is required (filter by mutual crossings
 	\centering
 	\includegraphics[width=100px]{figures/Marker3}
 	\caption{Marker 3 Corny}
-	\label{fig:markerColor}
+	\label{fig:markerCorny}
 \end{figure}
 
 For the third marker, the previous approaches would not achieve big success detecting the corny image. Colour segmentation would be fast, but only partially effective and imprecise. The lines extraction method would not be able to extract lines from the edgy image. On the other hand, the rich marker structure is very appropriate for the SIFT (Scale-invariant feature transform) feature detection. Although this detection method brings good results it is quite slow, therefore a faster SURF (Speeded Up Robust Features) feature detection method has been applied. 
