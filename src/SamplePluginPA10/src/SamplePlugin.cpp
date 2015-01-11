@@ -32,7 +32,7 @@ const QString iconPath = QString::fromStdString(userPath) + "ROVI1project/src/Sa
 const string workcellPath = userPath + "ROVI1project/res/PA10WorkCell/ScenePA10RoVi1.wc.xml";
 const string backgroundPath = userPath + "ROVI1project/src/SamplePluginPA10/backgrounds/color1.ppm";
 const string cameraPosePath = userPath + "ROVI1project/data/cameraPose";
-const string errorPosePath = userPath + "ROVI1project/data/errorPose";
+const string errorPath = userPath + "ROVI1project/data/error";
 const string qRobotPath = userPath + "ROVI1project/data/qRobot";
 
 
@@ -131,7 +131,7 @@ void SamplePlugin::open(WorkCell* workcell)
 	image = ImageLoader::Factory::load(markerPath);
 	_textureRender->setImage(*image);
 	image = ImageLoader::Factory::load(backgroundPath);
-	if (TRACKING != 2) _bgRender->setImage(*image);
+	if (TRACKING != 2 && TRACKING != 4) _bgRender->setImage(*image);
 
 	getRobWorkStudio()->updateAndRepaint();
 
@@ -142,7 +142,7 @@ void SamplePlugin::open(WorkCell* workcell)
 	_spinBox->setMaximum(9999);
 	_spinBox->setMinimum(10);
 	_spinBox->setValue(50);
-	if (TRACKING == 4)_spinBox->setValue(1000);
+	if (TRACKING == 4)_spinBox->setValue(1200);
 	if (TRACKING == 2)_spinBox->setValue(900);
 
 	Q qInit(7, 0, -0.65, 0, 1.80, 0, 0.42, 0);
@@ -207,77 +207,89 @@ Mat SamplePlugin::getImageAndShow()
  */
 void SamplePlugin::writeData()
 {
-	ofstream cameraPoseFileP0; cameraPoseFileP0.open((cameraPosePath + "P0SlowTracking.txt").c_str()); cameraPoseFileP0.precision(3); cameraPoseFileP0.setf(std::ios::fixed);
-	ofstream cameraPoseFileP1; cameraPoseFileP1.open((cameraPosePath + "P1SlowTracking.txt").c_str()); cameraPoseFileP1.precision(3); cameraPoseFileP1.setf(std::ios::fixed);
-	ofstream cameraPoseFileP2; cameraPoseFileP2.open((cameraPosePath + "P2SlowTracking.txt").c_str()); cameraPoseFileP2.precision(3); cameraPoseFileP2.setf(std::ios::fixed);
-	ofstream cameraPoseFileR0; cameraPoseFileR0.open((cameraPosePath + "R0SlowTracking.txt").c_str()); cameraPoseFileR0.precision(3); cameraPoseFileR0.setf(std::ios::fixed);
-	ofstream cameraPoseFileR1; cameraPoseFileR1.open((cameraPosePath + "R1SlowTracking.txt").c_str()); cameraPoseFileR1.precision(3); cameraPoseFileR1.setf(std::ios::fixed);
-	ofstream cameraPoseFileR2; cameraPoseFileR2.open((cameraPosePath + "R2SlowTracking.txt").c_str()); cameraPoseFileR2.precision(3); cameraPoseFileR2.setf(std::ios::fixed);
+	string experiment;
+	if (TRACKING == 0) experiment = "ThreeTracking";
+	if (TRACKING == 1) experiment = "Color";
+	if (TRACKING == 2) experiment = "Lines";
+	if (TRACKING == 4) experiment = "Corny";
+	if (SPEED == 0) experiment += "Slow";
+	if (SPEED == 1) experiment += "Medium";
+	if (SPEED == 2) experiment += "Fast";
 
-	ofstream errorPoseFileX; errorPoseFileX.open((errorPosePath + "XFastTracking.txt").c_str()); errorPoseFileX.precision(3); errorPoseFileX.setf(std::ios::fixed);
-	ofstream errorPoseFileY; errorPoseFileY.open((errorPosePath + "YFastTracking.txt").c_str()); errorPoseFileY.precision(3); errorPoseFileY.setf(std::ios::fixed);
+	ofstream cameraPoseAFile; cameraPoseAFile.open((cameraPosePath + experiment + "A.txt").c_str()); cameraPoseAFile.precision(3); cameraPoseAFile.setf(std::ios::fixed);
+	ofstream cameraPoseBFile; cameraPoseBFile.open((cameraPosePath + experiment + "B.txt").c_str()); cameraPoseBFile.precision(3); cameraPoseBFile.setf(std::ios::fixed);
+	ofstream cameraPoseCFile; cameraPoseCFile.open((cameraPosePath + experiment + "C.txt").c_str()); cameraPoseCFile.precision(3); cameraPoseCFile.setf(std::ios::fixed);
+	ofstream cameraPoseRFile; cameraPoseRFile.open((cameraPosePath + experiment + "R.txt").c_str()); cameraPoseRFile.precision(3); cameraPoseRFile.setf(std::ios::fixed);
+	ofstream cameraPosePFile; cameraPosePFile.open((cameraPosePath + experiment + "P.txt").c_str()); cameraPosePFile.precision(3); cameraPosePFile.setf(std::ios::fixed);
+	ofstream cameraPoseYFile; cameraPoseYFile.open((cameraPosePath + experiment + "Y.txt").c_str()); cameraPoseYFile.precision(3); cameraPoseYFile.setf(std::ios::fixed);
 
-	ofstream qRobotFile1; qRobotFile1.open((qRobotPath + "1SlowTracking.txt").c_str()); qRobotFile1.precision(3); qRobotFile1.setf(std::ios::fixed);
-	ofstream qRobotFile2; qRobotFile2.open((qRobotPath + "2SlowTracking.txt").c_str()); qRobotFile2.precision(3); qRobotFile2.setf(std::ios::fixed);
-	ofstream qRobotFile3; qRobotFile3.open((qRobotPath + "3SlowTracking.txt").c_str()); qRobotFile3.precision(3); qRobotFile3.setf(std::ios::fixed);
-	ofstream qRobotFile4; qRobotFile4.open((qRobotPath + "4SlowTracking.txt").c_str()); qRobotFile4.precision(3); qRobotFile4.setf(std::ios::fixed);
-	ofstream qRobotFile5; qRobotFile5.open((qRobotPath + "5SlowTracking.txt").c_str()); qRobotFile5.precision(3); qRobotFile5.setf(std::ios::fixed);
-	ofstream qRobotFile6; qRobotFile6.open((qRobotPath + "6SlowTracking.txt").c_str()); qRobotFile6.precision(3); qRobotFile6.setf(std::ios::fixed);
-	ofstream qRobotFile7; qRobotFile7.open((qRobotPath + "7SlowTracking.txt").c_str()); qRobotFile7.precision(3); qRobotFile7.setf(std::ios::fixed);
-	//Pose
-	cameraPoseFileP0 << "\\newcommand{\\trackingSlowCameraPoseDataA}{\n";
-	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileP0 << "(" << i << ", " << _cameraPoseVec[i].P()(0) << ")\n"; cameraPoseFileP0 << "}";
-	cameraPoseFileP1 << "\\newcommand{\\trackingSlowCameraPoseDataB}{\n";
-	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileP1 << "(" << i << ", " << _cameraPoseVec[i].P()(1) << ")\n"; cameraPoseFileP1 << "}";
-	cameraPoseFileP2 << "\\newcommand{\\trackingSlowCameraPoseDataC}{\n";
-	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileP2 << "(" << i << ", " << _cameraPoseVec[i].P()(2) << ")\n"; cameraPoseFileP2 << "}";
-	cameraPoseFileR0 << "\\newcommand{\\trackingSlowCameraPoseDataD}{\n";
-	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileR0 << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(0) << ")\n"; cameraPoseFileR0 << "}";
-	cameraPoseFileR1 << "\\newcommand{\\trackingSlowCameraPoseDataE}{\n";
-	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileR1 << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(1) << ")\n"; cameraPoseFileR1 << "}";
-	cameraPoseFileR2 << "\\newcommand{\\trackingSlowCameraPoseDataF}{\n";
-	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseFileR2 << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(2) << ")\n"; cameraPoseFileR2 << "}";
 
+	ofstream errorXFile; errorXFile.open((errorPath + experiment + "X.txt").c_str()); errorXFile.precision(3); errorXFile.setf(std::ios::fixed);
+	ofstream errorYFile; errorYFile.open((errorPath + experiment + "Y.txt").c_str()); errorYFile.precision(3); errorYFile.setf(std::ios::fixed);
+
+	ofstream qRobotAFile; qRobotAFile.open((qRobotPath + experiment + "A.txt").c_str()); qRobotAFile.precision(3); qRobotAFile.setf(std::ios::fixed);
+	ofstream qRobotBFile; qRobotBFile.open((qRobotPath + experiment + "B.txt").c_str()); qRobotBFile.precision(3); qRobotBFile.setf(std::ios::fixed);
+	ofstream qRobotCFile; qRobotCFile.open((qRobotPath + experiment + "C.txt").c_str()); qRobotCFile.precision(3); qRobotCFile.setf(std::ios::fixed);
+	ofstream qRobotDFile; qRobotDFile.open((qRobotPath + experiment + "D.txt").c_str()); qRobotDFile.precision(3); qRobotDFile.setf(std::ios::fixed);
+	ofstream qRobotEFile; qRobotEFile.open((qRobotPath + experiment + "E.txt").c_str()); qRobotEFile.precision(3); qRobotEFile.setf(std::ios::fixed);
+	ofstream qRobotFFile; qRobotFFile.open((qRobotPath + experiment + "F.txt").c_str()); qRobotFFile.precision(3); qRobotFFile.setf(std::ios::fixed);
+	ofstream qRobotGFile; qRobotGFile.open((qRobotPath + experiment + "G.txt").c_str()); qRobotGFile.precision(3); qRobotGFile.setf(std::ios::fixed);
 
 	//Error
-	errorPoseFileX << "\\newcommand{\\trackingMediumErrorPoseDataX}{\n";
-	for (unsigned int i=0; i<_errorPoseVec.size(); i++) errorPoseFileX   << "(" << i << "," << _errorPoseVec[i+1](0) << ")\n"; errorPoseFileX << "}";
-	errorPoseFileY << "\\newcommand{\\trackingMediumErrorPoseDataY}{\n";
-	for (unsigned int i=0; i<_errorPoseVec.size(); i++) errorPoseFileY   << "(" << i << "," << _errorPoseVec[i+1](1) << ")\n"; errorPoseFileY << "}";
+	errorXFile << "\\providecommand{\\error" + experiment + "XData}{\n";
+	for (unsigned int i=0; i<_errorPoseVec.size()-1; i++) errorXFile   << "(" << _deltaT[i]/1000 << "," << _errorPoseVec[i+1](0) << ")\n"; errorXFile << "}";
+	errorYFile << "\\providecommand{\\error" + experiment + "YData}{\n";
+	for (unsigned int i=0; i<_errorPoseVec.size()-1; i++) errorYFile   << "(" << _deltaT[i]/1000 << "," << _errorPoseVec[i+1](1) << ")\n"; errorYFile << "}";
 
 
 	//Q
-	qRobotFile1 << "\\newcommand{\\trackingSlowQRobotDataA}{\n";
-	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile1 << "(" << i << ", " << _qRobotVec[i](0) << ")\n"; qRobotFile1 << "}";
-	qRobotFile2 << "\\newcommand{\\trackingSlowQRobotDataB}{\n";
-	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile2 << "(" << i << ", " << _qRobotVec[i](1) << ")\n"; qRobotFile2 << "}";
-	qRobotFile3 << "\\newcommand{\\trackingSlowQRobotDataC}{\n";
-	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile3 << "(" << i << ", " << _qRobotVec[i](2) << ")\n"; qRobotFile3 << "}";
-	qRobotFile4 << "\\newcommand{\\trackingSlowQRobotDataD}{\n";
-	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile4 << "(" << i << ", " << _qRobotVec[i](3) << ")\n"; qRobotFile4 << "}";
-	qRobotFile5 << "\\newcommand{\\trackingSlowQRobotDataE}{\n";
-	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile5 << "(" << i << ", " << _qRobotVec[i](4) << ")\n"; qRobotFile5 << "}";
-	qRobotFile6 << "\\newcommand{\\trackingSlowQRobotDataF}{\n";
-	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile6 << "(" << i << ", " << _qRobotVec[i](5) << ")\n"; qRobotFile6 << "}";
-	qRobotFile7 << "\\newcommand{\\trackingSlowQRobotDataG}{\n";
-	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFile7 << "(" << i << ", " << _qRobotVec[i](6) << ")\n"; qRobotFile7 << "}";
+	qRobotAFile << "\\providecommand{\\qRobot" + experiment + "AData}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotAFile << "(" << i << ", " << _qRobotVec[i](0) << ")\n"; qRobotAFile << "}";
+	qRobotBFile << "\\providecommand{\\qRobot" + experiment + "BData}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotBFile << "(" << i << ", " << _qRobotVec[i](1) << ")\n"; qRobotBFile << "}";
+	qRobotCFile << "\\providecommand{\\qRobot" + experiment + "CData}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotCFile << "(" << i << ", " << _qRobotVec[i](2) << ")\n"; qRobotCFile << "}";
+	qRobotDFile << "\\providecommand{\\qRobot" + experiment + "DData}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotDFile << "(" << i << ", " << _qRobotVec[i](3) << ")\n"; qRobotDFile << "}";
+	qRobotEFile << "\\providecommand{\\qRobot" + experiment + "EData}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotEFile << "(" << i << ", " << _qRobotVec[i](4) << ")\n"; qRobotEFile << "}";
+	qRobotFFile << "\\providecommand{\\qRobot" + experiment + "FData}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFFile << "(" << i << ", " << _qRobotVec[i](5) << ")\n"; qRobotFFile << "}";
+	qRobotGFile << "\\providecommand{\\qRobot" + experiment + "GData}{\n";
+	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotGFile << "(" << i << ", " << _qRobotVec[i](6) << ")\n"; qRobotGFile << "}";
+
+	//Pose
+	cameraPoseAFile << "\\providecommand{\\cameraPose" + experiment + "AData}{\n";
+	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseAFile << "(" << i << ", " << _cameraPoseVec[i].P()(0) << ")\n"; cameraPoseAFile << "}";
+	cameraPoseBFile << "\\providecommand{\\cameraPose" + experiment + "BData}{\n";
+	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseBFile << "(" << i << ", " << _cameraPoseVec[i].P()(1) << ")\n"; cameraPoseBFile << "}";
+	cameraPoseCFile << "\\providecommand{\\cameraPose" + experiment + "CData}{\n";
+	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseCFile << "(" << i << ", " << _cameraPoseVec[i].P()(2) << ")\n"; cameraPoseCFile << "}";
+	cameraPoseRFile << "\\providecommand{\\cameraPose" + experiment + "RData}{\n";
+	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseRFile << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(0) << ")\n"; cameraPoseRFile << "}";
+	cameraPosePFile << "\\providecommand{\\cameraPose" + experiment + "PData}{\n";
+	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPosePFile << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(1) << ")\n"; cameraPosePFile << "}";
+	cameraPoseYFile << "\\providecommand{\\cameraPose" + experiment + "YData}{\n";
+	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseYFile << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(2) << ")\n"; cameraPoseYFile << "}";
 
 
-	cameraPoseFileP0.close();
-	cameraPoseFileP1.close();
-	cameraPoseFileP2.close();
-	cameraPoseFileR0.close();
-	cameraPoseFileR1.close();
-	cameraPoseFileR2.close();
-	errorPoseFileX.close();
-	errorPoseFileY.close();
-	qRobotFile1.close();
-	qRobotFile2.close();
-	qRobotFile3.close();
-	qRobotFile4.close();
-	qRobotFile5.close();
-	qRobotFile6.close();
-	qRobotFile7.close();
+	cameraPoseAFile.close();
+	cameraPoseBFile.close();
+	cameraPoseCFile.close();
+	cameraPoseRFile.close();
+	cameraPosePFile.close();
+	cameraPoseYFile.close();
+
+	errorXFile.close();
+	errorYFile.close();
+
+	qRobotAFile.close();
+	qRobotBFile.close();
+	qRobotCFile.close();
+	qRobotDFile.close();
+	qRobotEFile.close();
+	qRobotFFile.close();
+	qRobotGFile.close();
 }
 
 /**
@@ -290,15 +302,39 @@ void SamplePlugin::computeError(){
 }
 
 /**
+ * Calculates the feature extraction average time
+ */
+void SamplePlugin::calculateAverageTime(){
+	double total = 0;
+	for(unsigned int i=0; i<_featureExtractionTime.size(); i++) total += _featureExtractionTime[i];
+	total = total /_featureExtractionTime.size();
+	log().info() << "Average time: " << total << "\n";
+}
+
+/**
+ * Calculates deltaT
+ */
+void SamplePlugin::calculateDeltaT(){
+	//Calculate deltaT
+	float deltaT;
+	if (TRACKING != 0) deltaT = (_spinBox->value() - *(_featureExtractionTime.end()-1));
+	else deltaT = _spinBox->value();
+
+	//Adapt and save deltaT
+	if (deltaT < 0) deltaT = 0;
+	if (_firstTime) _deltaT.push_back((long)deltaT);
+	else _deltaT.push_back((long)deltaT + *(_deltaT.end()-1));
+}
+
+/**
  * Check if the speed is over the joint's limits and, if so, limit it to the limit
  * @param qToCheck
  */
-void SamplePlugin::checkVelocityLimits(Q & qToCheck){
+void SamplePlugin::checkVelocityLimits(Q & dqToCheck){
 	for(unsigned char joint=0; joint<7; joint++){
-		//if (abs(qToCheck(joint))*1000 / _spinBox->value() > 1) log().info() << abs(qToCheck(joint))*1000 / _spinBox->value() << "\n";
-		if ( abs(qToCheck(joint))*1000 / _spinBox->value() > _device->getVelocityLimits()(joint) ){
-			log().info() << "Too fast!";
-			qToCheck(joint) = _device->getVelocityLimits()(joint)*_spinBox->value()/1000;
+		if ( *(_deltaT.end()-1) == 0 || abs(dqToCheck(joint)) * 1000 / *(_deltaT.end()-1) > _device->getVelocityLimits()(joint) ){
+			log().info() << "Too fast!\n";
+			dqToCheck(joint) = _device->getVelocityLimits()(joint) * *(_deltaT.end()-1) / 1000;
 		}
 	}
 }
@@ -328,9 +364,13 @@ Q SamplePlugin::getdQ(Mat & image)
 	//Get points from OpenCV algorithms
 	else {
 		Point2f point;
+
+		Timer featureExtractionTimer;
+		featureExtractionTimer.reset();
 		if (TRACKING == 1) point = colorDetection(image);
 		if (TRACKING == 2) point = linesHDetection(image);
 		if (TRACKING == 4) point = cornyDetection(image);
+		_featureExtractionTime.push_back(featureExtractionTimer.getTimeMs());
 
 		u[0] = point.x - 1024/2;
 		v[0] = point.y - 768/2;
@@ -391,14 +431,15 @@ Q SamplePlugin::getdQ(Mat & image)
 	//If the detected point is strange, return the previous dQ
 	unsigned char limitdudv = 255; //Fast
 	if (SPEED==0) limitdudv = 10; //Slow
-	if (SPEED==1) limitdudv = 20; //Medium
-	if (SPEED==2) limitdudv = 90; //Fast
+	if (SPEED==1) limitdudv = 50; //Medium
+	if (SPEED==2) limitdudv = 100; //Fast
 
 	for (unsigned char i=0; i<3; i++){
 		if(abs(dudv(0,0)) > limitdudv || abs(dudv(1,0)) > limitdudv ||
 		   abs(dudv(2,0)) > limitdudv || abs(dudv(3,0)) > limitdudv ||
 		   abs(dudv(4,0)) > limitdudv || abs(dudv(5,0)) > limitdudv){
 			log().info() << "Meeehh!  -  ";
+			calculateDeltaT();
 			return _previousdQ;
 		}
 	}
@@ -411,8 +452,10 @@ Q SamplePlugin::getdQ(Mat & image)
 	if (NUMBER_OF_POINTS==3) _previousdUdV[2][1] = dudv(5,0);
 
 	Q dq = Q(7, dq_aux(0,0), dq_aux(1,0), dq_aux(2,0), dq_aux(3,0),	dq_aux(4,0), dq_aux(5,0), dq_aux(6,0));
+	calculateDeltaT();
 	checkVelocityLimits(dq);
 	_previousdQ = dq;
+	_firstTime = 0;
 
 	return dq;
 }
@@ -466,7 +509,6 @@ void SamplePlugin::loop()
 					_previousPoints[0][0] = point.x - 1024/2;
 					_previousPoints[0][1] = point.y - 768/2;
 				}
-				_firstTime=0;
 			}
 			//Calculates dq due to the image movement
 			Q dq = getdQ(image);
@@ -481,6 +523,7 @@ void SamplePlugin::loop()
 			computeError();
 		} else {
 			log().info() << "Motion file finished!" << "\n";
+			calculateAverageTime();
 			writeData();
 			log().info() << "Data exported!" << "\n!";
 
@@ -520,10 +563,6 @@ void SamplePlugin::stateChangedListener(const State& state) {
 //--------------------------------------------------------
 Point2f SamplePlugin::cornyDetection (Mat & img_input)
 {
-	//Calculate the processing time
-	Timer calculationTime;
-	calculationTime.reset();
-
 	//Loads the image and the marker
 	Mat img_scene;
 	cvtColor(img_input, img_scene, CV_RGB2GRAY);
@@ -601,20 +640,12 @@ Point2f SamplePlugin::cornyDetection (Mat & img_input)
 	circle(img_matches,scene_corners[0],5, Scalar(0,255,0));
 	imshow("Good Matches & Object detection", img_matches);*/
 
-	//Show the processing time
-	float totalTime = calculationTime.getTimeMs();
-	log().info() << "Processing Time: " << totalTime << "[ms]\n";
-	//Average time is 800ms
-
 	//log().info() << "-----x:" << scene_corners[0].x << ", y:" << scene_corners[0].y << "\n";
 
-	return scene_corners[0];
+	return scene_corners[1];
 }
 
 Point2f SamplePlugin::colorDetection(Mat & img_input){
-	Timer timer;
-	timer.reset();
-
 	Mat im_thresh, im_cont, imHSV;
 	Point2f centerMass, centerMasstemp, centerMassRed;
 	vector<vector<Point> > contours, contoursTotal;
@@ -723,18 +754,12 @@ Point2f SamplePlugin::colorDetection(Mat & img_input){
 	if (waitKey(30) == 27) break; //Wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
 	}*/
 
-	float time = timer.getTimeMs();
-	log().info() << "Processing Time: " << time << "[ms]\n";
-	//Average time is 17ms for one for, 24ms for two fors
 
 	return centerMass;
 }
 
 Point2f SamplePlugin::linesHDetection(Mat & img_input)
 {
-	Timer timer;
-	timer.reset();
-
 	Mat img_gray, img_edges, thinHough, thinHoughEdit;
 	vector<Vec2f> s_lines, s_lines_new;
 	Point2f mc, centerMass;
@@ -832,10 +857,6 @@ Point2f SamplePlugin::linesHDetection(Mat & img_input)
 
 	imshow("LinesH", thinHough);
 	imshow("LinesH processed", thinHoughEdit);
-
-	float time = timer.getTimeMs();
-	log().info() << "Processing Time: " << time << "[ms]\n";
-	//Average time is 17ms for one for, 24ms for two fors
 
 	return centerMass;
 }

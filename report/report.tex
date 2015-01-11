@@ -16,6 +16,10 @@
 
 %---Format---%
 
+%---Conditions---%
+\def \plots{yes} %yes = plots, somethingDifferentThanYes = !plots
+\def \yes{yes}
+
 %---Begin Document---%
 \begin{document}
 
@@ -24,9 +28,9 @@
 	\tableofcontents
  
 	\include{chapters/introduction}
-	\include{chapters/feature_extraction}
-	%\include{chapters/tracking_points_using_the_image_jacobian}
-	%\include{chapters/combining_feature_extraction_and_tracking}
+	%\include{chapters/feature_extraction}
+	\include{chapters/tracking_points_using_the_image_jacobian}
+	\include{chapters/combining_feature_extraction_and_tracking}
 	\include{chapters/conclusions}
 
 \end{document}

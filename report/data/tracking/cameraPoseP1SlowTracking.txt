@@ -1,4 +1,4 @@
-\newcommand{\trackingSlowCameraPoseDataB}{
+\providecommand{\trackingSlowCameraPoseDataB}{
 (0, -0.319)
 (1, -0.319)
 (2, -0.319)

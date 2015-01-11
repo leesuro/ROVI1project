@@ -1,34 +1,62 @@
-%Tracking
-\input{data/tracking/qRobot1SlowTracking.txt}
-\input{data/tracking/qRobot2SlowTracking.txt}
-\input{data/tracking/qRobot3SlowTracking.txt}
-\input{data/tracking/qRobot4SlowTracking.txt}
-\input{data/tracking/qRobot5SlowTracking.txt}
-\input{data/tracking/qRobot6SlowTracking.txt}
-\input{data/tracking/qRobot7SlowTracking.txt}
+%---Tracking---%
+	%One point
+	\input{data/tracking/qRobot1SlowTracking.txt}
+	\input{data/tracking/qRobot2SlowTracking.txt}
+	\input{data/tracking/qRobot3SlowTracking.txt}
+	\input{data/tracking/qRobot4SlowTracking.txt}
+	\input{data/tracking/qRobot5SlowTracking.txt}
+	\input{data/tracking/qRobot6SlowTracking.txt}
+	\input{data/tracking/qRobot7SlowTracking.txt}
 
-\input{data/tracking/cameraPoseP0SlowTracking.txt}
-\input{data/tracking/cameraPoseP1SlowTracking.txt}
-\input{data/tracking/cameraPoseP2SlowTracking.txt}
-\input{data/tracking/cameraPoseR0SlowTracking.txt}
-\input{data/tracking/cameraPoseR1SlowTracking.txt}
-\input{data/tracking/cameraPoseR2SlowTracking.txt}
+	\input{data/tracking/cameraPoseP0SlowTracking.txt}
+	\input{data/tracking/cameraPoseP1SlowTracking.txt}
+	\input{data/tracking/cameraPoseP2SlowTracking.txt}
+	\input{data/tracking/cameraPoseR0SlowTracking.txt}
+	\input{data/tracking/cameraPoseR1SlowTracking.txt}
+	\input{data/tracking/cameraPoseR2SlowTracking.txt}
 
-\input{data/tracking/errorPoseXSlowTracking.txt}
-\input{data/tracking/errorPoseYSlowTracking.txt}
-\input{data/tracking/errorPoseXMediumTracking.txt}
-\input{data/tracking/errorPoseYMediumTracking.txt}
-\input{data/tracking/errorPoseXFastTracking.txt}
-\input{data/tracking/errorPoseYFastTracking.txt}
+	\input{data/tracking/errorPoseXTrackingSlow.txt}
+	\input{data/tracking/errorPoseYTrackingSlow.txt}
+	\input{data/tracking/errorPoseXTrackingMedium.txt}
+	\input{data/tracking/errorPoseYTrackingMedium.txt}
+	\input{data/tracking/errorPoseXTrackingFast.txt}
+	\input{data/tracking/errorPoseYTrackingFast.txt}
+
+	%Three Points
+	\input{data/tracking/three/qRobotThreeTrackingMediumA.txt}
+	\input{data/tracking/three/qRobotThreeTrackingMediumB.txt}
+	\input{data/tracking/three/qRobotThreeTrackingMediumC.txt}
+	\input{data/tracking/three/qRobotThreeTrackingMediumD.txt}
+	\input{data/tracking/three/qRobotThreeTrackingMediumE.txt}
+	\input{data/tracking/three/qRobotThreeTrackingMediumF.txt}
+	\input{data/tracking/three/qRobotThreeTrackingMediumG.txt}
+
+	\input{data/tracking/three/cameraPoseThreeTrackingMediumA.txt}
+	\input{data/tracking/three/cameraPoseThreeTrackingMediumB.txt}
+	\input{data/tracking/three/cameraPoseThreeTrackingMediumC.txt}
+	\input{data/tracking/three/cameraPoseThreeTrackingMediumR.txt}
+	\input{data/tracking/three/cameraPoseThreeTrackingMediumP.txt}
+	\input{data/tracking/three/cameraPoseThreeTrackingMediumY.txt}
+
+	\input{data/tracking/three/errorThreeTrackingSlowX.txt}
+	\input{data/tracking/three/errorThreeTrackingSlowY.txt}
+	\input{data/tracking/three/errorThreeTrackingMediumX.txt}
+	\input{data/tracking/three/errorThreeTrackingMediumY.txt}	
+	\input{data/tracking/three/errorThreeTrackingFastX.txt}
+	\input{data/tracking/three/errorThreeTrackingFastY.txt}
+
+%---Tracking---%
+\input{data/color/errorPoseXColorSlow.txt}
+\input{data/color/errorPoseYColorSlow.txt}
 
 
-\newcommand{\trackingSlowQRobotPlot}{
+\providecommand{\trackingSlowQRobotPlot}{
 \begin{figure}[!ht]
 	\centering
 	\tikzset{every mark/.append style={scale=0.5}}
 	\begin{tikzpicture}
 		\begin{axis}[height=9cm, width=\textwidth, grid=major,
-		xlabel={Step},ylabel={rad}
+		xlabel={Step},ylabel={Rad}
 		]	
 			\addplot [color=Turquoise, mark=o] coordinates {
 				\trackingSlowQRobotDataA
@@ -60,18 +88,18 @@
 			};
 			\addlegendentry{q6}
 
-			\addplot [color=RoyalBlue, mark=o] coordinates {
+			\addplot [color=CadetBlue, mark=o] coordinates {
 				\trackingSlowQRobotDataG
 			};
 			\addlegendentry{q7}
 		\end{axis}
 	\end{tikzpicture}
-	\caption{Robot's State while tracking the marker at slow speed.}
+	\caption{Robot's state while tracking the marker at slow speed.}
 	\label{fig:trackingSlowQRobotPlot}
 \end{figure}
 }
 
-\newcommand{\trackingSlowCameraPose}{
+\providecommand{\trackingSlowCameraPosePlot}{
 \begin{figure}[!ht]
 \centering
 	\tikzset{every mark/.append style={scale=0.5}}
@@ -79,7 +107,7 @@
 	{circle, magnification=10, connect spies}
 	]
 		\begin{axis}[height=9cm, width=\textwidth, grid=major,
-		xlabel={Step},ylabel={rad}
+		xlabel={Step},ylabel={Rad}
 		]	
 			\addplot [color=Turquoise, mark=o] coordinates {
 				\trackingSlowCameraPoseDataA
@@ -117,49 +145,73 @@
 		\spy [blue, size=2.0cm] on (spypoint) in node[fill=white] at (magnifyglass);
 	\end{tikzpicture}
 	\caption{Camera pose when tracking the marker at slow speed}
-	\label{fig:trackingSlowCameraPose}
+	\label{fig:trackingSlowCameraPosePlot}
 \end{figure}
 }
 
-\newcommand{\trackingErrorPlot}{
+\providecommand{\trackingErrorPlot}{
 \begin{figure}[!ht]
 \centering
 	\begin{tikzpicture}
 		\begin{axis}[height=9cm, width=\textwidth, grid=major,
-		xlabel={Step},ylabel={pixels}
+		xlabel={T[s]},ylabel={Pixels}
 		]	
 			\addplot [color=Turquoise, mark=o] coordinates {
-				\trackingSlowErrorPoseDataX
+				\TrackingSlowErrorPoseDataX
 			};
 			\addlegendentry{Slow Error X}
 
 			\addplot [color=Orchid, mark=o] coordinates {
-				\trackingSlowErrorPoseDataY
+				\TrackingSlowErrorPoseDataY
 			};
 			\addlegendentry{Slow Error Y}
 			
 			\addplot [color=YellowGreen, mark=o] coordinates {
-				\trackingMediumErrorPoseDataX
+				\TrackingMediumErrorPoseDataX
 			};
 			\addlegendentry{Medium Error X}
 			
 			\addplot [color=WildStrawberry, mark=o] coordinates {
-				\trackingMediumErrorPoseDataY
+				\TrackingMediumErrorPoseDataY
 			};
 			\addlegendentry{Medium Error Y}
 			
 			\addplot [color=Goldenrod, mark=o] coordinates {
-				\trackingFastErrorPoseDataX
+				\TrackingFastErrorPoseDataX
 			};
 			\addlegendentry{Fast Error X}
 			
 			\addplot [color=BlueGreen, mark=o] coordinates {
-				\trackingFastErrorPoseDataY
+				\TrackingFastErrorPoseDataY
 			};
 			\addlegendentry{Fast Error Y}
 		\end{axis}
 	\end{tikzpicture}
 	\caption{Error in the X and Y coordinates. Tracking marker at different speeds}
 	\label{fig:trackingErrorPlot}
+\end{figure}
+}
+
+
+\providecommand{\colorErrorPlot}{
+\begin{figure}[!ht]
+\centering
+	\begin{tikzpicture}
+		\begin{axis}[height=9cm, width=\textwidth, grid=major,
+		xlabel={T[s]},ylabel={Pixels}
+		]	
+			\addplot [color=Turquoise, mark=o] coordinates {
+				\ColorSlowErrorPoseDataX
+			};
+			\addlegendentry{Slow Error X}
+
+			\addplot [color=Orchid, mark=o] coordinates {
+				\ColorSlowErrorPoseDataY
+			};
+			\addlegendentry{Slow Error Y}
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Error in the X and Y coordinates. Tracking marker at different speeds}
+	\label{fig:colorErrorPlot}
 \end{figure}
 }

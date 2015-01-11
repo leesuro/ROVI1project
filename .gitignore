@@ -35,4 +35,4 @@ src/MarkerColor/.cproject
 *.REMOTE.*
 
 #Data
-data/
+./data

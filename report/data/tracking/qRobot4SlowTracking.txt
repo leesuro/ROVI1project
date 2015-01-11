@@ -1,4 +1,4 @@
-\newcommand{\trackingSlowQRobotDataD}{
+\providecommand{\trackingSlowQRobotDataD}{
 (0, 1.800)
 (1, 1.800)
 (2, 1.800)

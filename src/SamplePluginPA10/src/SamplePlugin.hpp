@@ -26,8 +26,8 @@
 #include <iostream>
 
 //Defines
-#define NUMBER_OF_POINTS 1 //1, 2 or 3
-#define TRACKING 2 //0=Marker's frame, 1=Color, 2=LinesA, 3=LinesB, 4=Corny
+#define NUMBER_OF_POINTS 3 //1, 2 or 3
+#define TRACKING 0 //0=Marker's frame, 1=Color, 2=LinesA, 3=LinesB, 4=Corny
 #define SPEED 1 //0=Slow, 1=Medium, 2=Fast
 #define USER 0 //Jorge = 0, Lukash = 1
 
@@ -68,9 +68,11 @@ public:
 	void writeData();
 	void computeError();
 	Q getdQ(Mat & image);
-	void checkVelocityLimits(Q & qToCheck);
+	void calculateDeltaT();
+	void checkVelocityLimits(Q & dqToCheck);
 
 	//Detection
+	void calculateAverageTime();
 	Point2f cornyDetection(Mat & img_input);
 	Point2f colorDetection(Mat & img_input);
 	Point2f linesHDetection(Mat & img_input);
@@ -91,6 +93,8 @@ private:
 	vector<Transform3D<> > _cameraPoseVec;
 	vector<Vector3D<> > _errorPoseVec;
 	vector<Q> _qRobotVec;
+	vector<float> _featureExtractionTime;
+	vector<float> _deltaT;
 
 	QTimer* _loop;
 
