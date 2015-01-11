@@ -61,13 +61,13 @@ int main() {
 			return -1;
 		}
 
-		//Detect the keypoints using SURF Detector
+
 		int minHessian = 1000;
 
 		SurfFeatureDetector detector(minHessian);
-
 		std::vector<KeyPoint> keypoints_object, keypoints_scene;
 
+		//Key points detection
 		detector.detect(img_object, keypoints_object);
 		detector.detect(img_scene, keypoints_scene);
 

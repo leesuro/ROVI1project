@@ -199,7 +199,7 @@ is calculated.
 
 \subsection{Marker 2 - Conclusions}
 The methods implemented detect the marker in EASY sequence 
-every time, in HARD sequence 50 \%, but they detect the center of marker imprecisely (localization of the marker moves around 100-150 pixels in the border of the marker).
+every time, in HARD sequence 50 \% in average time 15 ms, but they detect the center of marker imprecisely (localization of the marker moves around 100-150 pixels in the border of the marker).
 Therefore additional crossings filtering is required (filter by mutual crossings distance and angles).
 
 \newpage
@@ -212,6 +212,11 @@ Therefore additional crossings filtering is required (filter by mutual crossings
 	\label{fig:markerColor}
 \end{figure}
 
+For the third marker, the previous approaches would not achieve big success detecting the corny image. Colour segmentation would be fast, but only partially effective and imprecise. The lines extraction method would not be able to extract lines from the edgy image. On the other hand, the rich marker structure is very appropriate for the SIFT (Scale-invariant feature transform) feature detection. 
+
+\subsection{Feature extraction and marker recognition}
+
+When detecting the marker in the given environment, first thing that is done is extracting features from the clear marker image, so later these features can be compared and searched for in the image with marker put in the environment. To do SURF detection is 
 
 Extracting SIFT features. Matching the extracted SIFT features against
 SIFT features in a marker reference model. Using RANSAC to find
@@ -219,4 +224,5 @@ a homography that aligns the reference model with the observations.
 Use the homography to transform the marker reference points from
 the model to the image. This approach covers aspect D. This would
 work with the marker in Figure 1d.
+\subsection{Marker 3 - Conclusions}
 % chapter featre_extraction (end)
