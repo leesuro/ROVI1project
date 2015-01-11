@@ -340,28 +340,6 @@
 % ---------------------
 %		Color
 % ---------------------
-\providecommand{\colorErrorPlot}{
-\begin{figure}[!ht]
-\centering
-	\begin{tikzpicture}
-		\begin{axis}[height=9cm, width=\textwidth, grid=major,
-		xlabel={T[s]},ylabel={Pixels}
-		]	
-			\addplot [color=Turquoise, mark=o] coordinates {
-				\ColorSlowErrorPoseDataX
-			};
-			\addlegendentry{Slow Error X}
-
-			\addplot [color=Orchid, mark=o] coordinates {
-				\ColorSlowErrorPoseDataY
-			};
-			\addlegendentry{Slow Error Y}
-		\end{axis}
-	\end{tikzpicture}
-	\caption{Error in the X and Y coordinates. Tracking marker at different speeds}
-	\label{fig:colorErrorPlot}
-\end{figure}
-}
 
 
 % ---------------------

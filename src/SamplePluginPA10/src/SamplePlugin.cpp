@@ -34,7 +34,7 @@ const string backgroundPath = userPath + "ROVI1project/src/SamplePluginPA10/back
 const string cameraPosePath = userPath + "ROVI1project/data/cameraPose";
 const string errorPath = userPath + "ROVI1project/data/error";
 const string qRobotPath = userPath + "ROVI1project/data/qRobot";
-
+const string speedPath = userPath + "ROVI1project/data/speed";
 
 //--------------------------------------------------------
 //					  Constructors
@@ -207,89 +207,43 @@ Mat SamplePlugin::getImageAndShow()
  */
 void SamplePlugin::writeData()
 {
+	string tracking;
 	string experiment;
-	if (TRACKING == 0) experiment = "ThreeTracking";
-	if (TRACKING == 1) experiment = "Color";
-	if (TRACKING == 2) experiment = "Lines";
-	if (TRACKING == 4) experiment = "Corny";
-	if (SPEED == 0) experiment += "Slow";
-	if (SPEED == 1) experiment += "Medium";
-	if (SPEED == 2) experiment += "Fast";
+	if (TRACKING == 0) tracking = "ThreeTracking";
+	if (TRACKING == 1) tracking = "Color";
+	if (TRACKING == 2) tracking = "Lines";
+	if (TRACKING == 4) tracking = "Corny";
+	if (SPEED == 0) experiment = tracking + "Slow";
+	if (SPEED == 1) experiment = tracking + "Medium";
+	if (SPEED == 2) experiment = tracking + "Fast";
 
-	ofstream cameraPoseAFile; cameraPoseAFile.open((cameraPosePath + experiment + "A.txt").c_str()); cameraPoseAFile.precision(3); cameraPoseAFile.setf(std::ios::fixed);
-	ofstream cameraPoseBFile; cameraPoseBFile.open((cameraPosePath + experiment + "B.txt").c_str()); cameraPoseBFile.precision(3); cameraPoseBFile.setf(std::ios::fixed);
-	ofstream cameraPoseCFile; cameraPoseCFile.open((cameraPosePath + experiment + "C.txt").c_str()); cameraPoseCFile.precision(3); cameraPoseCFile.setf(std::ios::fixed);
-	ofstream cameraPoseRFile; cameraPoseRFile.open((cameraPosePath + experiment + "R.txt").c_str()); cameraPoseRFile.precision(3); cameraPoseRFile.setf(std::ios::fixed);
-	ofstream cameraPosePFile; cameraPosePFile.open((cameraPosePath + experiment + "P.txt").c_str()); cameraPosePFile.precision(3); cameraPosePFile.setf(std::ios::fixed);
-	ofstream cameraPoseYFile; cameraPoseYFile.open((cameraPosePath + experiment + "Y.txt").c_str()); cameraPoseYFile.precision(3); cameraPoseYFile.setf(std::ios::fixed);
+	//Q Robot
+	ofstream qRobotFile; qRobotFile.open((qRobotPath + experiment + ".tex").c_str()); qRobotFile.precision(3); qRobotFile.setf(std::ios::fixed);
+	latexPlotQ(qRobotFile, ("qRobot" + experiment + "Plot"));
+	qRobotFile.close();
 
+	//Speed
+	ofstream speedFile; speedFile.open((speedPath + experiment + ".tex").c_str()); speedFile.precision(3); speedFile.setf(std::ios::fixed);
+	latexPlotSpeed(speedFile, ("speed" + experiment + "Plot"));
+	speedFile.close();
 
-	ofstream errorXFile; errorXFile.open((errorPath + experiment + "X.txt").c_str()); errorXFile.precision(3); errorXFile.setf(std::ios::fixed);
-	ofstream errorYFile; errorYFile.open((errorPath + experiment + "Y.txt").c_str()); errorYFile.precision(3); errorYFile.setf(std::ios::fixed);
-
-	ofstream qRobotAFile; qRobotAFile.open((qRobotPath + experiment + "A.txt").c_str()); qRobotAFile.precision(3); qRobotAFile.setf(std::ios::fixed);
-	ofstream qRobotBFile; qRobotBFile.open((qRobotPath + experiment + "B.txt").c_str()); qRobotBFile.precision(3); qRobotBFile.setf(std::ios::fixed);
-	ofstream qRobotCFile; qRobotCFile.open((qRobotPath + experiment + "C.txt").c_str()); qRobotCFile.precision(3); qRobotCFile.setf(std::ios::fixed);
-	ofstream qRobotDFile; qRobotDFile.open((qRobotPath + experiment + "D.txt").c_str()); qRobotDFile.precision(3); qRobotDFile.setf(std::ios::fixed);
-	ofstream qRobotEFile; qRobotEFile.open((qRobotPath + experiment + "E.txt").c_str()); qRobotEFile.precision(3); qRobotEFile.setf(std::ios::fixed);
-	ofstream qRobotFFile; qRobotFFile.open((qRobotPath + experiment + "F.txt").c_str()); qRobotFFile.precision(3); qRobotFFile.setf(std::ios::fixed);
-	ofstream qRobotGFile; qRobotGFile.open((qRobotPath + experiment + "G.txt").c_str()); qRobotGFile.precision(3); qRobotGFile.setf(std::ios::fixed);
+	//Camera Pose
+	ofstream cameraPoseFile; cameraPoseFile.open((cameraPosePath + experiment + ".tex").c_str()); cameraPoseFile.precision(3); cameraPoseFile.setf(std::ios::fixed);
+	latexPlotCameraPose(cameraPoseFile, ("cameraPose" + experiment + "Plot"));
+	cameraPoseFile.close();
 
 	//Error
-	errorXFile << "\\providecommand{\\error" + experiment + "XData}{\n";
-	for (unsigned int i=0; i<_errorPoseVec.size()-1; i++) errorXFile   << "(" << _deltaT[i]/1000 << "," << _errorPoseVec[i+1](0) << ")\n"; errorXFile << "}";
-	errorYFile << "\\providecommand{\\error" + experiment + "YData}{\n";
-	for (unsigned int i=0; i<_errorPoseVec.size()-1; i++) errorYFile   << "(" << _deltaT[i]/1000 << "," << _errorPoseVec[i+1](1) << ")\n"; errorYFile << "}";
+	ofstream errorFile; errorFile.open((errorPath + tracking + ".tex").c_str()); errorFile.precision(3); errorFile.setf(std::ios::fixed);
+	latexPlotError(errorFile, ("error" + tracking + "Plot"));
+	errorFile.close();
 
-
-	//Q
-	qRobotAFile << "\\providecommand{\\qRobot" + experiment + "AData}{\n";
-	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotAFile << "(" << i << ", " << _qRobotVec[i](0) << ")\n"; qRobotAFile << "}";
-	qRobotBFile << "\\providecommand{\\qRobot" + experiment + "BData}{\n";
-	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotBFile << "(" << i << ", " << _qRobotVec[i](1) << ")\n"; qRobotBFile << "}";
-	qRobotCFile << "\\providecommand{\\qRobot" + experiment + "CData}{\n";
-	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotCFile << "(" << i << ", " << _qRobotVec[i](2) << ")\n"; qRobotCFile << "}";
-	qRobotDFile << "\\providecommand{\\qRobot" + experiment + "DData}{\n";
-	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotDFile << "(" << i << ", " << _qRobotVec[i](3) << ")\n"; qRobotDFile << "}";
-	qRobotEFile << "\\providecommand{\\qRobot" + experiment + "EData}{\n";
-	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotEFile << "(" << i << ", " << _qRobotVec[i](4) << ")\n"; qRobotEFile << "}";
-	qRobotFFile << "\\providecommand{\\qRobot" + experiment + "FData}{\n";
-	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotFFile << "(" << i << ", " << _qRobotVec[i](5) << ")\n"; qRobotFFile << "}";
-	qRobotGFile << "\\providecommand{\\qRobot" + experiment + "GData}{\n";
-	for (unsigned int i=0; i<_qRobotVec.size(); i++) qRobotGFile << "(" << i << ", " << _qRobotVec[i](6) << ")\n"; qRobotGFile << "}";
-
-	//Pose
-	cameraPoseAFile << "\\providecommand{\\cameraPose" + experiment + "AData}{\n";
-	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseAFile << "(" << i << ", " << _cameraPoseVec[i].P()(0) << ")\n"; cameraPoseAFile << "}";
-	cameraPoseBFile << "\\providecommand{\\cameraPose" + experiment + "BData}{\n";
-	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseBFile << "(" << i << ", " << _cameraPoseVec[i].P()(1) << ")\n"; cameraPoseBFile << "}";
-	cameraPoseCFile << "\\providecommand{\\cameraPose" + experiment + "CData}{\n";
-	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseCFile << "(" << i << ", " << _cameraPoseVec[i].P()(2) << ")\n"; cameraPoseCFile << "}";
-	cameraPoseRFile << "\\providecommand{\\cameraPose" + experiment + "RData}{\n";
-	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseRFile << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(0) << ")\n"; cameraPoseRFile << "}";
-	cameraPosePFile << "\\providecommand{\\cameraPose" + experiment + "PData}{\n";
-	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPosePFile << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(1) << ")\n"; cameraPosePFile << "}";
-	cameraPoseYFile << "\\providecommand{\\cameraPose" + experiment + "YData}{\n";
-	for (unsigned int i=0; i<_cameraPoseVec.size(); i++) cameraPoseYFile << "(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(2) << ")\n"; cameraPoseYFile << "}";
-
-
-	cameraPoseAFile.close();
-	cameraPoseBFile.close();
-	cameraPoseCFile.close();
-	cameraPoseRFile.close();
-	cameraPosePFile.close();
-	cameraPoseYFile.close();
-
+	ofstream errorXFile; errorXFile.open((errorPath + experiment + "X.txt").c_str()); errorXFile.precision(3); errorXFile.setf(std::ios::fixed);
+	for (unsigned int i=0; i<_errorPoseVec.size()-1; i++) errorXFile   << "				(" << _sumDeltaT[i]/1000 << "," << _errorPoseVec[i+1](0) << ")\n";
 	errorXFile.close();
-	errorYFile.close();
 
-	qRobotAFile.close();
-	qRobotBFile.close();
-	qRobotCFile.close();
-	qRobotDFile.close();
-	qRobotEFile.close();
-	qRobotFFile.close();
-	qRobotGFile.close();
+	ofstream errorYFile; errorYFile.open((errorPath + experiment + "Y.txt").c_str()); errorYFile.precision(3); errorYFile.setf(std::ios::fixed);
+	for (unsigned int i=0; i<_errorPoseVec.size()-1; i++) errorYFile   << "				(" << _sumDeltaT[i]/1000 << "," << _errorPoseVec[i+1](1) << ")\n";
+	errorYFile.close();
 }
 
 /**
@@ -322,8 +276,11 @@ void SamplePlugin::calculateDeltaT(){
 
 	//Adapt and save deltaT
 	if (deltaT < 0) deltaT = 0;
-	if (_firstTime) _deltaT.push_back((long)deltaT);
-	else _deltaT.push_back((long)deltaT + *(_deltaT.end()-1));
+
+	_deltaT.push_back((long)deltaT);
+
+	if (_firstTime) _sumDeltaT.push_back((long)deltaT);
+	else _sumDeltaT.push_back((long)deltaT + *(_sumDeltaT.end()-1));
 }
 
 /**
@@ -332,11 +289,20 @@ void SamplePlugin::calculateDeltaT(){
  */
 void SamplePlugin::checkVelocityLimits(Q & dqToCheck){
 	for(unsigned char joint=0; joint<7; joint++){
-		if ( *(_deltaT.end()-1) == 0 || abs(dqToCheck(joint)) * 1000 / *(_deltaT.end()-1) > _device->getVelocityLimits()(joint) ){
-			log().info() << "Too fast!\n";
-			dqToCheck(joint) = _device->getVelocityLimits()(joint) * *(_deltaT.end()-1) / 1000;
+		if ( *(_deltaT.end()-1) == 0 || abs(dqToCheck(joint)) * 1000 / *(_deltaT.end()-1) > abs(_device->getVelocityLimits()(joint)) ){
+			if (abs(dqToCheck(joint)) * 1000 / *(_deltaT.end()-1) > abs(_device->getVelocityLimits()(joint))) log().info() << abs(_device->getVelocityLimits()(0)) << "\n";
+			if (dqToCheck(joint) > 0) dqToCheck(joint) = abs(_device->getVelocityLimits()(joint)) * *(_deltaT.end()-1) / 1000;
+			if (dqToCheck(joint) < 0) dqToCheck(joint) = - abs(_device->getVelocityLimits()(joint)) * *(_deltaT.end()-1) / 1000;
 		}
 	}
+}
+
+/**
+ * Calculates the speed reached for each link in an specific dQ
+ * @param dQ
+ */
+void SamplePlugin::calculateSpeed(const Q & dQ){
+	_speedVec.push_back(dQ*1000*180/Pi / *(_deltaT.end()-1) ); //In deg/s
 }
 
 /**
@@ -454,6 +420,7 @@ Q SamplePlugin::getdQ(Mat & image)
 	Q dq = Q(7, dq_aux(0,0), dq_aux(1,0), dq_aux(2,0), dq_aux(3,0),	dq_aux(4,0), dq_aux(5,0), dq_aux(6,0));
 	calculateDeltaT();
 	checkVelocityLimits(dq);
+	calculateSpeed(dq);
 	_previousdQ = dq;
 	_firstTime = 0;
 
@@ -922,6 +889,203 @@ vector<Point2f> SamplePlugin::pointExtractFromLine(Vec2f & line) {
 
 	return ret_pt;
 }
+
+void SamplePlugin::latexPlotQ(ofstream & file, const string & name){
+	file << "\\providecommand{\\" << name << "}{\n"
+		 << "\\begin{figure}[!ht]\n"
+		 << "	\\centering\n"
+		 //<< "	\\tikzset{every mark/.append style={scale=0.5}}\n"
+		 << "	\\begin{tikzpicture}\n"
+		 << "		\\begin{axis}[height=9cm, width=\\textwidth, grid=major,\n"
+		 << "		xlabel={Step},ylabel={Rad}\n"
+		 << "		]\n"
+		 << "			\\addplot [color=Turquoise, mark=o] coordinates {\n";
+		 for (unsigned int i=0; i<_qRobotVec.size(); i++) file << "				(" << i << ", " << _qRobotVec[i](0) << ")\n";
+		 file << "		};\n"
+		 << "			\\addlegendentry{q1}\n"
+		 << "\n"
+		 << "			\\addplot [color=Orchid, mark=o] coordinates {\n";
+		 for (unsigned int i=0; i<_qRobotVec.size(); i++) file << "				(" << i << ", " << _qRobotVec[i](1) << ")\n";
+		 file << "			};\n"
+		 << "			\\addlegendentry{q2}\n"
+		 << "\n"
+		 << "			\\addplot [color=YellowGreen, mark=o] coordinates {\n";
+		 for (unsigned int i=0; i<_qRobotVec.size(); i++) file << "				(" << i << ", " << _qRobotVec[i](2) << ")\n";
+		 file << "			};\n"
+		 << "			\\addlegendentry{q3}\n"
+		 << "\n"
+		 << "			\\addplot [color=WildStrawberry, mark=o] coordinates {\n";
+		 for (unsigned int i=0; i<_qRobotVec.size(); i++) file << "				(" << i << ", " << _qRobotVec[i](3) << ")\n";
+		 file << "			};\n"
+		 << "			\\addlegendentry{q4}\n"
+		 << "\n"
+		 << "			\\addplot [color=Goldenrod, mark=o] coordinates {\n";
+		 for (unsigned int i=0; i<_qRobotVec.size(); i++) file << "				(" << i << ", " << _qRobotVec[i](4) << ")\n";
+		 file << "			};\n"
+		 << "			\\addlegendentry{q5}\n"
+		 << "\n"
+		 << "			\\addplot [color=BlueGreen, mark=o] coordinates {\n";
+		 for (unsigned int i=0; i<_qRobotVec.size(); i++) file << "				(" << i << ", " << _qRobotVec[i](5) << ")\n";
+		 file << "			};\n"
+		 << "			\\addlegendentry{q6}\n"
+		 << "\n"
+		 << "			\\addplot [color=CadetBlue, mark=o] coordinates {\n";
+		 for (unsigned int i=0; i<_qRobotVec.size(); i++) file << "				(" << i << ", " << _qRobotVec[i](6) << ")\n";
+		 file << "			};\n"
+		 << "			\\addlegendentry{q7}\n"
+		 << "		\\end{axis}\n"
+		 << "	\\end{tikzpicture}\n"
+		 << "	\\caption{Robot's state while tracking the marker at medium speed.}\n"
+		 << "	\\label{fig:" << name <<  "}\n"
+		 << "\\end{figure}\n"
+		 << "}\n";
+}
+
+void SamplePlugin::latexPlotSpeed(ofstream & file, const string & name){
+	file << "\\providecommand{\\" << name << "}{\n"
+		 << "\\begin{figure}[!ht]\n"
+		 << "	\\centering\n"
+		 //<< "	\\tikzset{every mark/.append style={scale=0.5}}\n"
+		 << "	\\begin{tikzpicture}\n"
+		 << "		\\begin{axis}[height=9cm, width=\\textwidth, grid=major,\n"
+		 << "		xlabel={Step},ylabel={Deg}\n"
+		 << "		]\n"
+		 << "			\\addplot [color=Turquoise, mark=o] coordinates {\n";
+		 for (unsigned int i=0; i<_speedVec.size(); i++) file << "				(" << i << ", " << _speedVec[i](0) << ")\n";
+		 file << "		};\n"
+		 << "			\\addlegendentry{$\\dot q$1}\n"
+		 << "\n"
+		 << "			\\addplot [color=Orchid, mark=o] coordinates {\n";
+		 for (unsigned int i=0; i<_speedVec.size(); i++) file << "				(" << i << ", " << _speedVec[i](1) << ")\n";
+		 file << "			};\n"
+		 << "			\\addlegendentry{$\\dot q$2}\n"
+		 << "\n"
+		 << "			\\addplot [color=YellowGreen, mark=o] coordinates {\n";
+		 for (unsigned int i=0; i<_speedVec.size(); i++) file << "				(" << i << ", " << _speedVec[i](2) << ")\n";
+		 file << "			};\n"
+		 << "			\\addlegendentry{$\\dot q$3}\n"
+		 << "\n"
+		 << "			\\addplot [color=WildStrawberry, mark=o] coordinates {\n";
+		 for (unsigned int i=0; i<_speedVec.size(); i++) file << "				(" << i << ", " << _speedVec[i](3) << ")\n";
+		 file << "			};\n"
+		 << "			\\addlegendentry{$\\dot q$4}\n"
+		 << "\n"
+		 << "			\\addplot [color=Goldenrod, mark=o] coordinates {\n";
+		 for (unsigned int i=0; i<_speedVec.size(); i++) file << "				(" << i << ", " << _speedVec[i](4) << ")\n";
+		 file << "			};\n"
+		 << "			\\addlegendentry{$\\dot q$5}\n"
+		 << "\n"
+		 << "			\\addplot [color=BlueGreen, mark=o] coordinates {\n";
+		 for (unsigned int i=0; i<_speedVec.size(); i++) file << "				(" << i << ", " << _speedVec[i](5) << ")\n";
+		 file << "			};\n"
+		 << "			\\addlegendentry{$\\dot q$6}\n"
+		 << "\n"
+		 << "			\\addplot [color=CadetBlue, mark=o] coordinates {\n";
+		 for (unsigned int i=0; i<_speedVec.size(); i++) file << "				(" << i << ", " << _speedVec[i](6) << ")\n";
+		 file << "			};\n"
+		 << "			\\addlegendentry{$\\dot q$7}\n"
+		 << "		\\end{axis}\n"
+		 << "	\\end{tikzpicture}\n"
+		 << "	\\caption{Robot joint's speed while tracking the marker at medium speed.}\n"
+		 << "	\\label{fig:" << name <<  "}\n"
+		 << "\\end{figure}\n"
+		 << "}\n";
+}
+
+void SamplePlugin::latexPlotCameraPose(ofstream & file, const string & name){
+	file << "\\providecommand{\\" << name << "}{\n"
+		 << "\\begin{figure}[!ht]\n"
+		 << "	\\centering\n"
+		 //<< "	\\tikzset{every mark/.append style={scale=0.5}}\n"
+		 << "	\\begin{tikzpicture}\n"
+		 << "		\\begin{axis}[height=9cm, width=\\textwidth, grid=major,\n"
+		 << "		xlabel={Step},ylabel={Rad}\n"
+		 << "		]\n"
+		 << "			\\addplot [color=Turquoise, mark=o] coordinates {\n";
+		 for (unsigned int i=0; i<_qRobotVec.size(); i++) file << "				(" << i << ", " << _cameraPoseVec[i].P()(0) << ")\n";
+		 file << "		};\n"
+		 << "			\\addlegendentry{x}\n"
+		 << "\n"
+		 << "			\\addplot [color=Orchid, mark=o] coordinates {\n";
+		 for (unsigned int i=0; i<_qRobotVec.size(); i++) file << "				(" << i << ", " << _cameraPoseVec[i].P()(1) << ")\n";
+		 file << "			};\n"
+		 << "			\\addlegendentry{y}\n"
+		 << "\n"
+		 << "			\\addplot [color=YellowGreen, mark=o] coordinates {\n";
+		 for (unsigned int i=0; i<_qRobotVec.size(); i++) file << "				(" << i << ", " << _cameraPoseVec[i].P()(2) << ")\n";
+		 file << "			};\n"
+		 << "			\\addlegendentry{z}\n"
+		 << "\n"
+		 << "			\\addplot [color=WildStrawberry, mark=o] coordinates {\n";
+		 for (unsigned int i=0; i<_qRobotVec.size(); i++) file << "				(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(0) << ")\n";
+		 file << "			};\n"
+		 << "			\\addlegendentry{R}\n"
+		 << "\n"
+		 << "			\\addplot [color=Goldenrod, mark=o] coordinates {\n";
+		 for (unsigned int i=0; i<_qRobotVec.size(); i++) file << "				(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(1) << ")\n";
+		 file << "			};\n"
+		 << "			\\addlegendentry{P}\n"
+		 << "\n"
+		 << "			\\addplot [color=BlueGreen, mark=o] coordinates {\n";
+		 for (unsigned int i=0; i<_qRobotVec.size(); i++) file << "				(" << i << ", " << RPY<>(_cameraPoseVec[i].R())(2) << ")\n";
+		 file << "			};\n"
+		 << "			\\addlegendentry{Y}\n"
+		 << "\n"
+		 << "		\\end{axis}\n"
+		 << "	\\end{tikzpicture}\n"
+		 << "	\\caption{Robot camera's frame while tracking the marker at medium speed.}\n"
+		 << "	\\label{fig:" << name <<  "}\n"
+		 << "\\end{figure}\n"
+		 << "}\n";
+}
+
+void SamplePlugin::latexPlotError(ofstream & file, const string & name){
+	file << "\\providecommand{\\" << name << "}{\n"
+		 << "\\begin{figure}[!ht]\n"
+		 << "	\\centering\n"
+		 //<< "	\\tikzset{every mark/.append style={scale=0.5}}\n"
+		 << "	\\begin{tikzpicture}\n"
+		 << "		\\begin{axis}[height=9cm, width=\\textwidth, grid=major,\n"
+		 << "		xlabel={Step},ylabel={Rad}\n"
+		 << "		]\n"
+		 << "			\\addplot [color=Turquoise, mark=o] coordinates {\n"
+		 << "				%Insert data here\n"
+		 << "			};\n"
+		 << "			\\addlegendentry{Error X Slow}\n"
+		 << "\n"
+		 << "			\\addplot [color=Orchid, mark=o] coordinates {\n"
+		 << "				%Insert data here\n"
+		 << "			};\n"
+		 << "			\\addlegendentry{Error Y Slow}\n"
+		 << "\n"
+		 << "			\\addplot [color=YellowGreen, mark=o] coordinates {\n"
+		 << "				%Insert data here\n"
+		 << "			};\n"
+		 << "			\\addlegendentry{Error X Medium}\n"
+		 << "\n"
+		 << "			\\addplot [color=WildStrawberry, mark=o] coordinates {\n"
+		 << "				%Insert data here\n"
+		 << "			};\n"
+		 << "			\\addlegendentry{Error Y Medium}\n"
+		 << "\n"
+		 << "			\\addplot [color=Goldenrod, mark=o] coordinates {\n"
+		 << "				%Insert data here\n"
+		 << "			};\n"
+		 << "			\\addlegendentry{Error X Fast}\n"
+		 << "\n"
+		 << "			\\addplot [color=BlueGreen, mark=o] coordinates {\n"
+		 << "				%Insert data here\n"
+		 << "			};\n"
+		 << "			\\addlegendentry{Error Y Fast}\n"
+		 << "\n"
+		 << "		\\end{axis}\n"
+		 << "	\\end{tikzpicture}\n"
+		 << "	\\caption{Error in the X and Y coordinates. Tracking marker at different speeds.}\n"
+		 << "	\\label{fig:" << name <<  "}\n"
+		 << "\\end{figure}\n"
+		 << "}\n";
+}
+
 
 Q_EXPORT_PLUGIN(SamplePlugin);
 

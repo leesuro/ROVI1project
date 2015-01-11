@@ -1,4 +1,8 @@
-\input{chapters/plots}
+%\input{chapters/plots}
+\input{data/color/qRobotColorFast.tex}
+\input{data/color/speedColorFast.tex}
+\input{data/color/cameraPoseColorFast.tex}
+\input{data/color/errorColor.tex}
 
 \chapter{Combining feature extraction and tracking} % (fold)
 \label{chap:combining_feature_extraction_and_tracking}
@@ -6,6 +10,11 @@
 	\ifx \plots \yes
 		\colorErrorPlot
 	\fi
+
+	\qRobotColorFastPlot
+	\speedColorFastPlot
+	\cameraPoseColorFastPlot
+	\errorColorPlot
 
 Average time for color in fast speed: 24.0818 [ms]
 

@@ -26,10 +26,10 @@
 #include <iostream>
 
 //Defines
-#define NUMBER_OF_POINTS 3 //1, 2 or 3
-#define TRACKING 0 //0=Marker's frame, 1=Color, 2=LinesA, 3=LinesB, 4=Corny
-#define SPEED 1 //0=Slow, 1=Medium, 2=Fast
+#define NUMBER_OF_POINTS 1 //1, 2 or 3
+#define TRACKING 1 //0=Marker's frame, 1=Color, 2=LinesA, 3=LinesB, 4=Corny
 #define USER 0 //Jorge = 0, Lukash = 1
+#define SPEED 2	 //0=Slow, 1=Medium, 2=Fast
 
 //Namespaces
 using namespace rw::common;
@@ -70,6 +70,7 @@ public:
 	Q getdQ(Mat & image);
 	void calculateDeltaT();
 	void checkVelocityLimits(Q & dqToCheck);
+	void calculateSpeed(const Q & dQ);
 
 	//Detection
 	void calculateAverageTime();
@@ -80,6 +81,12 @@ public:
 	bool isPossible(Vec2f & line_1, Vec2f & line_2, const float minAngle);
 	Point2f calculateLineCrossing(Vec2f & line_1, Vec2f & line_2);
 	vector<Point2f> pointExtractFromLine(Vec2f & line);
+
+	//LaTeX
+	void latexPlotQ(ofstream & file, const string & name);
+	void latexPlotSpeed(ofstream & file, const string & name);
+	void latexPlotCameraPose(ofstream & file, const string & name);
+	void latexPlotError(ofstream & file, const string & name);
 
 private slots:
 	void buttonPressed();
@@ -93,8 +100,10 @@ private:
 	vector<Transform3D<> > _cameraPoseVec;
 	vector<Vector3D<> > _errorPoseVec;
 	vector<Q> _qRobotVec;
+	vector<Q> _speedVec;
 	vector<float> _featureExtractionTime;
 	vector<float> _deltaT;
+	vector<float> _sumDeltaT;
 
 	QTimer* _loop;
 
