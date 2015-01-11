@@ -209,7 +209,8 @@ void SamplePlugin::writeData()
 {
 	string tracking;
 	string experiment;
-	if (TRACKING == 0) tracking = "ThreeTracking";
+	if (NUMBER_OF_POINTS==3) tracking = "Three";
+	if (TRACKING == 0) tracking = "Tracking";
 	if (TRACKING == 1) tracking = "Color";
 	if (TRACKING == 2) tracking = "Lines";
 	if (TRACKING == 4) tracking = "Corny";
@@ -293,6 +294,7 @@ void SamplePlugin::checkVelocityLimits(Q & dqToCheck){
 			if (abs(dqToCheck(joint)) * 1000 / *(_deltaT.end()-1) > abs(_device->getVelocityLimits()(joint))) log().info() << abs(_device->getVelocityLimits()(0)) << "\n";
 			if (dqToCheck(joint) > 0) dqToCheck(joint) = abs(_device->getVelocityLimits()(joint)) * *(_deltaT.end()-1) / 1000;
 			if (dqToCheck(joint) < 0) dqToCheck(joint) = - abs(_device->getVelocityLimits()(joint)) * *(_deltaT.end()-1) / 1000;
+			log().info() << "Too fast - ";
 		}
 	}
 }
@@ -404,7 +406,7 @@ Q SamplePlugin::getdQ(Mat & image)
 		if(abs(dudv(0,0)) > limitdudv || abs(dudv(1,0)) > limitdudv ||
 		   abs(dudv(2,0)) > limitdudv || abs(dudv(3,0)) > limitdudv ||
 		   abs(dudv(4,0)) > limitdudv || abs(dudv(5,0)) > limitdudv){
-			log().info() << "Meeehh!  -  ";
+			//log().info() << "Meeehh!  -  ";
 			calculateDeltaT();
 			return _previousdQ;
 		}
@@ -901,7 +903,7 @@ void SamplePlugin::latexPlotQ(ofstream & file, const string & name){
 		 << "		]\n"
 		 << "			\\addplot [color=Turquoise, mark=o] coordinates {\n";
 		 for (unsigned int i=0; i<_qRobotVec.size(); i++) file << "				(" << i << ", " << _qRobotVec[i](0) << ")\n";
-		 file << "		};\n"
+		 file << "			};\n"
 		 << "			\\addlegendentry{q1}\n"
 		 << "\n"
 		 << "			\\addplot [color=Orchid, mark=o] coordinates {\n";
@@ -933,6 +935,69 @@ void SamplePlugin::latexPlotQ(ofstream & file, const string & name){
 		 for (unsigned int i=0; i<_qRobotVec.size(); i++) file << "				(" << i << ", " << _qRobotVec[i](6) << ")\n";
 		 file << "			};\n"
 		 << "			\\addlegendentry{q7}\n"
+		 << "\n"
+		 << "			\\addplot[Turquoise,sharp plot,update limits=false] coordinates {"
+		 << "				(0,3.14)\n"
+		 << "				(" << (_speedVec.size()-1) << ",3.14)\n"
+		 << "			};\n"
+		 << "			\\addplot[Turquoise,sharp plot,update limits=false] coordinates {"
+		 << "				(0,-3.14)\n"
+		 << "				(" << (_speedVec.size()-1) << ",-3.14)\n"
+		 << "			};\n"
+		 << "\n"
+		 << "			\\addplot[Orchid,sharp plot,update limits=false] coordinates {"
+		 << "				(0,1.64)\n"
+		 << "				(" << (_speedVec.size()-1) << ",1.64)\n"
+		 << "			};\n"
+		 << "			\\addplot[Orchid,sharp plot,update limits=false] coordinates {"
+		 << "				(0,-1.64)\n"
+		 << "				(" << (_speedVec.size()-1) << ",-1.64)\n"
+		 << "			};\n"
+		 << "\n"
+		 << "			\\addplot[YellowGreen,sharp plot,update limits=false] coordinates {"
+		 << "				(0,3.14)\n"
+		 << "				(" << (_speedVec.size()-1) << ",3.14)\n"
+		 << "			};\n"
+		 << "			\\addplot[YellowGreen,sharp plot,update limits=false] coordinates {"
+		 << "				(0,-3.14)\n"
+		 << "				(" << (_speedVec.size()-1) << ",-3.14)\n"
+		 << "			};\n"
+		 << "\n"
+		 << "			\\addplot[WildStrawberry,sharp plot,update limits=false] coordinates {"
+		 << "				(0,2.5)\n"
+		 << "				(" << (_speedVec.size()-1) << ",2.5)\n"
+		 << "			};\n"
+		 << "			\\addplot[WildStrawberry,sharp plot,update limits=false] coordinates {"
+		 << "				(0,-2.5)\n"
+		 << "				(" << (_speedVec.size()-1) << ",-2.5)\n"
+		 << "			};\n"
+		 << "\n"
+		 << "			\\addplot[Goldenrod,sharp plot,update limits=false] coordinates {"
+		 << "				(0,4.71)\n"
+		 << "				(" << (_speedVec.size()-1) << ",4.71)\n"
+		 << "			};\n"
+		 << "			\\addplot[Goldenrod,sharp plot,update limits=false] coordinates {"
+		 << "				(0,-4.71)\n"
+		 << "				(" << (_speedVec.size()-1) << ",-4.71)\n"
+		 << "			};\n"
+		 << "\n"
+		 << "			\\addplot[BlueGreen,sharp plot,update limits=false] coordinates {"
+		 << "				(0,2.09)\n"
+		 << "				(" << (_speedVec.size()-1) << ",2.09)\n"
+		 << "			};\n"
+		 << "			\\addplot[BlueGreen,sharp plot,update limits=false] coordinates {"
+		 << "				(0,-2.09)\n"
+		 << "				(" << (_speedVec.size()-1) << ",-2.09)\n"
+		 << "			};\n"
+		 << "\n"
+		 << "			\\addplot[CadetBlue,sharp plot,update limits=false] coordinates {"
+		 << "				(0,6.28)\n"
+		 << "				(" << (_speedVec.size()-1) << ",6.28)\n"
+		 << "			};\n"
+		 << "			\\addplot[CadetBlue,sharp plot,update limits=false] coordinates {\n"
+		 << "				(0,-6.28)\n"
+		 << "				(" << (_speedVec.size()-1) << ",-6.28)\n"
+		 << "			};\n"
 		 << "		\\end{axis}\n"
 		 << "	\\end{tikzpicture}\n"
 		 << "	\\caption{Robot's state while tracking the marker at medium speed.}\n"
@@ -948,11 +1013,11 @@ void SamplePlugin::latexPlotSpeed(ofstream & file, const string & name){
 		 //<< "	\\tikzset{every mark/.append style={scale=0.5}}\n"
 		 << "	\\begin{tikzpicture}\n"
 		 << "		\\begin{axis}[height=9cm, width=\\textwidth, grid=major,\n"
-		 << "		xlabel={Step},ylabel={Deg}\n"
+		 << "		xlabel={Step},ylabel={Deg/s}\n"
 		 << "		]\n"
 		 << "			\\addplot [color=Turquoise, mark=o] coordinates {\n";
 		 for (unsigned int i=0; i<_speedVec.size(); i++) file << "				(" << i << ", " << _speedVec[i](0) << ")\n";
-		 file << "		};\n"
+		 file << "			};\n"
 		 << "			\\addlegendentry{$\\dot q$1}\n"
 		 << "\n"
 		 << "			\\addplot [color=Orchid, mark=o] coordinates {\n";
@@ -984,6 +1049,69 @@ void SamplePlugin::latexPlotSpeed(ofstream & file, const string & name){
 		 for (unsigned int i=0; i<_speedVec.size(); i++) file << "				(" << i << ", " << _speedVec[i](6) << ")\n";
 		 file << "			};\n"
 		 << "			\\addlegendentry{$\\dot q$7}\n"
+		 << "\n"
+		 << "			\\addplot[Turquoise,sharp plot,update limits=false] coordinates {\n"
+		 << "				(0,90)\n"
+		 << "				(" << (_speedVec.size()-1) << ",90)\n"
+		 << "			};\n"
+		 << "			\\addplot[Turquoise,sharp plot,update limits=false] coordinates {\n"
+		 << "				(0,-90)\n"
+		 << "				(" << (_speedVec.size()-1) << ",-90)\n"
+		 << "			};\n"
+		 << "\n"
+		 << "			\\addplot[Orchid,sharp plot,update limits=false] coordinates {\n"
+		 << "				(0,94)\n"
+		 << "				(" << (_speedVec.size()-1) << ",94)\n"
+		 << "			};\n"
+		 << "			\\addplot[Orchid,sharp plot,update limits=false] coordinates {\n"
+		 << "				(0,-94)\n"
+		 << "				(" << (_speedVec.size()-1) << ",-94)\n"
+		 << "			};\n"
+		 << "\n"
+		 << "			\\addplot[YellowGreen,sharp plot,update limits=false] coordinates {\n"
+		 << "				(0,180)\n"
+		 << "				(" << (_speedVec.size()-1) << ",180)\n"
+		 << "			};\n"
+		 << "			\\addplot[YellowGreen,sharp plot,update limits=false] coordinates {\n"
+		 << "				(0,-180)\n"
+		 << "				(" << (_speedVec.size()-1) << ",-180)\n"
+		 << "			};\n"
+		 << "\n"
+		 << "			\\addplot[WildStrawberry,sharp plot,update limits=false] coordinates {\n"
+		 << "				(0,143)\n"
+		 << "				(" << (_speedVec.size()-1) << ",143)\n"
+		 << "			};\n"
+		 << "			\\addplot[WildStrawberry,sharp plot,update limits=false] coordinates {\n"
+		 << "				(0,-143)\n"
+		 << "				(" << (_speedVec.size()-1) << ",-143)\n"
+		 << "			};\n"
+		 << "\n"
+		 << "			\\addplot[Goldenrod,sharp plot,update limits=false] coordinates {\n"
+		 << "				(0,270)\n"
+		 << "				(" << (_speedVec.size()-1) << ",270)\n"
+		 << "			};\n"
+		 << "			\\addplot[Goldenrod,sharp plot,update limits=false] coordinates {\n"
+		 << "				(0,-270)\n"
+		 << "				(" << (_speedVec.size()-1) << ",-270)\n"
+		 << "			};\n"
+		 << "\n"
+		 << "			\\addplot[BlueGreen,sharp plot,update limits=false] coordinates {\n"
+		 << "				(0,120)\n"
+		 << "				(" << (_speedVec.size()-1) << ",120)\n"
+		 << "			};\n"
+		 << "			\\addplot[BlueGreen,sharp plot,update limits=false] coordinates {\n"
+		 << "				(0,-120)\n"
+		 << "				(" << (_speedVec.size()-1) << ",-120)\n"
+		 << "			};\n"
+		 << "\n"
+		 << "			\\addplot[CadetBlue,sharp plot,update limits=false] coordinates {\n"
+		 << "				(0,360)\n"
+		 << "				(" << (_speedVec.size()-1) << ",360)\n"
+		 << "			};\n"
+		 << "			\\addplot[CadetBlue,sharp plot,update limits=false] coordinates {\n"
+		 << "				(0,-360)\n"
+		 << "				(" << (_speedVec.size()-1) << ",-360)\n"
+		 << "			};\n"
 		 << "		\\end{axis}\n"
 		 << "	\\end{tikzpicture}\n"
 		 << "	\\caption{Robot joint's speed while tracking the marker at medium speed.}\n"
@@ -999,11 +1127,11 @@ void SamplePlugin::latexPlotCameraPose(ofstream & file, const string & name){
 		 //<< "	\\tikzset{every mark/.append style={scale=0.5}}\n"
 		 << "	\\begin{tikzpicture}\n"
 		 << "		\\begin{axis}[height=9cm, width=\\textwidth, grid=major,\n"
-		 << "		xlabel={Step},ylabel={Rad}\n"
+		 << "		xlabel={Step},ylabel={x,y,z [m] | R,P,Y [rad]}\n"
 		 << "		]\n"
 		 << "			\\addplot [color=Turquoise, mark=o] coordinates {\n";
 		 for (unsigned int i=0; i<_qRobotVec.size(); i++) file << "				(" << i << ", " << _cameraPoseVec[i].P()(0) << ")\n";
-		 file << "		};\n"
+		 file << "			};\n"
 		 << "			\\addlegendentry{x}\n"
 		 << "\n"
 		 << "			\\addplot [color=Orchid, mark=o] coordinates {\n";
@@ -1046,7 +1174,7 @@ void SamplePlugin::latexPlotError(ofstream & file, const string & name){
 		 //<< "	\\tikzset{every mark/.append style={scale=0.5}}\n"
 		 << "	\\begin{tikzpicture}\n"
 		 << "		\\begin{axis}[height=9cm, width=\\textwidth, grid=major,\n"
-		 << "		xlabel={Step},ylabel={Rad}\n"
+		 << "		xlabel={T[s]},ylabel={Pixels}\n"
 		 << "		]\n"
 		 << "			\\addplot [color=Turquoise, mark=o] coordinates {\n"
 		 << "				%Insert data here\n"
