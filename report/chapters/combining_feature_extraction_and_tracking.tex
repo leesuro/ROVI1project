@@ -1,4 +1,3 @@
-%\input{chapters/plots}
 \input{data/color/qRobotColorMedium.tex}
 \input{data/color/speedColorMedium.tex}
 \input{data/color/cameraPoseColorMedium.tex}
@@ -11,41 +10,76 @@
 
 \chapter{Combining feature extraction and tracking} % (fold)
 \label{chap:combining_feature_extraction_and_tracking}
+	In the chapter \ref{chap:tracking_points_using_the_image_jacobian} a point in the marker's frame was used as a reference to follow it, while in the chapter \ref{chap:feature_extraction} the images are analyzed so some points are extracted. 
+	In this chapter, the combining process is presented.
 
-	\ifx \plots \yes
-		\qRobotColorMediumPlot
-	\fi
+	Two test have been carried out, the corny's marker (\ref{sec:dot_s_marker}) and the dots' marker (\ref{sec:dot_s_marker}), and both has been tested with only one point tracking.
+	For both test the experimental results of robot's state, robot's speed and the error produced in the tracking are going to be presented to finish with some conclusions.
 
-	\ifx \plots \yes
-		\speedColorMediumPlot
-	\fi
+	For both test, the points has been adapted to the inverse kinematics developed in the previous chapter and the method used to calculate $\Delta T$ has been use the class $Timer$ from RobWork to measure the total time of the feature extraction process. This time is finally used to calculate the average time to have an estimation of the loop's time quality.
 
-	\ifx \plots \yes
-		\cameraPoseColorMediumPlot
-	\fi
+	\section{Dot's marker} % (fold)
+	\label{sec:dot_s_marker}
+		The average time in this case has been 24.0818 $ms$ than, added to the proximately 1 $ms$ of the inverse kinematics calculation gives about 25 $ms$. 
+		This is under the 50 $ms$ stated as the minimum $\Delta T$ in the report so this has been the election for the experiments. 
+		The results presented are for the test in medium marker's speed for the robot's state and speed, and all the speed for the error. 
+		In the figure \ref{fig:qRobotColorMediumPlot} the robot's state is shown and in the figure \ref{fig:speedColorMediumPlot} the same is done with the robot's speed. This two plots shown, if possible, the limits of the joints and speed limits. Lastly, the error is plotted in the figure \ref{fig:errorColorPlot}.
+		
+		\ifx \plots \yes
+			\qRobotColorMediumPlot
+		\fi
 
-	\ifx \plots \yes
-		\errorColorPlot
-	\fi
+		\ifx \plots \yes
+			\speedColorMediumPlot
+		\fi
 
-	\ifx \plots \yes
-		\qRobotCornyMediumPlot
-	\fi
+		\ifx \plots \yes
+			\errorColorPlot
+		\fi
 
-	\ifx \plots \yes
-		\speedCornyMediumPlot
-	\fi
+		The first observation related with the figures \ref{fig:qRobotColorMediumPlot} and \ref{fig:speedColorMediumPlot} is that non of the links reach theirs limits. 
+		In the robot's state can be seen the limit of the link 2, but this is really far form the actual movement. 
+		Furthermore, the velocity limits, expressed in degrees per second, are almost in another order of magnitude. This has happens in all the marker's speed tested in spite of only the medium is shown.
 
-	\ifx \plots \yes
-		\cameraPoseCornyMediumPlot
-	\fi
+		Regarding the error there are few comments two make, and specially compared with the periodicity found in the section \ref{chap:tracking_points_using_the_image_jacobian}'s errors. 
+		The errors in the previous section showed an second order dynamic system and here more or less the same patron is found. 
+		There is a jump, that is compensated during the time, but this compensation is much irregular. 
+		However the peaks are more or less the same so we consider that this irregularity comes from small errors during the feature extraction that, added to the inverse kinematics error, generates this abnormal patron. 
+		Also, in general the errors in the Y axis are smaller than in the X coordinate due to the predominance in this last axis.
 
-	\ifx \plots \yes
-		\errorCornyPlot
-	\fi
+		It is also important to notice that we have found some problems when tracking with different backgrounds. 
+		For this we have developed a method that can consider a dQ good or bad. 
+		If this dQ is bigger than a possible movement consider by the user, the movement is discarded and the previous movement is repeated. 
+		This has resulted to be a great technique because there are very few direction changes, what means that possibly the next movement will copy the previous one. Also, for the dumping has been reduced multiplying by a factor around 97\%.
 
-Average time for color extraction: 24.0818 [ms]
+		This can also be found in the speed's figure where the accommodation is shown better. 
+		Some estrange cases are shown in this plot and we explain them based on the irregularity of the feature's extraction time. 
+		Depending on the CPU's load it gives a different $\tau$ that affects to the intermediately speed calculation.
+	% section dot_s_marker (end)
 
-Average time for corny extraction: 380.667 [ms]
+	\section{Corny's marker} % (fold)
+	\label{sec:corny_s_marker}
+		The average time for the corny extraction has been 380.667 $ms$. A $\Delta T$ of 700 $ms$ has been chosen based on different test. 
+		As explained before, depending on the CPU's load the feature's extraction time changed over the time.
+		We found this value be a good balance between no lost of the marker and speed.
 
+		As previously, in the figure \ref{fig:qRobotCornyMediumPlot} the robot's state is shown and in the figure \ref{fig:speedCornyMediumPlot} the same is done with the robot's speed. This two plots shown, if possible, the limits of the joints and speed limits. Lastly, the error is plotted in the figure \ref{fig:errorCornyPlot}.
+
+		\ifx \plots \yes
+			\qRobotCornyMediumPlot
+		\fi
+
+		\ifx \plots \yes
+			\speedCornyMediumPlot
+		\fi
+
+		\ifx \plots \yes
+			\errorCornyPlot
+		\fi
+
+		The results explained before are similar to these with some appreciations. First, the error is bigger especially at the end. This is because of the non-homogeneity in the feature extraction point. This small variances cause accumulative error over the inverse kinematics that, at the end, generates great vibrations in the robot.
+		This is perfectly shown in the velocity plot where, at the end a lot of jumps and irregularities can be seen.
+
+		The same technique of error correction has been used but we have found this feature extraction much more stable than the previous one. On the other hand is much much slower and no so exact.
+	% section corny_s_marker (end)
 % chapter combining_feature_extraction_and_tracking (end)
