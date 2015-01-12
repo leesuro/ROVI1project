@@ -19,8 +19,6 @@ using namespace cv;
 using namespace std;
 
 
-void readme();
-
 /** @function main */
 int main() {
 	std::string scene_addr;
@@ -28,17 +26,17 @@ int main() {
 	SurfDescriptorExtractor extractor;
 
 	Mat descriptors_object, descriptors_scene;
-	 struct timespec t2, t3;
-	    double dt1;
+	struct timespec t2, t3;
+	double dt1;
 	int cnti;
-	Mat img_object =
+	Mat img_marker =
 			imread(
 					"/home/pyc/workspace/ROVI1project/src/SamplePluginPA10/markers/Marker3.ppm",
 					CV_LOAD_IMAGE_GRAYSCALE);
 	Mat img_scene;
 
 	for (cnti = 1; cnti < 50; cnti++) {
-		  clock_gettime(CLOCK_MONOTONIC,  &t2);
+		clock_gettime(CLOCK_MONOTONIC, &t2);
 		sstm.str("");
 		std::cout << cnti << std::endl;
 		if (cnti < 10)
@@ -58,33 +56,32 @@ int main() {
 
 		img_scene = imread(scene_addr, CV_LOAD_IMAGE_GRAYSCALE);
 
-
-		if (!img_object.data || !img_scene.data) {
+		if (!img_marker.data || !img_scene.data) {
 			std::cout << " --(!) Error reading images " << std::endl;
 			return -1;
 		}
 
-
 		int hessianThresh = 1000;
-
+		double max_dist = 0;
+		double min_dist = 80;
 		SurfFeatureDetector detector(hessianThresh);
-		std::vector<KeyPoint> keypoints_object, keypoints_scene;
+		vector<KeyPoint> keypoints_object, keypoints_scene;
+		FlannBasedMatcher matcher;
+		vector<DMatch> matches, good_matches;
+		Mat img_matches, H;
+		vector<Point2f> marker_corners(4), scene_corners(4), obj, scene;
 
 		//Key points detection
-		detector.detect(img_object, keypoints_object);
+		detector.detect(img_marker, keypoints_object);
 		detector.detect(img_scene, keypoints_scene);
 
 		//Calculate descriptors (feature vectors)
-		extractor.compute(img_object, keypoints_object, descriptors_object);
+		extractor.compute(img_marker, keypoints_object, descriptors_object);
 		extractor.compute(img_scene, keypoints_scene, descriptors_scene);
 
 		// Matching descriptor vectors using FLANN matcher
-		FlannBasedMatcher matcher;
-		std::vector<DMatch> matches;
-		matcher.match(descriptors_object, descriptors_scene, matches);
 
-		double max_dist = 0;
-		double min_dist = 100;
+		matcher.match(descriptors_object, descriptors_scene, matches);
 
 		//-- Quick calculation of max and min distances between keypoints
 		for (int i = 0; i < descriptors_object.rows; i++) {
@@ -95,11 +92,10 @@ int main() {
 				max_dist = dist;
 		}
 
-		printf("-- Max dist : %f \n", max_dist);
-		printf("-- Min dist : %f \n", min_dist);
+		cout << "-- Max dist :" << min_dist << endl;
+		cout << "-- Max dist :" << min_dist << endl;
 
-		//-- Draw only good matches 
-		std::vector<DMatch> good_matches;
+		//-- Filter good matches
 
 		for (int i = 0; i < descriptors_object.rows; i++) {
 			if (matches[i].distance < 3 * min_dist) {
@@ -107,14 +103,12 @@ int main() {
 			}
 		}
 
-		Mat img_matches=img_scene;
-		drawMatches(img_object, keypoints_object, img_scene, keypoints_scene,
+		img_matches = img_scene;
+		drawMatches(img_marker, keypoints_object, img_scene, keypoints_scene,
 				good_matches, img_matches, Scalar::all(-1), Scalar::all(-1),
 				vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
 
-		//-- Localize the object
-		std::vector<Point2f> obj;
-		std::vector<Point2f> scene;
+		// Find the object
 
 		for (unsigned int i = 0; i < good_matches.size(); i++) {
 			//-- Get the keypoints from the good matches
@@ -122,36 +116,33 @@ int main() {
 			scene.push_back(keypoints_scene[good_matches[i].trainIdx].pt);
 		}
 
-		Mat H = findHomography(obj, scene, CV_RANSAC);
+		H = findHomography(obj, scene, CV_RANSAC);
 
 		//-- Get the corners from the image_1 ( the object to be "detected" )
-		std::vector<Point2f> obj_corners(4);
-		obj_corners[0] = cvPoint(0, 0);
-		obj_corners[1] = cvPoint(img_object.cols, 0);
-		obj_corners[2] = cvPoint(img_object.cols, img_object.rows);
-		obj_corners[3] = cvPoint(0, img_object.rows);
-		std::vector<Point2f> scene_corners(4);
 
-		perspectiveTransform(obj_corners, scene_corners, H);
+		marker_corners[0] = cvPoint(0, 0);
+		marker_corners[1] = cvPoint(img_marker.cols, 0);
+		marker_corners[2] = cvPoint(img_marker.cols, img_marker.rows);
+		marker_corners[3] = cvPoint(0, img_marker.rows);
 
-		//-- Draw lines between the corners (the mapped object in the scene - image_2 )
+		perspectiveTransform(marker_corners, scene_corners, H);
+
+		//-- Draw detected marker borders
 		//line(img_matches, scene_corners[0],	scene_corners[1] , Scalar(0, 255, 0), 4);
 		//line(img_matches, scene_corners[1],	scene_corners[2] , Scalar(0, 255, 0), 4);
 		//line(img_matches, scene_corners[2],	scene_corners[3] , Scalar(0, 255, 0), 4);
 		//line(img_matches, scene_corners[3],	scene_corners[0] , Scalar(0, 255, 0), 4);
-		//circle(img_matches,<Scalar>(scene_corners[0].x+img_object.cols, scene_corners[0].y+img_object.rows),5, Scalar(0,255,0));
+		//circle(img_matches,<Scalar>(scene_corners[0].x+img_marker.cols, scene_corners[0].y+img_marker.rows),5, Scalar(0,255,0));
 		//-- Show detected matches
 		imshow("Good Matches & Object detection", img_matches);
-		clock_gettime(CLOCK_MONOTONIC,  &t3);
-		 dt1 = (t3.tv_sec - t2.tv_sec) + (double) (t3.tv_nsec - t2.tv_nsec) * 1e-9;
-		cout << "elapsed time: " << dt1		<< " s  "  << endl;
+		clock_gettime(CLOCK_MONOTONIC, &t3);
+		dt1 = (t3.tv_sec - t2.tv_sec)
+				+ (double) (t3.tv_nsec - t2.tv_nsec) * 1e-9;
+		cout << "elapsed time: " << dt1 << " s  " << endl;
 		waitKey(0);
 
 	}
 	return 0;
 }
 
-/** @function readme */
-void readme() {
-	std::cout << " Usage: ./SURF_descriptor <img1> <img2>" << std::endl;
-}
+
