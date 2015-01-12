@@ -12,40 +12,44 @@ First, the input of the coordinates has been adapted for receive the OpenCV poin
 Despite it's possible to track three points, the algorithms developed for the feature extraction only return one point, so this three-point tracking has been only tested following the marker's frame. 
 For this reason, only the experiments and conclusions with one-point tracking are going to be presented.
 
-For the marker's frame tracking four sets of data are presented. 
-First, the state of the robot (Q), second the robot's speed, third the camera's pose, and forth the error obtained between the real frame movement and the calculated from the camera.
 
-It is a requirement show when the robot lost the marker but in all this cases the robot was able to track the marker and no over-speed was reached. 
-For the Q and the camera's pose only the data from the medium-speed marker is going to be shown. 
-This is due to the results are the same for all the speeds but in the medium there is the best balance between quantity and quality information.
-In the figure \ref{fig:qRobotTrackingMediumPlot} the robot's state is presented while the same is done in the figure \ref{fig:speedTrackingMediumPlot} with the robot's speed while in the figure \ref{fig:cameraPoseTrackingMediumPlot} is the case of the camera's pose.
+\section{Marker's frame} % (fold)
+\label{sec:marker_s_frame}
+	For the marker's frame tracking four sets of data are presented. 
+	First, the state of the robot (Q), second the robot's speed, third the camera's pose, and forth the error obtained between the real frame movement and the calculated from the camera.
 
-	\ifx \plots \yes
-		\qRobotTrackingMediumPlot
-	\fi
-	\ifx \plots \yes
-		\speedTrackingMediumPlot
-	\fi
-	\ifx \plots \yes
-		\cameraPoseTrackingMediumPlot
-	\fi
+	It is a requirement show when the robot lost the marker but in all this cases the robot was able to track the marker and no over-speed was reached. 
+	For the Q and the camera's pose only the data from the medium-speed marker is going to be shown. 
+	This is due to the results are the same for all the speeds but in the medium there is the best balance between quantity and quality information.
+	In the figure \ref{fig:qRobotTrackingMediumPlot} the robot's state is presented while the same is done in the figure \ref{fig:speedTrackingMediumPlot} with the robot's speed and in the figure \ref{fig:cameraPoseTrackingMediumPlot} is the case of the camera's pose.
 
-Both plots suggest smooth movements of the robot what can explain that the maximum velocities are not reached. It is importante to notice the jump from positive to negative in the R angle of the camera's pose. This is not a mistake and just means that a complete turn has been given.
+		\ifx \plots \yes
+			\qRobotTrackingMediumPlot
+		\fi
+		\ifx \plots \yes
+			\speedTrackingMediumPlot
+		\fi
+		\ifx \plots \yes
+			\cameraPoseTrackingMediumPlot
+		\fi
 
-Lastly, the error is calculated as the difference between the real movement gotten from the data sets given and the movement calculated for a point seen from the virtual camera.
-This error occurs in the X and Y coordinates and it differs depending on the velocity's marker so all the errors are different and the results are presented in the figure \ref{fig:errorTrackingPlot}.
+	All the plots suggest smooth movements of the robot what can explain that the maximum velocities are not reached. It is important to notice the jump from positive to negative in the R angle of the camera's pose. This is not a mistake and just means that a complete turn has been given.
 
-	\ifx \plots \yes
-		\errorTrackingPlot
-	\fi
-	
-In the figure \ref{fig:errorTrackingPlot} can be distinguished different areas depending on the speed that are differentiated with a jump between them. 
-This areas correspond with a change in the direction of the robot and they show how the robot "vibrate" until the desired position is reached.
+	Lastly, the error is calculated as the difference between the real movement gotten from the data sets given and the movement calculated for a point seen from the virtual camera.
+	This error occurs in the X and Y coordinates and it differs depending on the velocity's marker so all the errors are different and the results are presented in the figure \ref{fig:errorTrackingPlot}.
 
-The figure shows how the error has a natural damping that finally converge in a stable value. This is a second order dynamic system that has a characteristic stabilization time and dumping ratio. What can be deduced from the data is that, for a faster speed the errors are bigger as the stabilization time. While in the fast movements the error reach almost the 60 pixels of error, in the slow movement it is under ten. Also, related with the stabilization time, only the slow movements reach an stable value before change the direction.
+		\ifx \plots \yes
+			\errorTrackingPlot
+		\fi
+		
+	In the figure \ref{fig:errorTrackingPlot} can be distinguished different areas depending on the speed, that are differentiated with a jump between them. 
+	This areas correspond with a change in the direction of the robot and they show how the robot "vibrate" until the desired position is reached.
 
-This dumping has been controlled from the code multiplying the dQ by a percentage. The experiments results show that the dumping is heavily controlled if a 95\% is applied but this makes the robots move less than expected. We have found a good balance between achieve objectives and stabilize the robot in a 97\% of dQ applied.
+	The figure shows how the error has a natural damping that finally converge in a stable value. This is a second order dynamic system that has a characteristic stabilization time and dumping ratio. What can be deduced from the data is that, for a faster speed the errors are bigger along with the stabilization time. While in the fast movements the error reach almost the 60 pixels of error, in the slow movement it is under 10. Also, related with the stabilization time, only the slow movements reach an stable value before change the direction.
 
-In the speed figure is easily an better appreciated this effect and how the compensation is done.
+	This dumping has been controlled from the code multiplying the dQ by a percentage. The experiments results show that the dumping is heavily controlled if a 95\% is applied but this makes the robots move less than expected. We have found a good balance between achieve objectives and stabilize the robot in a 97\% of dQ applied.
+
+	In the speed figure is easily an better appreciated this effect and how the compensation is done.
+	% section marker_s_frame (end)
 
 % chapter tracking_points_using_the_image_jacobian (end)
